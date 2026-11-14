@@ -1,0 +1,73 @@
+export default function BrandLogo({
+  variant = 'full', // 'full' | 'pin' | 'squircle' | 'rider'
+  size = 'md', // 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  className = '',
+  showText = true,
+}) {
+  const iconSizes = {
+    xs: 'h-6 w-auto',
+    sm: 'h-8 w-auto',
+    md: 'h-10 w-auto',
+    lg: 'h-12 w-auto',
+    xl: 'h-16 w-auto',
+  };
+
+  const textSizes = {
+    xs: 'text-base',
+    sm: 'text-lg',
+    md: 'text-xl',
+    lg: 'text-2xl',
+    xl: 'text-3xl',
+  };
+
+  if (variant === 'squircle') {
+    return (
+      <img
+        src="/app-icon-squircle.png"
+        alt="Cravecourier App Icon"
+        className={`${iconSizes[size] || iconSizes.md} rounded-2xl shadow-sm object-contain ${className}`}
+      />
+    );
+  }
+
+  if (variant === 'rider') {
+    return (
+      <img
+        src="/crave-courier-rider.png"
+        alt="Cravecourier Rider"
+        className={`${iconSizes[size] || iconSizes.md} object-contain ${className}`}
+      />
+    );
+  }
+
+  if (variant === 'pin') {
+    return (
+      <img
+        src="/crave-courier-pin.png"
+        alt="Cravecourier Badge"
+        className={`${iconSizes[size] || iconSizes.md} object-contain ${className}`}
+      />
+    );
+  }
+
+  // Default 'full' variant: Icon + "Cravecourier" typography matching the brand sheet
+  return (
+    <div className={`flex items-center space-x-2.5 ${className}`}>
+      <img
+        src="/crave-courier-pin.png"
+        alt="Cravecourier"
+        className={`${iconSizes[size] || iconSizes.md} object-contain flex-shrink-0 transition-transform duration-200 group-hover:scale-105`}
+      />
+      {showText && (
+        <span
+          className={`font-black tracking-tight font-heading leading-none ${
+            textSizes[size] || textSizes.md
+          }`}
+        >
+          <span className="text-[#FF541E]">Crave</span>
+          <span className="text-neutral-900 dark:text-slate-100">courier</span>
+        </span>
+      )}
+    </div>
+  );
+}

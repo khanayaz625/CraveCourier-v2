@@ -1,0 +1,55 @@
+services:
+  # 1. Crave Backend API & WebSockets (Render Web Service)
+  - type: web
+    name: crave-server
+    env: node
+    plan: standard
+    rootDir: server
+    buildCommand: npm ci --omit=dev
+    startCommand: node src/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_CURRENCY
+        value: usd
+
+  # 2. Crave PWA Frontend (Render Static Site)
+  - type: web
+    name: crave-client
+    env: static
+    rootDir: client
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_APP_NAME
+        value: Crave
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_SOCKET_URL
+        sync: false
+      - key: VITE_STRIPE_PUBLIC_KEY
+        sync: false
+

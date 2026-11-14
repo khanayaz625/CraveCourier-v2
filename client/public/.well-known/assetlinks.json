@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.crave.app",
+      "sha256_cert_fingerprints": [
+        "E5:2F:98:B4:4D:23:6B:8F:90:31:4A:21:5C:8B:E7:F4:02:18:93:7B:64:91:30:4A:E9:12:87:3F:89:12:4D:5E"
+      ]
+    }
+  }
+]
+

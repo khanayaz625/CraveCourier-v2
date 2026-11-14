@@ -1,0 +1,50 @@
+{
+  "packageId": "com.crave.app",
+  "host": "crave-delivery.com",
+  "name": "Crave Food & Grocery Delivery",
+  "launcherName": "Crave",
+  "themeColor": "#FF6B35",
+  "navigationColor": "#FFFFFF",
+  "backgroundColor": "#FFFFFF",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://crave-delivery.com/icons/pwa-512x512.png",
+  "maskableIconUrl": "https://crave-delivery.com/icons/maskable-icon-512x512.png",
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "signingKey": {
+    "path": "./crave-release-key.keystore",
+    "alias": "crave-key"
+  },
+  "splashScreenFadeOutDuration": 300,
+  "enableSiteSettingsShortcut": true,
+  "shortcuts": [
+    {
+      "name": "Order Hot Food",
+      "shortName": "Food",
+      "url": "/products?type=food",
+      "icon": "https://crave-delivery.com/icons/pwa-192x192.png"
+    },
+    {
+      "name": "Fresh Groceries",
+      "shortName": "Grocery",
+      "url": "/products?type=grocery",
+      "icon": "https://crave-delivery.com/icons/pwa-192x192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://crave-delivery.com/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {
+    "playBilling": {
+      "enabled": false
+    },
+    "locationDelegation": {
+      "enabled": true
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  }
+}
+
