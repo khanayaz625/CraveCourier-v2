@@ -358,6 +358,23 @@ export const updateProduct = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc   Delete product
+ * @route  DELETE /api/products/:id
+ * @access Admin, Vendor
+ */
+export const deleteProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const product = await Product.findByIdAndDelete(id);
+
+  if (!product) {
+    throw new ApiError(404, 'Product not found to delete');
+  }
+
+  return res.status(200).json(new ApiResponse(200, { id }, 'Product deleted successfully'));
+});
+
+/**
  * @desc   Export all products as CSV
  * @route  GET /api/products/export/csv
  * @access Public / Admin
