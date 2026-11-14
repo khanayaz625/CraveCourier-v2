@@ -19,11 +19,11 @@ export default function FloatingCartButton() {
   return (
     <aside
       aria-label="Floating Cart Summary"
-      className="fixed z-40 bottom-20 md:bottom-8 right-4 md:right-8 transition-transform duration-300 animate-pop"
+      className="fixed z-40 bottom-20 md:bottom-8 right-3 md:right-8 transition-transform duration-300 animate-pop"
     >
       <Link
         to="/cart"
-        className="touch-target group flex items-center space-x-3 bg-gradient-to-r from-brand-500 via-brand-600 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white pl-4 pr-5 py-3 rounded-full shadow-float hover:shadow-glow transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
+        className="touch-target group flex items-center space-x-2.5 sm:space-x-3 bg-gradient-to-r from-brand-500 via-brand-600 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white pl-3.5 pr-4 sm:pl-4 sm:pr-5 py-2.5 sm:py-3 rounded-full shadow-float hover:shadow-glow transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
       >
         {/* Quantity Badge */}
         <div className="relative flex items-center justify-center h-8 w-8 rounded-full bg-white/20 backdrop-blur-md">

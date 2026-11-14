@@ -8,9 +8,9 @@ export default function WishlistPage() {
   const clearWishlist = useWishlistStore((state) => state.clearWishlist);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-6 pb-28 md:pb-12">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-neutral-200 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 pb-4 border-b border-neutral-200 dark:border-slate-800">
         <div>
           <Link
             to="/products"
@@ -19,12 +19,12 @@ export default function WishlistPage() {
             <ArrowLeft className="h-4 w-4" />
             Continue Shopping
           </Link>
-          <div className="flex items-center gap-2">
-            <Heart className="h-6 w-6 text-rose-500 fill-rose-500" />
-            <h1 className="text-2xl sm:text-3xl font-black font-heading text-neutral-900 dark:text-slate-100">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-rose-500 fill-rose-500" />
+            <h1 className="text-xl sm:text-2xl font-black font-heading text-neutral-900 dark:text-slate-100">
               My Saved Wishlist
             </h1>
-            <span className="ml-2 px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400">
+            <span className="ml-1 sm:ml-2 px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400">
               {items.length} {items.length === 1 ? 'item' : 'items'}
             </span>
           </div>
@@ -34,9 +34,9 @@ export default function WishlistPage() {
           <button
             type="button"
             onClick={clearWishlist}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900 transition-colors"
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900 transition-colors"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3.5 w-3.5" />
             Clear Wishlist
           </button>
         )}

@@ -30,7 +30,7 @@ export default function FilterDrawer({
 
       {/* Drawer Container */}
       <div
-        className={`fixed inset-y-0 right-0 w-full max-w-xs bg-white shadow-2xl z-50 flex flex-col justify-between transform transition-transform duration-300 ease-in-out lg:static lg:w-64 lg:shadow-none lg:border lg:border-neutral-200/80 lg:rounded-2xl lg:transform-none lg:z-auto ${
+        className={`fixed inset-y-0 right-0 w-full max-w-[85vw] sm:max-w-xs bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col justify-between transform transition-transform duration-300 ease-in-out lg:static lg:w-64 lg:shadow-none lg:border lg:border-neutral-200/80 dark:lg:border-slate-800 lg:rounded-2xl lg:transform-none lg:z-auto ${
           isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
         }`}
       >

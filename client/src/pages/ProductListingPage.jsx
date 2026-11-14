@@ -114,17 +114,17 @@ export default function ProductListingPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
       {/* Search Header Row */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         <div className="w-full sm:max-w-md">
           <SearchBar placeholder="Search Indian groceries, pulses, spices..." initialValue={search} />
         </div>
 
         {/* Mobile Filter Toggle & Sort Dropdown */}
-        <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2.5">
+        <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2">
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="lg:hidden flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-neutral-800 dark:text-slate-200 shadow-xs"
+            className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-neutral-800 dark:text-slate-200 shadow-xs flex-shrink-0"
           >
             <Filter className="h-4 w-4 text-emerald-600" />
             <span>Filters</span>
@@ -164,12 +164,12 @@ export default function ProductListingPage() {
           </div>
 
           {/* Sort Selector */}
-          <div className="flex items-center space-x-1.5 bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 rounded-2xl px-3 py-1.5 shadow-xs">
-            <ArrowUpDown className="h-3.5 w-3.5 text-neutral-400" />
+          <div className="flex-1 sm:flex-none flex items-center space-x-1.5 bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 rounded-2xl px-3 py-2 sm:py-1.5 shadow-xs">
+            <ArrowUpDown className="h-3.5 w-3.5 text-neutral-400 flex-shrink-0" />
             <select
               value={sort}
               onChange={(e) => handleFilterChange('sort', e.target.value)}
-              className="text-xs font-semibold text-neutral-800 dark:text-slate-200 bg-transparent border-none outline-none cursor-pointer pr-2"
+              className="w-full text-xs font-semibold text-neutral-800 dark:text-slate-200 bg-transparent border-none outline-none cursor-pointer pr-1"
               aria-label="Sort products by"
             >
               <option value="popular">Most Popular</option>
@@ -186,11 +186,11 @@ export default function ProductListingPage() {
 
       {/* Horizontal Scrollable Category Bar (All 19 Categories) */}
       <div className="relative">
-        <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1">
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             type="button"
             onClick={() => handleFilterChange('category', 'all')}
-            className={`flex-shrink-0 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all ${
+            className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl text-[11px] sm:text-xs font-bold transition-all ${
               category === 'all'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
                 : 'bg-white dark:bg-slate-900 text-neutral-700 dark:text-slate-300 border border-neutral-200 dark:border-slate-800 hover:border-emerald-300'
@@ -203,7 +203,7 @@ export default function ProductListingPage() {
               key={c.slug}
               type="button"
               onClick={() => handleFilterChange('category', c.slug)}
-              className={`flex-shrink-0 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all ${
+              className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl text-[11px] sm:text-xs font-bold transition-all ${
                 category === c.slug
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
                   : 'bg-white dark:bg-slate-900 text-neutral-700 dark:text-slate-300 border border-neutral-200 dark:border-slate-800 hover:border-emerald-300'

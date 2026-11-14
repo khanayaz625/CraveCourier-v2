@@ -145,7 +145,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10 space-y-6">
+    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10 space-y-6 pb-28 md:pb-12">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -158,7 +158,7 @@ export default function OrdersPage() {
         </div>
 
         {/* Status Filter Tabs */}
-        <div className="flex items-center bg-white p-1 rounded-2xl border border-neutral-200 shadow-xs self-start">
+        <div className="flex items-center overflow-x-auto no-scrollbar max-w-full bg-white p-1 rounded-2xl border border-neutral-200 shadow-xs self-start">
           {[
             { id: 'all', label: 'All' },
             { id: 'active', label: 'Active' },
@@ -168,7 +168,7 @@ export default function OrdersPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 activeTab === tab.id
                   ? 'bg-brand-500 text-white shadow-xs'
                   : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'

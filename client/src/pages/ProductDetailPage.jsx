@@ -273,8 +273,8 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Quantity Stepper & Add to Cart */}
-          <div className="flex items-center space-x-3 pt-2">
-            <div className="flex items-center border border-neutral-300 dark:border-slate-700 rounded-2xl p-1 bg-white dark:bg-slate-900 shadow-xs">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+            <div className="flex items-center justify-between sm:justify-center border border-neutral-300 dark:border-slate-700 rounded-2xl p-1 bg-white dark:bg-slate-900 shadow-xs">
               <button
                 type="button"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -283,7 +283,7 @@ export default function ProductDetailPage() {
               >
                 <Minus className="h-4 w-4" />
               </button>
-              <span className="w-10 text-center font-bold text-sm text-neutral-900 dark:text-slate-100">
+              <span className="w-12 text-center font-bold text-sm text-neutral-900 dark:text-slate-100">
                 {quantity}
               </span>
               <button
@@ -299,7 +299,7 @@ export default function ProductDetailPage() {
             <button
               type="button"
               onClick={handleAddToCart}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl font-bold text-sm shadow-md transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm shadow-md transition-all active:scale-98 ${
                 added
                   ? 'bg-emerald-500 text-white shadow-emerald-500/20'
                   : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
@@ -330,12 +330,12 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Delivery & Assurance Perks */}
-          <div className="grid grid-cols-2 gap-3 pt-2 text-[11px] text-neutral-600 dark:text-slate-400">
-            <div className="flex items-center space-x-2 p-3 rounded-2xl bg-neutral-50 dark:bg-slate-900 border border-neutral-100 dark:border-slate-800">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 text-xs text-neutral-600 dark:text-slate-400">
+            <div className="flex items-center space-x-2.5 p-3 rounded-2xl bg-neutral-50 dark:bg-slate-900 border border-neutral-100 dark:border-slate-800">
               <Truck className="h-4 w-4 text-emerald-600 flex-shrink-0" />
               <span>Free Delivery within 1km &bull; Express Dispatch</span>
             </div>
-            <div className="flex items-center space-x-2 p-3 rounded-2xl bg-neutral-50 dark:bg-slate-900 border border-neutral-100 dark:border-slate-800">
+            <div className="flex items-center space-x-2.5 p-3 rounded-2xl bg-neutral-50 dark:bg-slate-900 border border-neutral-100 dark:border-slate-800">
               <ShieldCheck className="h-4 w-4 text-emerald-600 flex-shrink-0" />
               <span>100% Genuine Sealed Quality Guaranteed</span>
             </div>

@@ -138,7 +138,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="flex items-center space-x-3 overflow-x-auto pb-2 scrollbar-none">
+        <div className="flex items-center space-x-2.5 sm:space-x-3 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
           <Link
             to="/products"
             className="flex-shrink-0 touch-target flex items-center space-x-2 bg-brand-500 text-white rounded-full px-5 py-2 font-bold text-xs shadow-md shadow-brand-500/20 hover:bg-brand-600 transition-all hover:scale-105"

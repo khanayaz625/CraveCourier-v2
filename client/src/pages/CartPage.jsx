@@ -109,15 +109,15 @@ export default function CartPage() {
       </div>
 
       {/* Delivery Rule Banner (1km Free, >1km ₹20, 0% Tax) */}
-      <div className="p-4 rounded-3xl bg-gradient-to-r from-emerald-50 via-brand-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 border border-emerald-200/80 dark:border-slate-700 shadow-soft space-y-2">
-        <div className="flex items-center justify-between text-xs">
+      <div className="p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-emerald-50 via-brand-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 border border-emerald-200/80 dark:border-slate-700 shadow-soft">
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between text-xs">
           <span className="font-bold text-neutral-800 dark:text-slate-200 flex items-center gap-2">
-            <Truck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <Truck className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
             <span>
               <strong className="text-emerald-700 dark:text-emerald-300">FREE Delivery</strong> within 1 km &bull; Flat <strong className="text-neutral-900 dark:text-white">₹20</strong> beyond 1 km &bull; <strong className="text-brand-600">0% Tax</strong> (No hidden fees)
             </span>
           </span>
-          <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded-full">
+          <span className="self-start sm:self-auto text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950 px-2.5 py-0.5 rounded-full">
             Transparent Pricing
           </span>
         </div>
@@ -136,16 +136,16 @@ export default function CartPage() {
             return (
               <div
                 key={product._id}
-                className="bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800 p-4 flex items-center justify-between gap-3 shadow-soft hover:shadow-card transition-all"
+                className="bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800 p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-soft hover:shadow-card transition-all"
               >
                 {/* Product Thumbnail & Names */}
-                <div className="flex items-center space-x-3.5 min-w-0">
+                <div className="flex items-center space-x-3 sm:space-x-3.5 min-w-0">
                   <img
                     src={product.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'}
                     alt={product.name}
                     className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-cover bg-neutral-100 dark:bg-slate-800 flex-shrink-0"
                   />
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center space-x-2">
                       <span
                         className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${
@@ -158,7 +158,9 @@ export default function CartPage() {
                       </h3>
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[11px] text-neutral-400 dark:text-slate-400">{product.unit}</span>
+                      <span className="text-[11px] text-neutral-400 dark:text-slate-400">
+                        {item.selectedVariant?.size || product.unit}
+                      </span>
                       <span
                         className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded ${
                           isGrocery ? 'bg-grocery-100 dark:bg-grocery-950/60 text-grocery-700 dark:text-grocery-300' : 'bg-brand-100 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300'
@@ -176,10 +178,20 @@ export default function CartPage() {
                       )}
                     </p>
                   </div>
+
+                  {/* Mobile Trash Icon on top-right */}
+                  <button
+                    type="button"
+                    onClick={() => removeItem(product._id)}
+                    className="sm:hidden p-1.5 text-neutral-300 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                    title="Remove item"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
 
                 {/* Quantity Controls & Item Subtotal */}
-                <div className="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
+                <div className="flex items-center justify-between sm:justify-end space-x-3 sm:space-x-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-neutral-100 dark:border-slate-800 flex-shrink-0">
                   <div className="flex items-center border border-neutral-200 dark:border-slate-700 rounded-2xl bg-neutral-50 dark:bg-slate-800/80 p-0.5">
                     <button
                       type="button"
@@ -202,18 +214,19 @@ export default function CartPage() {
                     </button>
                   </div>
 
-                  <span className="text-xs sm:text-sm font-black text-neutral-900 dark:text-slate-100 w-16 text-right">
-                    ₹{subtotal % 1 === 0 ? subtotal : subtotal.toFixed(2)}
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={() => removeItem(product._id)}
-                    className="touch-target p-1.5 text-neutral-300 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
-                    title="Remove item"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-xs sm:text-sm font-black text-neutral-900 dark:text-slate-100 min-w-[50px] text-right">
+                      ₹{subtotal % 1 === 0 ? subtotal : subtotal.toFixed(2)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(product._id)}
+                      className="hidden sm:inline-flex touch-target p-1.5 text-neutral-300 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                      title="Remove item"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -330,9 +343,9 @@ export default function CartPage() {
               )}
             </div>
 
-            <div className="pt-3.5 border-t border-neutral-200 dark:border-slate-800 flex justify-between items-baseline">
-              <div>
-                <span className="text-xs font-bold text-neutral-500 dark:text-slate-400 block">Grand Total</span>
+            <div className="pt-3.5 border-t border-neutral-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-3">
+              <div className="flex items-baseline justify-between sm:block">
+                <span className="text-xs font-bold text-neutral-500 dark:text-slate-400 block sm:mb-0.5">Grand Total</span>
                 <span className="text-2xl font-black text-neutral-900 dark:text-slate-100 font-heading">
                   ₹{totals.grandTotal % 1 === 0 ? totals.grandTotal : totals.grandTotal.toFixed(2)}
                 </span>
@@ -341,7 +354,7 @@ export default function CartPage() {
               <button
                 type="button"
                 onClick={handleProceedToCheckout}
-                className="touch-target flex items-center gap-2 py-3 px-6 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white font-bold text-xs sm:text-sm shadow-glow transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="touch-target w-full sm:w-auto flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white font-bold text-sm shadow-glow transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Proceed to Checkout</span>
                 <ArrowRight className="h-4 w-4" />

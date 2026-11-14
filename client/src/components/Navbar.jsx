@@ -91,7 +91,7 @@ export default function Navbar() {
           >
             <Heart className="h-5 w-5" />
             {wishlistCount > 0 && (
-              <span className="absolute top-1 right-1 h-5 w-5 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
                 {wishlistCount}
               </span>
             )}
@@ -106,7 +106,7 @@ export default function Navbar() {
           >
             <ShoppingBag className="h-5 w-5" />
             {cartItemCount > 0 && (
-              <span className="absolute 1 top-1 right-1 h-5 w-5 rounded-full bg-brand-500 text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-brand-500 text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
                 {cartItemCount}
               </span>
             )}
@@ -164,16 +164,16 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               <Link
                 to="/login"
-                className="touch-target text-xs font-bold text-neutral-700 dark:text-slate-300 hover:text-brand-600 px-3 py-2 rounded-xl transition-colors"
+                className="touch-target text-xs font-bold text-neutral-700 dark:text-slate-300 hover:text-brand-600 px-2 sm:px-3 py-1.5 rounded-xl transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 to="/register"
-                className="touch-target text-xs font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 px-4 py-2 rounded-xl shadow-md shadow-brand-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="hidden sm:inline-flex touch-target text-xs font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 px-3 sm:px-4 py-1.5 rounded-xl shadow-md shadow-brand-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 Sign Up
               </Link>

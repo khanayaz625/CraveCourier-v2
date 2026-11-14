@@ -226,7 +226,7 @@ export default function OrderDetailPage() {
   const isCancelled = order.status === 'cancelled' || order.status === 'refunded' || order.paymentStatus === 'refunded';
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10 space-y-6">
+    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10 space-y-6 pb-28 md:pb-12">
       {/* Top Breadcrumb & Actions */}
       <div className="flex items-center justify-between">
         <Link

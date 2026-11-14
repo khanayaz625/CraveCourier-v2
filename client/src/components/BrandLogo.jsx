@@ -6,18 +6,18 @@ export default function BrandLogo({
 }) {
   const iconSizes = {
     xs: 'h-6 w-auto',
-    sm: 'h-8 w-auto',
-    md: 'h-10 w-auto',
-    lg: 'h-12 w-auto',
-    xl: 'h-16 w-auto',
+    sm: 'h-7 sm:h-8 w-auto',
+    md: 'h-8 sm:h-10 w-auto',
+    lg: 'h-10 sm:h-12 w-auto',
+    xl: 'h-12 sm:h-16 w-auto',
   };
 
   const textSizes = {
-    xs: 'text-base',
-    sm: 'text-lg',
-    md: 'text-xl',
-    lg: 'text-2xl',
-    xl: 'text-3xl',
+    xs: 'text-sm',
+    sm: 'text-base sm:text-lg',
+    md: 'text-lg sm:text-xl',
+    lg: 'text-xl sm:text-2xl',
+    xl: 'text-2xl sm:text-3xl',
   };
 
   if (variant === 'squircle') {

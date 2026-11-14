@@ -98,7 +98,7 @@ export default function App() {
         <Navbar />
         <ToastContainer />
 
-        <main className="flex-1">
+        <main className="flex-1 pb-24 md:pb-8">
           <Suspense fallback={<RouteLoader />}>
             <Routes>
               {/* Public Auth Routes */}

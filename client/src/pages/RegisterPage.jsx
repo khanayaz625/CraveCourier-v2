@@ -54,7 +54,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-60px)] flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8 bg-neutral-50">
+    <div className="min-h-[calc(100vh-60px)] flex flex-col justify-center py-8 pb-28 sm:py-10 sm:pb-12 px-4 sm:px-6 lg:px-8 bg-neutral-50">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <div className="flex justify-center mb-4">

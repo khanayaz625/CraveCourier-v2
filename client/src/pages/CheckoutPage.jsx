@@ -299,7 +299,7 @@ export default function CheckoutPage() {
   const selectedAddress = addresses.find((a) => a._id === selectedAddressId);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <div className="max-w-6xl mx-auto px-4 py-6 space-y-6 pb-28 md:pb-12">
       {/* 3-Step Wizard Navigation */}
       <div className="bg-white rounded-2xl p-4 border border-neutral-200 shadow-xs">
         <div className="flex items-center justify-between max-w-xl mx-auto">
@@ -508,7 +508,7 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={() => setCurrentStep(2)}
                   disabled={!selectedAddress || (deliveryRadiusInfo && !deliveryRadiusInfo.deliverable)}
-                  className="flex items-center gap-2 py-2.5 px-6 bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-md shadow-brand-500/20 disabled:opacity-50"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 py-3 px-6 bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-brand-500/20 disabled:opacity-50"
                 >
                   <span>Continue to Delivery Slot</span>
                   <ArrowRight className="h-4 w-4" />
@@ -601,11 +601,11 @@ export default function CheckoutPage() {
                 />
               </div>
 
-              <div className="pt-2 flex justify-between">
+              <div className="pt-2 flex flex-col-reverse sm:flex-row gap-2 justify-between">
                 <button
                   type="button"
                   onClick={() => setCurrentStep(1)}
-                  className="flex items-center gap-1.5 px-4 py-2 text-neutral-600 font-bold text-xs"
+                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-neutral-600 font-bold text-xs"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <span>Back to Address</span>
@@ -613,7 +613,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setCurrentStep(3)}
-                  className="flex items-center gap-2 py-2.5 px-6 bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-md shadow-brand-500/20"
+                  className="flex items-center justify-center gap-2 py-3 px-6 bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-brand-500/20"
                 >
                   <span>Continue to Payment</span>
                   <ArrowRight className="h-4 w-4" />
