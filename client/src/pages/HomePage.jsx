@@ -47,14 +47,14 @@ export default function HomePage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-12 pb-24 md:pb-12">
       {/* 1. Gradient Hero Section */}
-      <section className="relative rounded-4xl bg-gradient-to-br from-brand-500 via-brand-600 to-amber-500 p-6 sm:p-12 text-white shadow-glow overflow-hidden">
-        <div className="relative z-10 max-w-xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md shadow-xs">
-            <Zap className="h-4 w-4 text-amber-200 animate-bounce" />
+      <section className="relative rounded-3xl sm:rounded-4xl bg-gradient-to-br from-brand-500 via-brand-600 to-amber-500 p-5 sm:p-12 text-white shadow-glow overflow-hidden">
+        <div className="relative z-10 max-w-xl space-y-3 sm:space-y-4">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-white/20 backdrop-blur-md shadow-xs">
+            <Zap className="h-3.5 w-3.5 text-amber-200 animate-bounce" />
             <span>20-Minute Express Hyperlocal Delivery</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight font-heading">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight font-heading">
             Delicious dishes & fresh mart essentials.
           </h1>
 
@@ -62,17 +62,17 @@ export default function HomePage() {
             Curated artisan kitchen recipes and certified organic groceries delivered fresh to your door.
           </p>
 
-          <div className="pt-2 max-w-md">
-            <SearchBar placeholder="Search restaurant dishes, bakery, farm produce..." />
+          <div className="pt-1 sm:pt-2 max-w-md">
+            <SearchBar placeholder="Search dishes, groceries, daily essentials..." />
           </div>
 
           {/* Quick Platform Guarantees */}
-          <div className="pt-4 flex flex-wrap items-center gap-4 text-xs font-semibold text-brand-100">
+          <div className="pt-2 sm:pt-4 flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-semibold text-brand-100">
             <span className="flex items-center gap-1.5">
-              <Truck className="h-4 w-4 text-amber-200" /> Live GPS Tracking
+              <Truck className="h-3.5 w-3.5 text-amber-200" /> Live GPS Tracking
             </span>
             <span className="flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-200" /> 100% Quality Verified
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-200" /> 100% Quality Verified
             </span>
           </div>
         </div>
@@ -122,18 +122,18 @@ export default function HomePage() {
 
       {/* 3. Category Chips (Horizontal Scrollable) */}
       <section aria-labelledby="categories-heading" className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 id="categories-heading" className="text-base sm:text-xl font-black text-neutral-900 dark:text-slate-100 font-heading">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h2 id="categories-heading" className="text-base sm:text-xl font-black text-neutral-900 dark:text-slate-100 font-heading truncate">
               Explore by Category
             </h2>
-            <p className="text-xs text-neutral-400">Discover handpicked food and grocery selections</p>
+            <p className="text-xs text-neutral-400 hidden xs:block">Discover handpicked food and grocery selections</p>
           </div>
           <Link
             to="/products"
-            className="touch-target text-xs font-bold text-brand-500 hover:text-brand-600 dark:text-brand-400 flex items-center gap-1 group"
+            className="whitespace-nowrap flex-shrink-0 text-xs font-bold text-brand-500 hover:text-brand-600 dark:text-brand-400 flex items-center gap-1 group py-1"
           >
-            <span>View All Menu</span>
+            <span>View All</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
@@ -141,7 +141,7 @@ export default function HomePage() {
         <div className="flex items-center space-x-2.5 sm:space-x-3 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
           <Link
             to="/products"
-            className="flex-shrink-0 touch-target flex items-center space-x-2 bg-brand-500 text-white rounded-full px-5 py-2 font-bold text-xs shadow-md shadow-brand-500/20 hover:bg-brand-600 transition-all hover:scale-105"
+            className="flex-shrink-0 flex items-center space-x-2 bg-brand-500 text-white rounded-full px-4 sm:px-5 py-2 font-bold text-xs shadow-md shadow-brand-500/20 hover:bg-brand-600 transition-all hover:scale-105"
           >
             <span>🔥 All Catalog</span>
           </Link>
@@ -149,19 +149,27 @@ export default function HomePage() {
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => <CategoryChipSkeleton key={i} />)
           ) : (
-            categories.map((cat) => (
+            (categories.length > 0 ? categories : [
+              { slug: 'dal-pulses', name: 'Dal & Pulses', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=100' },
+              { slug: 'atta-flour', name: 'Atta & Flour', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100' },
+              { slug: 'cooking-oil', name: 'Cooking Oil', image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=100' },
+              { slug: 'masala-spices', name: 'Masala & Spices', image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=100' },
+              { slug: 'dry-fruits', name: 'Dry Fruits & Nuts', image: 'https://images.unsplash.com/photo-1536591375315-1b83689e4726?w=100' },
+              { slug: 'snacks-namkeen', name: 'Snacks & Namkeen', image: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=100' },
+              { slug: 'dairy', name: 'Dairy & Milk', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=100' },
+            ]).map((cat) => (
               <Link
-                key={cat._id}
+                key={cat.slug || cat._id}
                 to={`/products?category=${cat.slug}`}
-                className="flex-shrink-0 touch-target flex items-center space-x-2.5 bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-slate-800 border border-neutral-200/80 dark:border-slate-800 rounded-full pl-2 pr-4 py-2 font-bold text-xs text-neutral-800 dark:text-slate-200 shadow-soft hover:border-brand-300 dark:hover:border-brand-500/50 transition-all hover:scale-105"
+                className="flex-shrink-0 flex items-center space-x-2 bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-slate-800 border border-neutral-200/80 dark:border-slate-800 rounded-full pl-2 pr-3.5 py-1.5 font-bold text-xs text-neutral-800 dark:text-slate-200 shadow-soft hover:border-brand-300 dark:hover:border-brand-500/50 transition-all hover:scale-105"
               >
                 <img
                   src={cat.image}
                   alt={cat.name}
                   loading="lazy"
-                  className="h-7 w-7 rounded-full object-cover ring-1 ring-neutral-200 dark:ring-slate-700"
+                  className="h-6 w-6 rounded-full object-cover ring-1 ring-neutral-200 dark:ring-slate-700"
                 />
-                <span className="truncate max-w-[130px]">{cat.name}</span>
+                <span className="whitespace-nowrap">{cat.name}</span>
               </Link>
             ))
           )}
@@ -170,23 +178,23 @@ export default function HomePage() {
 
       {/* 4. "Today's Best Deals" Section */}
       <section aria-labelledby="deals-heading" className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <span className="p-2.5 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 shadow-soft">
-              <Flame className="h-6 w-6" />
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+            <span className="p-2 sm:p-2.5 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 shadow-soft flex-shrink-0">
+              <Flame className="h-5 w-5 sm:h-6 sm:w-6" />
             </span>
-            <div>
-              <h2 id="deals-heading" className="text-base sm:text-xl font-black text-neutral-900 dark:text-slate-100 font-heading">
+            <div className="min-w-0">
+              <h2 id="deals-heading" className="text-base sm:text-xl font-black text-neutral-900 dark:text-slate-100 font-heading truncate">
                 Today's Best Deals
               </h2>
-              <p className="text-xs text-neutral-500 dark:text-slate-400">Save big with instant limited-time discounts</p>
+              <p className="text-xs text-neutral-500 dark:text-slate-400 hidden xs:block">Save big with instant limited-time discounts</p>
             </div>
           </div>
           <Link
             to="/products?hasDiscount=true"
-            className="touch-target text-xs font-bold text-brand-500 hover:text-brand-600 dark:text-brand-400 flex items-center gap-1 group"
+            className="whitespace-nowrap flex-shrink-0 text-xs font-bold text-brand-500 hover:text-brand-600 dark:text-brand-400 flex items-center gap-1 group py-1"
           >
-            <span>See More Deals</span>
+            <span>See Deals</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
@@ -200,23 +208,23 @@ export default function HomePage() {
 
       {/* 5. "Popular & Top Rated" Section */}
       <section aria-labelledby="popular-heading" className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <span className="p-2.5 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 shadow-soft">
-              <Award className="h-6 w-6" />
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+            <span className="p-2 sm:p-2.5 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 shadow-soft flex-shrink-0">
+              <Award className="h-5 w-5 sm:h-6 sm:w-6" />
             </span>
-            <div>
-              <h2 id="popular-heading" className="text-base sm:text-xl font-black text-neutral-900 dark:text-slate-100 font-heading">
+            <div className="min-w-0">
+              <h2 id="popular-heading" className="text-base sm:text-xl font-black text-neutral-900 dark:text-slate-100 font-heading truncate">
                 Popular & Top Rated
               </h2>
-              <p className="text-xs text-neutral-500 dark:text-slate-400">Customer favorites with 4.5+ star reviews</p>
+              <p className="text-xs text-neutral-500 dark:text-slate-400 hidden xs:block">Customer favorites with 4.5+ star reviews</p>
             </div>
           </div>
           <Link
             to="/products?sort=rating"
-            className="touch-target text-xs font-bold text-brand-500 hover:text-brand-600 dark:text-brand-400 flex items-center gap-1 group"
+            className="whitespace-nowrap flex-shrink-0 text-xs font-bold text-brand-500 hover:text-brand-600 dark:text-brand-400 flex items-center gap-1 group py-1"
           >
-            <span>Top Rated List</span>
+            <span>Top Rated</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
@@ -232,21 +240,21 @@ export default function HomePage() {
 
       {/* 6. "Fresh Farm Groceries" Section (Leafy Teal Green Theme Accent) */}
       <section aria-labelledby="groceries-heading" className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <span className="p-2.5 rounded-2xl bg-grocery-100 dark:bg-grocery-950/60 text-grocery-600 dark:text-grocery-400 shadow-soft">
-              <Carrot className="h-6 w-6" />
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+            <span className="p-2 sm:p-2.5 rounded-2xl bg-grocery-100 dark:bg-grocery-950/60 text-grocery-600 dark:text-grocery-400 shadow-soft flex-shrink-0">
+              <Carrot className="h-5 w-5 sm:h-6 sm:w-6" />
             </span>
-            <div>
-              <h2 id="groceries-heading" className="text-base sm:text-xl font-black text-neutral-900 dark:text-slate-100 font-heading">
+            <div className="min-w-0">
+              <h2 id="groceries-heading" className="text-base sm:text-xl font-black text-neutral-900 dark:text-slate-100 font-heading truncate">
                 Fresh Farm Groceries
               </h2>
-              <p className="text-xs text-neutral-500 dark:text-slate-400">Organic produce, farm dairy & pantry staples</p>
+              <p className="text-xs text-neutral-500 dark:text-slate-400 hidden xs:block">Organic produce, farm dairy & pantry staples</p>
             </div>
           </div>
           <Link
             to="/products?type=grocery"
-            className="touch-target text-xs font-bold text-grocery-600 hover:text-grocery-700 dark:text-grocery-400 flex items-center gap-1 group"
+            className="whitespace-nowrap flex-shrink-0 text-xs font-bold text-grocery-600 hover:text-grocery-700 dark:text-grocery-400 flex items-center gap-1 group py-1"
           >
             <span>Explore Mart</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />

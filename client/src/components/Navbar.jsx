@@ -36,8 +36,8 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-neutral-200/80 dark:border-slate-800 px-4 py-2.5 shadow-soft transition-colors duration-200">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         {/* Brand Logo & Storefront Navigation */}
-        <div className="flex items-center space-x-6">
-          <Link to="/" className="flex items-center group">
+        <div className="flex items-center space-x-6 flex-shrink-0">
+          <Link to="/" className="flex items-center group flex-shrink-0">
             <BrandLogo size="md" />
           </Link>
 
@@ -64,11 +64,11 @@ export default function Navbar() {
         </div>
 
         {/* Dynamic Role Navigation, Theme Toggle, & Auth Actions */}
-        <div className="flex items-center space-x-1.5 sm:space-x-3">
+        <div className="flex items-center space-x-1 sm:space-x-2">
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleTheme}
-            className="touch-target p-2 rounded-xl text-neutral-500 dark:text-slate-400 hover:text-neutral-900 dark:hover:text-slate-100 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-neutral-500 dark:text-slate-400 hover:text-neutral-900 dark:hover:text-slate-100 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             aria-label="Toggle Dark Mode"
           >
@@ -85,7 +85,7 @@ export default function Navbar() {
           {/* Wishlist Shortcut */}
           <Link
             to="/wishlist"
-            className="touch-target relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+            className="relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center justify-center"
             title="My Wishlist"
             aria-label="View Wishlist"
           >
@@ -100,7 +100,7 @@ export default function Navbar() {
           {/* Cart Icon Shortcut (Desktop & Mobile) */}
           <Link
             to="/cart"
-            className="touch-target relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
+            className="relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors flex items-center justify-center"
             title="Shopping Cart"
             aria-label="View Shopping Cart"
           >
@@ -156,7 +156,7 @@ export default function Navbar() {
                 <button
                   onClick={handleLogout}
                   title="Logout"
-                  className="touch-target p-1.5 rounded-xl text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                  className="p-1.5 rounded-xl text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                   aria-label="Logout"
                 >
                   <LogOut className="h-4 w-4" />
@@ -164,16 +164,16 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center space-x-1 sm:space-x-2">
+            <div className="hidden md:flex items-center space-x-2">
               <Link
                 to="/login"
-                className="touch-target text-xs font-bold text-neutral-700 dark:text-slate-300 hover:text-brand-600 px-2 sm:px-3 py-1.5 rounded-xl transition-colors"
+                className="text-xs font-bold text-neutral-700 dark:text-slate-300 hover:text-brand-600 px-3 py-2 rounded-xl transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 to="/register"
-                className="hidden sm:inline-flex touch-target text-xs font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 px-3 sm:px-4 py-1.5 rounded-xl shadow-md shadow-brand-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="text-xs font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 px-4 py-2 rounded-xl shadow-md shadow-brand-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 Sign Up
               </Link>

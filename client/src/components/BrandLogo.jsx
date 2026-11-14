@@ -52,7 +52,7 @@ export default function BrandLogo({
 
   // Default 'full' variant: Icon + "Cravecourier" typography matching the brand sheet
   return (
-    <div className={`flex items-center space-x-2.5 ${className}`}>
+    <div className={`flex items-center space-x-2 ${className}`}>
       <img
         src="/crave-courier-pin.png"
         alt="Cravecourier"
@@ -60,12 +60,12 @@ export default function BrandLogo({
       />
       {showText && (
         <span
-          className={`font-black tracking-tight font-heading leading-none ${
+          className={`font-black tracking-tight font-heading leading-none whitespace-nowrap ${
             textSizes[size] || textSizes.md
           }`}
         >
           <span className="text-[#FF541E]">Crave</span>
-          <span className="text-neutral-900 dark:text-slate-100">courier</span>
+          <span className="text-neutral-900 dark:text-slate-100 hidden sm:inline">courier</span>
         </span>
       )}
     </div>
