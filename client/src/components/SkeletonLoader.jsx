@@ -1,17 +1,17 @@
 export function ProductCardSkeleton() {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800/80 p-3.5 flex flex-col justify-between shadow-soft shimmer-mask">
-      <div className="w-full aspect-[4/3] bg-neutral-200 dark:bg-slate-800 rounded-2xl mb-3.5"></div>
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between">
-          <div className="h-3 w-20 bg-neutral-200 dark:bg-slate-800 rounded-full"></div>
+    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800/80 p-2.5 sm:p-3.5 flex flex-col justify-between shadow-soft shimmer-mask w-full max-w-[280px] sm:max-w-none mx-auto">
+      <div className="w-full aspect-square bg-neutral-200 dark:bg-slate-800 rounded-2xl mb-3.5 mx-auto"></div>
+      <div className="space-y-2.5 flex flex-col items-center sm:items-start w-full">
+        <div className="flex items-center justify-between w-full">
+          <div className="h-3 w-16 bg-neutral-200 dark:bg-slate-800 rounded-full"></div>
           <div className="h-3 w-8 bg-neutral-200 dark:bg-slate-800 rounded-full"></div>
         </div>
         <div className="h-4 w-3/4 bg-neutral-200 dark:bg-slate-800 rounded-full"></div>
         <div className="h-3 w-1/3 bg-neutral-200 dark:bg-slate-800 rounded-full"></div>
-        <div className="pt-3 border-t border-neutral-100 dark:border-slate-800 flex items-center justify-between">
-          <div className="h-5 w-16 bg-neutral-200 dark:bg-slate-800 rounded-full"></div>
-          <div className="h-9 w-16 bg-neutral-200 dark:bg-slate-800 rounded-2xl"></div>
+        <div className="pt-3 border-t border-neutral-100 dark:border-slate-800 flex items-center justify-between w-full">
+          <div className="h-5 w-14 bg-neutral-200 dark:bg-slate-800 rounded-full"></div>
+          <div className="h-8 w-14 bg-neutral-200 dark:bg-slate-800 rounded-2xl"></div>
         </div>
       </div>
     </div>

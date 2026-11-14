@@ -97,20 +97,22 @@ export default function Navbar() {
             )}
           </Link>
 
-          {/* Cart Icon Shortcut (Desktop & Mobile) */}
-          <Link
-            to="/cart"
-            className="relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors flex items-center justify-center"
-            title="Shopping Cart"
-            aria-label="View Shopping Cart"
-          >
-            <ShoppingBag className="h-5 w-5" />
-            {cartItemCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-brand-500 text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
-                {cartItemCount}
-              </span>
-            )}
-          </Link>
+          {/* Cart Icon Shortcut (Visible only after sign in) */}
+          {isAuthenticated && (
+            <Link
+              to="/cart"
+              className="relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors flex items-center justify-center"
+              title="Shopping Cart"
+              aria-label="View Shopping Cart"
+            >
+              <ShoppingBag className="h-5 w-5" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-brand-500 text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
+                  {cartItemCount}
+                </span>
+              )}
+            </Link>
+          )}
 
           {isAuthenticated && user ? (
             <div className="flex items-center space-x-2">

@@ -1,15 +1,18 @@
 import { useLocation, Link } from 'react-router-dom';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCartStore } from '../store/useCartStore';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function FloatingCartButton() {
   const location = useLocation();
   const { items, totals } = useCartStore();
+  const { isAuthenticated } = useAuthStore();
 
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Hide on cart and checkout pages
+  // Hide before sign in, on empty cart, or on cart and checkout pages
   const isHidden =
+    !isAuthenticated ||
     totalQuantity === 0 ||
     location.pathname === '/cart' ||
     location.pathname === '/checkout';

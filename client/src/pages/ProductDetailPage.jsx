@@ -352,7 +352,7 @@ export default function ProductDetailPage() {
               Frequently Purchased Together
             </h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 justify-items-center sm:justify-items-stretch">
             {frequentProducts.map((p) => (
               <ProductCard key={p._id} product={p} />
             ))}
@@ -366,7 +366,7 @@ export default function ProductDetailPage() {
           <h2 className="text-lg font-black font-heading text-neutral-900 dark:text-slate-100">
             More in {product.category?.name}
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 justify-items-center sm:justify-items-stretch">
             {relatedProducts.map((rel) => (
               <ProductCard key={rel._id} product={rel} />
             ))}

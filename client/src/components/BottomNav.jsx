@@ -34,7 +34,7 @@ export default function BottomNav() {
   const navLinks = [
     { to: '/', label: 'Home', icon: Home, exact: true },
     { to: '/products', label: 'Explore', icon: Compass },
-    { to: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount },
+    ...(isAuthenticated ? [{ to: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount }] : []),
     { to: '/orders', label: 'Orders', icon: Package },
     { to: profileRoute, label: profileLabel, icon: ProfileIcon },
   ];
@@ -47,7 +47,7 @@ export default function BottomNav() {
       aria-label="Mobile Navigation"
       className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-neutral-200/80 dark:border-slate-800 safe-bottom shadow-lg transition-colors duration-200"
     >
-      <div className="grid grid-cols-5 h-14 items-center px-1">
+      <div className={`grid ${isAuthenticated ? 'grid-cols-5' : 'grid-cols-4'} h-14 items-center px-1`}>
         {navLinks.map((item) => {
           const Icon = item.icon;
           const isActive = item.exact
