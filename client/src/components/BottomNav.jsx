@@ -2,11 +2,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home, Compass, ShoppingBag, Package, User } from 'lucide-react';
 import { useCartStore } from '../store/useCartStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { useNotificationStore } from '../store/useNotificationStore';
 
 export default function BottomNav() {
   const location = useLocation();
   const { items } = useCartStore();
   const { isAuthenticated } = useAuthStore();
+  const { unreadCount } = useNotificationStore();
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -21,7 +23,7 @@ export default function BottomNav() {
           { to: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount },
         ]
       : []),
-    { to: '/account', label: 'Account', icon: User },
+    { to: '/account', label: 'Account', icon: User, badge: unreadCount },
   ];
 
   // Separate app experience: Hide mobile bottom nav inside Craved Admin and Courier portal

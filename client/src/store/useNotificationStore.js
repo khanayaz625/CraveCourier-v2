@@ -10,8 +10,21 @@ export const useNotificationStore = create((set, get) => ({
   notifications: [],
   unreadCount: 0,
   loading: false,
+  isDrawerOpen: false,
   toasts: [], // Active floating push toasts
   soundEnabled: isSoundEnabled(),
+
+  // Drawer Controls
+  openDrawer: () => {
+    set({ isDrawerOpen: true });
+    get().fetchNotifications();
+  },
+  closeDrawer: () => set({ isDrawerOpen: false }),
+  toggleDrawer: () => {
+    const next = !get().isDrawerOpen;
+    set({ isDrawerOpen: next });
+    if (next) get().fetchNotifications();
+  },
 
   // Toggle Sound Notifications
   toggleSound: () => {

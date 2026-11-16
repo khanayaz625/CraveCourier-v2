@@ -12,7 +12,6 @@ import {
   Sun,
   Moon,
   Heart,
-  User,
 } from 'lucide-react';
 import NotificationBell from './notifications/NotificationBell';
 import BrandLogo from './BrandLogo';
@@ -39,179 +38,231 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-neutral-200/80 dark:border-slate-800 px-3.5 sm:px-4 py-2 sm:py-2.5 shadow-soft transition-colors duration-200">
-      <div className="max-w-6xl mx-auto flex items-center justify-between relative">
-        {/* Mobile Left Action: Theme Toggle */}
-        <div className="flex sm:hidden items-center">
-          <button
-            onClick={toggleTheme}
-            className="p-1.5 rounded-xl text-neutral-500 dark:text-slate-400 hover:text-neutral-900 dark:hover:text-slate-100 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle Dark Mode"
-          >
-            {theme === 'dark' ? (
-              <Sun className="h-4.5 w-4.5 text-amber-400 animate-pop" />
-            ) : (
-              <Moon className="h-4.5 w-4.5 text-slate-600 animate-pop" />
-            )}
-          </button>
-        </div>
-
-        {/* Center App Icon on Mobile (Always Centered) */}
-        <div className="sm:hidden absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-auto">
-          <Link to="/" className="flex items-center justify-center group">
-            <BrandLogo size="md" />
-          </Link>
-        </div>
-
-        {/* Desktop Left: Brand Logo & Desktop Storefront Navigation */}
-        <div className="hidden sm:flex items-center space-x-6 flex-shrink-0">
-          <Link to="/" className="flex items-center group flex-shrink-0">
-            <BrandLogo size="md" />
-          </Link>
-
-          <nav className="flex items-center space-x-1 text-xs font-bold">
-            <Link
-              to="/products"
-              className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
+    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-neutral-200/80 dark:border-slate-800 px-3 sm:px-4 py-2 sm:py-2.5 shadow-soft transition-colors duration-200">
+      <div className="max-w-6xl mx-auto">
+        {/* ============================================================== */}
+        {/* MOBILE HEADER LAYOUT (3-Column Grid: Never Overlaps)            */}
+        {/* ============================================================== */}
+        <div className="grid grid-cols-3 items-center w-full sm:hidden">
+          {/* Mobile Col 1 (Left): Theme Toggle Button */}
+          <div className="flex items-center justify-start">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-1.5 rounded-xl text-neutral-500 dark:text-slate-400 hover:text-neutral-900 dark:hover:text-slate-100 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle Dark Mode"
             >
-              All Menu
-            </Link>
-            <Link
-              to="/products?type=food"
-              className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
-            >
-              Hot Food 🍕
-            </Link>
-            <Link
-              to="/products?type=grocery"
-              className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-grocery-600 hover:bg-grocery-50 dark:hover:bg-grocery-950/40 transition-colors"
-            >
-              Fresh Groceries 🥦
-            </Link>
-          </nav>
-        </div>
-
-        {/* Dynamic Role Navigation, Theme Toggle, & Actions */}
-        <div className="flex items-center space-x-1 sm:space-x-2">
-          {/* Desktop-only Theme Toggle (on mobile it sits cleanly on the left) */}
-          <button
-            onClick={toggleTheme}
-            className="hidden sm:flex p-1.5 sm:p-2 rounded-xl text-neutral-500 dark:text-slate-400 hover:text-neutral-900 dark:hover:text-slate-100 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors items-center justify-center"
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle Dark Mode"
-          >
-            {theme === 'dark' ? (
-              <Sun className="h-4 sm:h-5 w-4 sm:w-5 text-amber-400 animate-pop" />
-            ) : (
-              <Moon className="h-4 sm:h-5 w-4 sm:w-5 text-slate-600 animate-pop" />
-            )}
-          </button>
-
-          {/* In-App Notifications Bell (when authenticated) */}
-          {isAuthenticated && <NotificationBell />}
-
-          {/* Wishlist Shortcut (Desktop & Tablet only to keep mobile navbar short) */}
-          <Link
-            to="/wishlist"
-            className="hidden sm:flex relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors items-center justify-center"
-            title="My Wishlist"
-            aria-label="View Wishlist"
-          >
-            <Heart className="h-5 w-5" />
-            {wishlistCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
-                {wishlistCount}
-              </span>
-            )}
-          </Link>
-
-          {/* Cart Icon Shortcut: Strictly hidden before login */}
-          {isAuthenticated && (
-            <Link
-              to="/cart"
-              className="relative p-1.5 sm:p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors flex items-center justify-center"
-              title="Shopping Cart"
-              aria-label="View Shopping Cart"
-            >
-              <ShoppingBag className="h-4.5 sm:h-5 w-4.5 sm:w-5" />
-              {cartItemCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-4 sm:h-5 w-4 sm:w-5 rounded-full bg-brand-500 text-white text-[9px] sm:text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
-                  {cartItemCount > 99 ? '99+' : cartItemCount}
-                </span>
+              {theme === 'dark' ? (
+                <Sun className="h-4.5 w-4.5 text-amber-400 animate-pop" />
+              ) : (
+                <Moon className="h-4.5 w-4.5 text-slate-600 animate-pop" />
               )}
-            </Link>
-          )}
+            </button>
+          </div>
 
-          {isAuthenticated && user ? (
-            <div className="flex items-center space-x-1.5 sm:space-x-2">
-              {/* Role Badges */}
-              {user.role === 'admin' && (
+          {/* Mobile Col 2 (Center): Strictly Centered Brand Logo */}
+          <div className="flex items-center justify-center">
+            <Link to="/" className="flex items-center justify-center group">
+              <BrandLogo size="sm" />
+            </Link>
+          </div>
+
+          {/* Mobile Col 3 (Right): Notification Bell & User Controls */}
+          <div className="flex items-center justify-end space-x-1">
+            {isAuthenticated ? (
+              <>
+                <NotificationBell />
+
                 <Link
-                  to="/admin"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition-colors"
+                  to="/account"
+                  title="My Account"
+                  className="flex items-center justify-center p-0.5 rounded-full hover:ring-2 hover:ring-brand-500 transition-all"
                 >
-                  <Shield className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
-                  Admin
-                </Link>
-              )}
-              {user.role === 'delivery' && (
-                <Link
-                  to="/partner"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 transition-colors"
-                >
-                  <Bike className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                  Partner
-                </Link>
-              )}
-              {user.role === 'customer' && (
-                <Link
-                  to="/orders"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-grocery-50 dark:bg-grocery-950/50 text-grocery-700 dark:text-grocery-300 border border-grocery-200 dark:border-grocery-800 hover:bg-grocery-100 transition-colors"
-                >
-                  <Package className="h-3.5 w-3.5 text-grocery-600 dark:text-grocery-400" />
-                  Orders
-                </Link>
-              )}
-
-              {/* User Avatar & Logout */}
-              <div className="flex items-center space-x-1.5 pl-1.5 sm:pl-2 border-l border-neutral-200 dark:border-slate-800">
-                <Link to="/account" title="Account">
                   <img
-                    src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                    alt={user.name}
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover ring-2 ring-brand-500/30"
+                    src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                    alt={user?.name || 'User'}
+                    className="h-7 w-7 rounded-full object-cover ring-1 ring-brand-500/40"
                   />
                 </Link>
-                <span className="text-xs font-bold text-neutral-800 dark:text-slate-200 hidden md:inline truncate max-w-[120px]">
-                  {user.name}
-                </span>
+
                 <button
+                  type="button"
                   onClick={handleLogout}
                   title="Logout"
-                  className="p-1 sm:p-1.5 rounded-xl text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                  className="p-1.5 rounded-xl text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                   aria-label="Logout"
                 >
                   <LogOut className="h-4 w-4" />
                 </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-1.5">
+              </>
+            ) : (
               <Link
                 to="/login"
-                className="text-xs font-bold text-neutral-700 dark:text-slate-300 hover:text-brand-600 px-2.5 py-1.5 rounded-xl transition-colors"
+                className="text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 px-3 py-1.5 rounded-xl shadow-xs transition-colors"
               >
                 Sign In
               </Link>
+            )}
+          </div>
+        </div>
+
+        {/* ============================================================== */}
+        {/* DESKTOP / TABLET HEADER LAYOUT (Flex row with full spacing)    */}
+        {/* ============================================================== */}
+        <div className="hidden sm:flex items-center justify-between">
+          {/* Desktop Left: Brand Logo & Navigation */}
+          <div className="flex items-center space-x-6 flex-shrink-0">
+            <Link to="/" className="flex items-center group flex-shrink-0">
+              <BrandLogo size="md" />
+            </Link>
+
+            <nav className="flex items-center space-x-1 text-xs font-bold">
               <Link
-                to="/register"
-                className="hidden sm:inline-flex text-xs font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 px-3.5 py-1.5 rounded-xl shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
+                to="/products"
+                className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
               >
-                Sign Up
+                All Menu
               </Link>
-            </div>
-          )}
+              <Link
+                to="/products?type=food"
+                className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
+              >
+                Hot Food 🍕
+              </Link>
+              <Link
+                to="/products?type=grocery"
+                className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-grocery-600 hover:bg-grocery-50 dark:hover:bg-grocery-950/40 transition-colors"
+              >
+                Fresh Groceries 🥦
+              </Link>
+            </nav>
+          </div>
+
+          {/* Desktop Right: Actions, Badges & User Profile */}
+          <div className="flex items-center space-x-2">
+            {/* Desktop Theme Toggle */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-xl text-neutral-500 dark:text-slate-400 hover:text-neutral-900 dark:hover:text-slate-100 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle Dark Mode"
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-5 w-5 text-amber-400 animate-pop" />
+              ) : (
+                <Moon className="h-5 w-5 text-slate-600 animate-pop" />
+              )}
+            </button>
+
+            {/* In-App Notifications Drawer Trigger (when authenticated) */}
+            {isAuthenticated && <NotificationBell />}
+
+            {/* Wishlist Shortcut */}
+            <Link
+              to="/wishlist"
+              className="relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center justify-center"
+              title="My Wishlist"
+              aria-label="View Wishlist"
+            >
+              <Heart className="h-5 w-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Shopping Cart Icon */}
+            {isAuthenticated && (
+              <Link
+                to="/cart"
+                className="relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors flex items-center justify-center"
+                title="Shopping Cart"
+                aria-label="View Shopping Cart"
+              >
+                <ShoppingBag className="h-5 w-5" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-brand-500 text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
+                    {cartItemCount > 99 ? '99+' : cartItemCount}
+                  </span>
+                )}
+              </Link>
+            )}
+
+            {/* Authenticated User Status */}
+            {isAuthenticated && user ? (
+              <div className="flex items-center space-x-2">
+                {/* Role Badges */}
+                {user.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition-colors"
+                  >
+                    <Shield className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+                    Admin
+                  </Link>
+                )}
+                {user.role === 'delivery' && (
+                  <Link
+                    to="/partner"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 transition-colors"
+                  >
+                    <Bike className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                    Partner
+                  </Link>
+                )}
+                {user.role === 'customer' && (
+                  <Link
+                    to="/orders"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-grocery-50 dark:bg-grocery-950/50 text-grocery-700 dark:text-grocery-300 border border-grocery-200 dark:border-grocery-800 hover:bg-grocery-100 transition-colors"
+                  >
+                    <Package className="h-3.5 w-3.5 text-grocery-600 dark:text-grocery-400" />
+                    Orders
+                  </Link>
+                )}
+
+                {/* User Avatar & Logout */}
+                <div className="flex items-center space-x-2 pl-2 border-l border-neutral-200 dark:border-slate-800">
+                  <Link to="/account" title="Account" className="flex items-center space-x-2">
+                    <img
+                      src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                      alt={user.name}
+                      className="h-8 w-8 rounded-full object-cover ring-2 ring-brand-500/30"
+                    />
+                    <span className="text-xs font-bold text-neutral-800 dark:text-slate-200 hidden md:inline truncate max-w-[120px]">
+                      {user.name}
+                    </span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    title="Logout"
+                    className="p-1.5 rounded-xl text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                    aria-label="Logout"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link
+                  to="/login"
+                  className="text-xs font-bold text-neutral-700 dark:text-slate-300 hover:text-brand-600 px-3 py-1.5 rounded-xl transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  className="text-xs font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 px-4 py-1.5 rounded-xl shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

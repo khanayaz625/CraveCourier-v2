@@ -25,6 +25,7 @@ import {
   Phone,
   Mail,
   CheckCircle2,
+  Bell,
 } from 'lucide-react';
 
 export default function AccountPage() {
@@ -32,7 +33,7 @@ export default function AccountPage() {
   const wishlistItems = useWishlistStore((state) => state.items);
   const cartItems = useCartStore((state) => state.items);
   const { theme, toggleTheme } = useThemeStore();
-  const { soundEnabled, toggleSound } = useNotificationStore();
+  const { soundEnabled, toggleSound, openDrawer, unreadCount } = useNotificationStore();
   const navigate = useNavigate();
 
   const [loggingOut, setLoggingOut] = useState(false);
@@ -123,6 +124,38 @@ export default function AccountPage() {
 
           {/* Navigation Links Group */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800 shadow-soft divide-y divide-neutral-100 dark:divide-slate-800 overflow-hidden">
+            {/* Notifications Drawer Trigger */}
+            <button
+              type="button"
+              onClick={openDrawer}
+              className="w-full p-4 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-slate-800/60 transition-colors text-left"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="h-9 w-9 rounded-xl bg-orange-50 dark:bg-orange-950/60 text-brand-600 dark:text-brand-400 flex items-center justify-center relative">
+                  <Bell className="h-4 w-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-3.5 min-w-[14px] px-0.5 rounded-full bg-brand-500 text-white text-[8px] font-black flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-bold text-neutral-900 dark:text-slate-100">
+                      Notifications & Order Alerts
+                    </h3>
+                    {unreadCount > 0 && (
+                      <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300">
+                        {unreadCount} new
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-neutral-400">View real-time delivery milestones & order updates</p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-neutral-400" />
+            </button>
+
             <Link
               to="/orders"
               className="p-4 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-slate-800/60 transition-colors"

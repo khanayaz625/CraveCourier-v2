@@ -15,6 +15,7 @@ import AuthRequiredModal from './components/AuthRequiredModal';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleRoute from './components/RoleRoute';
 import ToastContainer from './components/notifications/ToastContainer';
+import NotificationDrawer from './components/notifications/NotificationDrawer';
 import ErrorBoundary from './components/ErrorBoundary';
 import {
   showClientPushNotification,
@@ -101,6 +102,7 @@ export default function App() {
       <div className="min-h-screen bg-neutral-50 dark:bg-slate-950 text-neutral-900 dark:text-slate-100 flex flex-col justify-between font-sans transition-colors duration-200">
         <Navbar />
         <ToastContainer />
+        <NotificationDrawer />
         <AuthRequiredModal />
 
         <main className="flex-1 pb-24 md:pb-8">
