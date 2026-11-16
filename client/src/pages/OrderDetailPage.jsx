@@ -26,6 +26,7 @@ import { getSocket, joinOrderRoom, leaveOrderRoom } from '../services/socket';
 import LiveOrderMap from '../components/order/LiveOrderMap';
 import ReviewModal from '../components/order/ReviewModal';
 import { triggerOrderCelebration } from '../utils/confetti';
+import { playStatusUpdateSound } from '../services/soundEffects';
 
 export default function OrderDetailPage() {
   const { id } = useParams();
@@ -82,6 +83,9 @@ export default function OrderDetailPage() {
     // 1. Listen for real-time order status transitions
     const handleStatusUpdate = (payload) => {
       console.log('[SOCKET] Real-time order status update received:', payload);
+      if (payload?.status) {
+        playStatusUpdateSound(payload.status);
+      }
       if (payload?.order) {
         setOrder(payload.order);
       } else if (payload?.status) {

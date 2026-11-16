@@ -1,4 +1,5 @@
 import { Notification } from '../models/Notification.model.js';
+import { User } from '../models/User.model.js';
 import { getIO } from '../config/socket.js';
 
 const STATUS_MESSAGES = {
@@ -109,5 +110,71 @@ export const pushDirectNotification = async (userId, { title, message, type = 's
   } catch (err) {
     console.error(`[DIRECT_NOTIFICATION_ERROR] ${err.message}`);
     return null;
+  }
+};
+
+/**
+ * Notifies all active administrators in real-time when a new order is placed
+ */
+export const notifyAdminsNewOrder = async (order) => {
+  if (!order) return null;
+
+  try {
+    const io = getIO();
+    const customerName = order.customer?.name || 'Customer';
+    const grandTotal = order.totals?.grandTotal || 0;
+    const orderNumber = order.orderNumber || order._id;
+
+    // 1. Emit live real-time event to 'admins' socket room
+    try {
+      io.to('admins').emit('admin:new_order', {
+        orderId: order._id,
+        orderNumber,
+        grandTotal,
+        customerName,
+        paymentMethod: order.paymentMethod,
+        status: order.status,
+        timestamp: new Date().toISOString(),
+      });
+      io.to('admins').emit('order:created', {
+        orderId: order._id,
+        orderNumber,
+        grandTotal,
+        customerName,
+        paymentMethod: order.paymentMethod,
+        status: order.status,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (socketErr) {
+      console.warn('[SOCKET ADMIN ALERT WARNING]', socketErr.message);
+    }
+
+    // 2. Persist in-app notifications for each administrator
+    const adminUsers = await User.find({ role: 'admin', isActive: true }).select('_id');
+    for (const admin of adminUsers) {
+      try {
+        const notif = await Notification.create({
+          user: admin._id,
+          title: `🚨 New Order Received! #${orderNumber}`,
+          message: `${customerName} placed order #${orderNumber} (₹${grandTotal}) via ${order.paymentMethod?.toUpperCase()}.`,
+          type: 'admin_new_order',
+          data: {
+            orderId: order._id,
+            orderNumber,
+            grandTotal,
+            status: order.status,
+            timestamp: new Date().toISOString(),
+          },
+        });
+
+        try {
+          io.to(`user:${admin._id.toString()}`).emit('notification:new', notif);
+        } catch (e) {}
+      } catch (err) {
+        console.warn(`[ADMIN NOTIF CREATE ERROR for ${admin._id}]:`, err.message);
+      }
+    }
+  } catch (err) {
+    console.error('[NOTIFY ADMINS NEW ORDER ERROR]', err.message);
   }
 };

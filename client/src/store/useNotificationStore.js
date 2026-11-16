@@ -1,39 +1,24 @@
 import { create } from 'zustand';
 import api from '../services/api';
-
-// Web Audio API Gentle Notification Chime
-const playChime = () => {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
-
-    const playTone = (freq, start, duration) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
-      gain.gain.setValueAtTime(0.08, ctx.currentTime + start);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(ctx.currentTime + start);
-      osc.stop(ctx.currentTime + start + duration);
-    };
-
-    // Pleasant 2-tone melodic chime (E5 -> G#5)
-    playTone(659.25, 0, 0.15);
-    playTone(830.61, 0.12, 0.25);
-  } catch {
-    // Audio autoplay restrictions or muted
-  }
-};
+import {
+  playNotificationSoundForEvent,
+  isSoundEnabled,
+  toggleSoundEnabled,
+} from '../services/soundEffects';
 
 export const useNotificationStore = create((set, get) => ({
   notifications: [],
   unreadCount: 0,
   loading: false,
   toasts: [], // Active floating push toasts
+  soundEnabled: isSoundEnabled(),
+
+  // Toggle Sound Notifications
+  toggleSound: () => {
+    const nextState = toggleSoundEnabled();
+    set({ soundEnabled: nextState });
+    return nextState;
+  },
 
   // Fetch from server
   fetchNotifications: async () => {
@@ -81,7 +66,7 @@ export const useNotificationStore = create((set, get) => ({
 
   // Receive a real-time incoming push notification (from Socket.io)
   handleIncomingNotification: (notification) => {
-    playChime();
+    playNotificationSoundForEvent(notification);
 
     set((state) => {
       // Avoid duplicate notifications

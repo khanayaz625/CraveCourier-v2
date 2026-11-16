@@ -1,6 +1,11 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import api from '../services/api';
+import { getSocket } from '../services/socket';
+import {
+  playAdminNewOrderSound,
+  playStatusUpdateSound,
+} from '../services/soundEffects';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -292,6 +297,37 @@ export default function AdminDashboard() {
     fetchBanners,
     fetchAuditLogs,
   ]);
+
+  // Real-Time Socket Listener for Live Incoming Orders & Status Events
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleNewOrder = (data) => {
+      console.log('[ADMIN REAL-TIME] New Order Alert:', data);
+      playAdminNewOrderSound();
+      showToast(`🚨 New Order #${data?.orderNumber || ''} received for ₹${data?.grandTotal || 0}!`);
+      fetchOrders();
+      fetchAnalytics();
+    };
+
+    const handleOrderStatusUpdate = (data) => {
+      console.log('[ADMIN REAL-TIME] Order Status Update:', data);
+      playStatusUpdateSound(data?.status);
+      showToast(`📦 Order #${data?.orderNumber || data?.order?.orderNumber || ''} is now ${data?.status?.replace(/_/g, ' ')}`);
+      fetchOrders();
+    };
+
+    socket.on('admin:new_order', handleNewOrder);
+    socket.on('order:created', handleNewOrder);
+    socket.on('order:status_updated', handleOrderStatusUpdate);
+
+    return () => {
+      socket.off('admin:new_order', handleNewOrder);
+      socket.off('order:created', handleNewOrder);
+      socket.off('order:status_updated', handleOrderStatusUpdate);
+    };
+  }, [fetchOrders, fetchAnalytics]);
 
   // Handler: User Active/Block Toggle
   const handleToggleUserStatus = (targetUser) => {

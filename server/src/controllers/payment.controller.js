@@ -10,7 +10,10 @@ import { User } from '../models/User.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { pushOrderStatusNotification } from '../services/notification.service.js';
+import {
+  pushOrderStatusNotification,
+  notifyAdminsNewOrder,
+} from '../services/notification.service.js';
 
 // Store Hub Coordinates [Longitude, Latitude] (Chirgaon, Jhansi, UP)
 const STORE_HUB_COORDINATES = [78.8228, 25.5746];
@@ -315,6 +318,7 @@ export const confirmStripePayment = asyncHandler(async (req, res) => {
 
   // 9. Push confirmation notification
   await pushOrderStatusNotification(order, 'confirmed');
+  await notifyAdminsNewOrder(order);
 
   return res.status(201).json(
     new ApiResponse(201, {
@@ -415,6 +419,7 @@ export const createCodOrder = asyncHandler(async (req, res) => {
 
   // 8. Push order placed notification
   await pushOrderStatusNotification(order, 'placed');
+  await notifyAdminsNewOrder(order);
 
   return res.status(201).json(
     new ApiResponse(201, {
@@ -521,6 +526,9 @@ export const handleStripeWebhook = asyncHandler(async (req, res) => {
             cart.couponApplied = null;
             await cart.recalculateTotals();
             await cart.save();
+
+            await pushOrderStatusNotification(order, 'confirmed');
+            await notifyAdminsNewOrder(order);
           }
         }
       }
@@ -840,6 +848,7 @@ export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
 
   // 9. Push Order Notification
   await pushOrderStatusNotification(order, 'placed');
+  await notifyAdminsNewOrder(order);
 
   return res.status(201).json(
     new ApiResponse(201, {

@@ -1,9 +1,13 @@
 import confetti from 'canvas-confetti';
+import { playCustomerOrderPlacedSound } from '../services/soundEffects';
 
 /**
  * Triggers a multi-colored celebration confetti burst on order success or milestone achievement
  */
 export const triggerOrderCelebration = () => {
+  // Play joyful order placed celebration chime
+  playCustomerOrderPlacedSound();
+
   const duration = 2.5 * 1000;
   const animationEnd = Date.now() + duration;
   const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };

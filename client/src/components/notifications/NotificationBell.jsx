@@ -1,11 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useNotificationStore } from '../../store/useNotificationStore';
-import { Bell, CheckCheck, Package, Clock, ExternalLink } from 'lucide-react';
+import { Bell, CheckCheck, Package, Clock, ExternalLink, Volume2, VolumeX } from 'lucide-react';
 
 export default function NotificationBell() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, fetchNotifications } =
-    useNotificationStore();
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    fetchNotifications,
+    soundEnabled,
+    toggleSound,
+  } = useNotificationStore();
 
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -73,15 +80,41 @@ export default function NotificationBell() {
               )}
             </div>
 
-            {unreadCount > 0 && (
+            <div className="flex items-center space-x-2">
               <button
-                onClick={markAllAsRead}
-                className="text-[11px] font-bold text-neutral-500 hover:text-brand-600 flex items-center gap-1 transition-colors"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleSound();
+                }}
+                className={`p-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 ${
+                  soundEnabled
+                    ? 'text-brand-600 bg-brand-50 hover:bg-brand-100'
+                    : 'text-neutral-400 bg-neutral-100 hover:bg-neutral-200'
+                }`}
+                title={soundEnabled ? 'Mute notification sound' : 'Unmute notification sound'}
+                aria-label="Toggle notification sounds"
               >
-                <CheckCheck className="h-3.5 w-3.5" />
-                <span>Mark all read</span>
+                {soundEnabled ? (
+                  <Volume2 className="h-3.5 w-3.5" />
+                ) : (
+                  <VolumeX className="h-3.5 w-3.5" />
+                )}
+                <span className="text-[10px] hidden sm:inline">
+                  {soundEnabled ? 'Sound On' : 'Muted'}
+                </span>
               </button>
-            )}
+
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="text-[11px] font-bold text-neutral-500 hover:text-brand-600 flex items-center gap-1 transition-colors"
+                >
+                  <CheckCheck className="h-3.5 w-3.5" />
+                  <span>Mark all read</span>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Notification List */}

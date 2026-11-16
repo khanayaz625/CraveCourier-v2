@@ -26,6 +26,7 @@ import {
 import api from '../services/api';
 import { useAuthStore } from '../store/useAuthStore';
 import { getSocket, emitRiderLocation } from '../services/socket';
+import { playDeliveryAlertSound } from '../services/soundEffects';
 
 export default function DeliveryDashboard() {
   const { user } = useAuthStore();
@@ -106,33 +107,18 @@ export default function DeliveryDashboard() {
   useEffect(() => {
     const socket = getSocket();
 
-    // Listen for incoming order dispatch with 30s timer
+    // Listen for incoming order dispatch with 30s timer or manual assignment
     const handleIncomingDispatch = (data) => {
       console.log('[SOCKET] Incoming order dispatch request received:', data);
       setIncomingRequest(data);
       setCountdown(data.countdownSeconds || 30);
-
-      // Play chime
-      try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (AudioCtx) {
-          const ctx = new AudioCtx();
-          const osc = ctx.createOscillator();
-          const g = ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(880, ctx.currentTime);
-          g.gain.setValueAtTime(0.1, ctx.currentTime);
-          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-          osc.connect(g);
-          g.connect(ctx.destination);
-          osc.start();
-          osc.stop(ctx.currentTime + 0.4);
-        }
-      } catch {}
+      playDeliveryAlertSound();
     };
 
-    // Listen for queue updates
+    // Listen for queue updates (new order ready for pickup)
     const handleReadyPickup = () => {
+      console.log('[SOCKET] Order ready for pickup notification received');
+      playDeliveryAlertSound();
       api.get('/delivery/available-orders').then((res) => {
         setAvailableOrders(res.data || []);
       });
@@ -140,10 +126,14 @@ export default function DeliveryDashboard() {
 
     socket.on('order:incoming_request', handleIncomingDispatch);
     socket.on('order:ready_for_pickup', handleReadyPickup);
+    socket.on('order:assigned', handleIncomingDispatch);
+    socket.on('delivery:assigned', handleIncomingDispatch);
 
     return () => {
       socket.off('order:incoming_request', handleIncomingDispatch);
       socket.off('order:ready_for_pickup', handleReadyPickup);
+      socket.off('order:assigned', handleIncomingDispatch);
+      socket.off('delivery:assigned', handleIncomingDispatch);
     };
   }, []);
 

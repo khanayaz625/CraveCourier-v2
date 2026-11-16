@@ -186,12 +186,32 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
       .populate('customer', 'name email phone avatar')
       .populate('deliveryPartner', 'name phone avatar');
 
-    io.to(`order:${order._id}`).emit('order:status_updated', {
+    const statusPayload = {
       order: populatedOrder,
+      orderId: order._id,
+      orderNumber: order.orderNumber,
       status,
       note: note || `Order status updated to ${status.replace(/_/g, ' ')}`,
       timestamp: new Date().toISOString(),
-    });
+    };
+
+    // Broadcast to order room
+    io.to(`order:${order._id}`).emit('order:status_updated', statusPayload);
+
+    // Broadcast to Admins room
+    io.to('admins').emit('order:status_updated', statusPayload);
+
+    // Direct push to customer's personal socket room
+    if (order.customer) {
+      const custId = order.customer._id || order.customer;
+      io.to(`user:${custId.toString()}`).emit('order:status_updated', statusPayload);
+    }
+
+    // Direct push to assigned delivery partner's socket room
+    if (order.deliveryPartner) {
+      const partnerId = order.deliveryPartner._id || order.deliveryPartner;
+      io.to(`user:${partnerId.toString()}`).emit('order:status_updated', statusPayload);
+    }
 
     // If order is ready for pickup, alert all active delivery partners
     if (status === 'ready') {
