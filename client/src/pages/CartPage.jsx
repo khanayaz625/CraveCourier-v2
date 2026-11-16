@@ -38,10 +38,19 @@ export default function CartPage() {
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
   const [applying, setApplying] = useState(false);
+  const [hasPriorOrders, setHasPriorOrders] = useState(false);
 
   useEffect(() => {
     fetchCart();
-  }, [fetchCart]);
+    if (isAuthenticated) {
+      api.get('/orders/my-orders?limit=1')
+        .then((res) => {
+          const count = res.data?.pagination?.total ?? (res.data?.orders?.length || 0);
+          if (count > 0) setHasPriorOrders(true);
+        })
+        .catch(() => {});
+    }
+  }, [fetchCart, isAuthenticated]);
 
   const handleApplyCoupon = async (codeToApply) => {
     const code = (codeToApply || couponCode).trim().toUpperCase();
@@ -287,13 +296,15 @@ export default function CartPage() {
 
                 {/* Available Quick Coupon Chips */}
                 <div className="flex flex-wrap gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => handleApplyCoupon('WELCOME50')}
-                    className="touch-target text-[10px] font-bold px-3 py-1.5 bg-neutral-100 dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-brand-950/50 hover:text-brand-600 rounded-xl border border-neutral-200 dark:border-slate-700 text-neutral-700 dark:text-slate-300 transition-colors"
-                  >
-                    WELCOME50 (50% off up to ₹50)
-                  </button>
+                  {!hasPriorOrders && (
+                    <button
+                      type="button"
+                      onClick={() => handleApplyCoupon('WELCOME50')}
+                      className="touch-target text-[10px] font-bold px-3 py-1.5 bg-brand-50 dark:bg-brand-950/50 hover:bg-brand-100 dark:hover:bg-brand-900 text-brand-700 dark:text-brand-300 rounded-xl border border-brand-200 dark:border-brand-800 transition-colors"
+                    >
+                      WELCOME50 (First Order: 50% off up to ₹50)
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => handleApplyCoupon('CRAVE20')}

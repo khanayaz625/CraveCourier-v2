@@ -1,11 +1,21 @@
 import axios from 'axios';
 
 const getBaseUrl = () => {
-  const envUrl = import.meta.env.VITE_API_BASE_URL;
-  // If envUrl is the old/non-existent 'cravecourier-api' URL, automatically route to the live Render deployment
-  if (envUrl && !envUrl.includes('cravecourier-api.onrender.com')) {
-    return envUrl;
+  let url = (import.meta.env.VITE_API_BASE_URL || '').trim();
+
+  // If pointing to the outdated 'cravecourier-api' host, redirect to the live Render deployment
+  if (url.includes('cravecourier-api.onrender.com')) {
+    url = 'https://cravecourier-v2-1.onrender.com/api';
   }
+
+  if (url) {
+    url = url.replace(/\/+$/, '');
+    if (!url.endsWith('/api')) {
+      url = `${url}/api`;
+    }
+    return url;
+  }
+
   // In production / deployed domains, default to the live Render backend
   if (
     typeof window !== 'undefined' &&
@@ -14,6 +24,7 @@ const getBaseUrl = () => {
   ) {
     return 'https://cravecourier-v2-1.onrender.com/api';
   }
+
   return 'http://localhost:5000/api';
 };
 

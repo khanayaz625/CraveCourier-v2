@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
-import { X, Sparkles, ShoppingBag, ArrowRight, ShieldCheck, UserCheck } from 'lucide-react';
+import { X, Sparkles, ShoppingBag, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function FirstTimeSignupModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, customerDemoLogin, isLoading } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,15 +37,6 @@ export default function FirstTimeSignupModal() {
   const handleGoToLogin = () => {
     handleClose();
     navigate('/login');
-  };
-
-  const handleQuickDemo = async () => {
-    try {
-      await customerDemoLogin();
-      handleClose();
-    } catch (err) {
-      navigate('/login');
-    }
   };
 
   return (
@@ -109,18 +100,7 @@ export default function FirstTimeSignupModal() {
             <ArrowRight className="h-4 w-4" />
           </button>
 
-          {/* 2. One-Click Customer Demo Fill */}
-          <button
-            type="button"
-            disabled={isLoading}
-            onClick={handleQuickDemo}
-            className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-neutral-700 dark:text-slate-300 bg-neutral-100 hover:bg-neutral-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
-          >
-            <UserCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-            <span>1-Click Customer Demo Login</span>
-          </button>
-
-          {/* 3. Already have an account link */}
+          {/* Already have an account link */}
           <div className="pt-2 flex items-center justify-center space-x-3 text-xs">
             <span className="text-neutral-500 dark:text-slate-400">Already a customer?</span>
             <button

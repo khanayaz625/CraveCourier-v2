@@ -229,11 +229,12 @@ export default function CheckoutPage() {
         note: deliveryNote,
       });
 
-      const { orderId, amount, currency, keyId, user: prefillUser } = res.data.data;
+      const orderPayload = res?.data?.orderId ? res.data : (res?.data || res);
+      const { orderId, amount, currency, keyId, user: prefillUser } = orderPayload;
 
       // 2. Open Razorpay Checkout modal
       const options = {
-        key: keyId,
+        key: keyId || 'rzp_test_U0kEbnHVgIfK1G',
         amount,
         currency: currency || 'INR',
         name: 'CraveCourier',
@@ -260,12 +261,13 @@ export default function CheckoutPage() {
               note: deliveryNote,
             });
 
-            const createdOrder = verifyRes.data?.data?.order;
+            const verifyPayload = verifyRes?.data?.order ? verifyRes.data : (verifyRes?.data?.data || verifyRes?.data || verifyRes);
+            const createdOrder = verifyPayload?.order || verifyPayload;
             setOrderSuccess(createdOrder || true);
             clearCart();
             triggerOrderCelebration();
 
-            const targetOrderId = createdOrder?._id || verifyRes.data?.data?.orderId;
+            const targetOrderId = createdOrder?._id || verifyPayload?.orderId;
             navigate(`/orders/${targetOrderId}`);
           } catch (err) {
             setRazorpayError(err.response?.data?.message || err.message || 'Payment verification failed');

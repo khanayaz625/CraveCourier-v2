@@ -4,6 +4,7 @@ import { ApiError } from '../utils/ApiError.js';
 import { Cart } from '../models/Cart.model.js';
 import { Product } from '../models/Product.model.js';
 import { Coupon } from '../models/Coupon.model.js';
+import { Order } from '../models/Order.model.js';
 
 // Helper to fetch populated cart
 const getPopulatedCart = async (userId) => {
@@ -222,6 +223,17 @@ export const applyCoupon = asyncHandler(async (req, res) => {
 
   if (!coupon) {
     throw new ApiError(404, 'Invalid coupon code or promo expired');
+  }
+
+  // First-order coupon restriction (e.g. WELCOME50)
+  if (coupon.code === 'WELCOME50') {
+    const priorOrdersCount = await Order.countDocuments({
+      customer: req.user._id,
+      status: { $nin: ['cancelled', 'refunded'] },
+    });
+    if (priorOrdersCount > 0) {
+      throw new ApiError(400, 'WELCOME50 is only valid on your first order.');
+    }
   }
 
   const validation = coupon.isValidForOrder(cart.totals.itemTotal);

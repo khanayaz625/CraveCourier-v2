@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore } from '../store/useCartStore';
 import { useWishlistStore } from '../store/useWishlistStore';
@@ -11,8 +11,8 @@ import {
   Package,
   Sun,
   Moon,
-  Sparkles,
   Heart,
+  User,
 } from 'lucide-react';
 import NotificationBell from './notifications/NotificationBell';
 import BrandLogo from './BrandLogo';
@@ -23,6 +23,12 @@ export default function Navbar() {
   const wishlistItems = useWishlistStore((state) => state.items);
   const { theme, toggleTheme } = useThemeStore();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Keep Craved Admin portal completely separated with its own dedicated header
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const wishlistCount = wishlistItems.length;
@@ -33,9 +39,9 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-neutral-200/80 dark:border-slate-800 px-4 py-2.5 shadow-soft transition-colors duration-200">
+    <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-neutral-200/80 dark:border-slate-800 px-3.5 sm:px-4 py-2 sm:py-2.5 shadow-soft transition-colors duration-200">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
-        {/* Brand Logo & Storefront Navigation */}
+        {/* Brand Logo & Desktop Storefront Navigation */}
         <div className="flex items-center space-x-6 flex-shrink-0">
           <Link to="/" className="flex items-center group flex-shrink-0">
             <BrandLogo size="md" />
@@ -63,29 +69,29 @@ export default function Navbar() {
           </nav>
         </div>
 
-        {/* Dynamic Role Navigation, Theme Toggle, & Auth Actions */}
+        {/* Dynamic Role Navigation, Theme Toggle, & Actions */}
         <div className="flex items-center space-x-1 sm:space-x-2">
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-xl text-neutral-500 dark:text-slate-400 hover:text-neutral-900 dark:hover:text-slate-100 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
+            className="p-1.5 sm:p-2 rounded-xl text-neutral-500 dark:text-slate-400 hover:text-neutral-900 dark:hover:text-slate-100 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             aria-label="Toggle Dark Mode"
           >
             {theme === 'dark' ? (
-              <Sun className="h-5 w-5 text-amber-400 animate-pop" />
+              <Sun className="h-4 sm:h-5 w-4 sm:w-5 text-amber-400 animate-pop" />
             ) : (
-              <Moon className="h-5 w-5 text-slate-600 animate-pop" />
+              <Moon className="h-4 sm:h-5 w-4 sm:w-5 text-slate-600 animate-pop" />
             )}
           </button>
 
           {/* In-App Notifications Bell (when authenticated) */}
           {isAuthenticated && <NotificationBell />}
 
-          {/* Wishlist Shortcut */}
+          {/* Wishlist Shortcut (Desktop & Tablet only to keep mobile navbar short) */}
           <Link
             to="/wishlist"
-            className="relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center justify-center"
+            className="hidden sm:flex relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors items-center justify-center"
             title="My Wishlist"
             aria-label="View Wishlist"
           >
@@ -97,25 +103,23 @@ export default function Navbar() {
             )}
           </Link>
 
-          {/* Cart Icon Shortcut (Visible only after sign in) */}
-          {isAuthenticated && (
-            <Link
-              to="/cart"
-              className="relative p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors flex items-center justify-center"
-              title="Shopping Cart"
-              aria-label="View Shopping Cart"
-            >
-              <ShoppingBag className="h-5 w-5" />
-              {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-brand-500 text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
-                  {cartItemCount}
-                </span>
-              )}
-            </Link>
-          )}
+          {/* Cart Icon Shortcut */}
+          <Link
+            to="/cart"
+            className="relative p-1.5 sm:p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors flex items-center justify-center"
+            title="Shopping Cart"
+            aria-label="View Shopping Cart"
+          >
+            <ShoppingBag className="h-4.5 sm:h-5 w-4.5 sm:w-5" />
+            {cartItemCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-4 sm:h-5 w-4 sm:w-5 rounded-full bg-brand-500 text-white text-[9px] sm:text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
+                {cartItemCount > 99 ? '99+' : cartItemCount}
+              </span>
+            )}
+          </Link>
 
           {isAuthenticated && user ? (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1.5 sm:space-x-2">
               {/* Role Badges */}
               {user.role === 'admin' && (
                 <Link
@@ -146,19 +150,21 @@ export default function Navbar() {
               )}
 
               {/* User Avatar & Logout */}
-              <div className="flex items-center space-x-2 pl-2 border-l border-neutral-200 dark:border-slate-800">
-                <img
-                  src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                  alt={user.name}
-                  className="h-8 w-8 rounded-full object-cover ring-2 ring-brand-500/30"
-                />
+              <div className="flex items-center space-x-1.5 pl-1.5 sm:pl-2 border-l border-neutral-200 dark:border-slate-800">
+                <Link to="/account" title="Account">
+                  <img
+                    src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                    alt={user.name}
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover ring-2 ring-brand-500/30"
+                  />
+                </Link>
                 <span className="text-xs font-bold text-neutral-800 dark:text-slate-200 hidden md:inline truncate max-w-[120px]">
                   {user.name}
                 </span>
                 <button
                   onClick={handleLogout}
                   title="Logout"
-                  className="p-1.5 rounded-xl text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                  className="p-1 sm:p-1.5 rounded-xl text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                   aria-label="Logout"
                 >
                   <LogOut className="h-4 w-4" />
@@ -166,16 +172,16 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            <div className="hidden md:flex items-center space-x-2">
+            <div className="flex items-center space-x-1.5">
               <Link
                 to="/login"
-                className="text-xs font-bold text-neutral-700 dark:text-slate-300 hover:text-brand-600 px-3 py-2 rounded-xl transition-colors"
+                className="text-xs font-bold text-neutral-700 dark:text-slate-300 hover:text-brand-600 px-2.5 py-1.5 rounded-xl transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 to="/register"
-                className="text-xs font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 px-4 py-2 rounded-xl shadow-md shadow-brand-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="hidden sm:inline-flex text-xs font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 px-3.5 py-1.5 rounded-xl shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 Sign Up
               </Link>

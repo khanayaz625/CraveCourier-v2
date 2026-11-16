@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { Shield, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react';
@@ -11,6 +11,10 @@ export default function AdminLoginPage() {
 
   const { adminLogin, isLoading, error: storeError, clearError } = useAuthStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = 'Craved Admin | Secure Login';
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,23 +29,18 @@ export default function AdminLoginPage() {
     }
   };
 
-  const fillAdminDemo = () => {
-    setEmail('admin@crave.com');
-    setPassword('Admin@12345');
-  };
-
   return (
-    <div className="min-h-[calc(100vh-60px)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-neutral-900 text-white">
+    <div className="min-h-[calc(100vh-60px)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-neutral-950 text-white">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-600/30 text-purple-400 ring-1 ring-purple-500/50 shadow-xl shadow-purple-900/30">
-            <Shield className="h-7 w-7 text-purple-400" />
+          <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500/20 text-brand-400 ring-1 ring-brand-500/50 shadow-xl shadow-brand-950/40">
+            <Shield className="h-7 w-7 text-brand-400" />
           </span>
-          <h2 className="mt-4 text-2xl font-black tracking-tight sm:text-3xl text-white">
-            Admin Control Center
+          <h2 className="mt-4 text-2xl font-black tracking-tight sm:text-3xl text-white font-heading">
+            Craved Admin
           </h2>
           <p className="mt-1 text-xs text-neutral-400">
-            Restricted access portal for Crave platform administrators
+            Official Management Portal & Platform Operations Center
           </p>
         </div>
 
@@ -117,17 +116,6 @@ export default function AdminLoginPage() {
               )}
             </button>
           </form>
-
-          {/* Quick Demo Pre-fill */}
-          <div className="mt-6 pt-5 border-t border-neutral-700/60 text-center">
-            <button
-              type="button"
-              onClick={fillAdminDemo}
-              className="text-xs py-1.5 px-3 bg-neutral-700/70 hover:bg-neutral-700 text-neutral-300 rounded-lg font-medium transition-colors"
-            >
-              Fill Super Admin Demo
-            </button>
-          </div>
         </div>
 
         {/* Return to store link */}

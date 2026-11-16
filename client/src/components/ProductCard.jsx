@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Star, Plus, Minus, Check, Heart, Flame, Sparkles } from 'lucide-react';
 import { useCartStore } from '../store/useCartStore';
 import { useWishlistStore } from '../store/useWishlistStore';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function ProductCard({ product }) {
   const [added, setAdded] = useState(false);
@@ -12,6 +13,8 @@ export default function ProductCard({ product }) {
 
   const isInWishlist = useWishlistStore((state) => state.isInWishlist(product._id));
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
+
+  const { isAuthenticated, openAuthModal } = useAuthStore();
 
   // Variant Selection
   const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
@@ -49,6 +52,10 @@ export default function ProductCard({ product }) {
   const handleQuickAdd = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isAuthenticated) {
+      openAuthModal();
+      return;
+    }
     try {
       await addItem(product, 1, activeVariant);
       setAdded(true);
@@ -61,6 +68,10 @@ export default function ProductCard({ product }) {
   const handleIncrement = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isAuthenticated) {
+      openAuthModal();
+      return;
+    }
     try {
       await addItem(product, 1, activeVariant);
     } catch (err) {
@@ -87,16 +98,16 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <div className="group relative bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800/80 hover:border-emerald-400 dark:hover:border-emerald-500/60 p-2.5 sm:p-3.5 flex flex-col justify-between shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 w-full max-w-[280px] sm:max-w-none mx-auto text-center sm:text-left">
+    <div className="group relative bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800/80 hover:border-emerald-400 dark:hover:border-emerald-500/60 p-2.5 sm:p-3.5 flex flex-col justify-between shadow-soft hover:shadow-card hover:-translate-y-0.5 transition-all duration-300 w-full text-left overflow-hidden">
       <div>
         {/* Top Badges & Thumbnail Container (1:1 Square) */}
-        <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-neutral-50 dark:bg-slate-800/60 flex items-center justify-center p-2 mx-auto">
+        <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-neutral-50 dark:bg-slate-800/60 flex items-center justify-center p-2">
           <Link to={`/products/${product.slug || product._id}`} className="w-full h-full flex items-center justify-center">
             <img
               src={product.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'}
               alt={product.name}
               loading="lazy"
-              className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal group-hover:scale-108 transition-transform duration-500 ease-out"
+              className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-300 ease-out"
             />
           </Link>
 
@@ -137,7 +148,7 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* Content Info */}
-        <div className="mt-2.5 flex flex-col items-center sm:items-start">
+        <div className="mt-2.5 flex flex-col items-start w-full">
           {/* Brand & Rating Header */}
           <div className="w-full flex items-center justify-between text-[10px] sm:text-[11px] mb-1">
             <span className="font-bold text-emerald-700 dark:text-emerald-400 truncate max-w-[95px] sm:max-w-[130px]">
@@ -150,7 +161,7 @@ export default function ProductCard({ product }) {
           </div>
 
           {/* Title */}
-          <Link to={`/products/${product.slug || product._id}`} className="w-full text-center sm:text-left">
+          <Link to={`/products/${product.slug || product._id}`} className="w-full text-left">
             <h3 className="font-bold text-xs sm:text-sm text-neutral-900 dark:text-slate-100 font-heading line-clamp-2 min-h-[2rem] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors leading-tight">
               {product.name}
             </h3>
@@ -158,14 +169,14 @@ export default function ProductCard({ product }) {
 
           {/* Subcategory */}
           {product.subcategory && (
-            <p className="text-[9px] sm:text-[10px] text-neutral-400 dark:text-slate-500 font-medium truncate mt-0.5 text-center sm:text-left w-full">
+            <p className="text-[9px] sm:text-[10px] text-neutral-400 dark:text-slate-500 font-medium truncate mt-0.5 text-left w-full">
               {product.subcategory}
             </p>
           )}
 
           {/* Pack Size / Variant Selector Pills */}
           {hasVariants && (
-            <div className="mt-1.5 flex flex-wrap gap-1 justify-center sm:justify-start w-full">
+            <div className="mt-1.5 flex flex-wrap gap-1 justify-start w-full">
               {product.variants.map((v, idx) => (
                 <button
                   key={v.size}
@@ -184,7 +195,7 @@ export default function ProductCard({ product }) {
           )}
 
           {!hasVariants && (
-            <p className="text-[10px] sm:text-[11px] text-neutral-400 dark:text-slate-400 mt-1 font-medium text-center sm:text-left w-full">
+            <p className="text-[10px] sm:text-[11px] text-neutral-400 dark:text-slate-400 mt-1 font-medium text-left w-full">
               {product.unit}
             </p>
           )}
@@ -192,10 +203,10 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Price & Cart Stepper / Add Button */}
-      <div className="mt-2.5 pt-2 border-t border-neutral-100 dark:border-slate-800 flex flex-col xs:flex-row items-center justify-between gap-1.5 w-full">
-        <div className="flex flex-col items-center xs:items-start min-w-0">
+      <div className="mt-2.5 pt-2 border-t border-neutral-100 dark:border-slate-800 flex items-center justify-between gap-1.5 w-full">
+        <div className="flex flex-col items-start min-w-0">
           <div className="flex items-baseline space-x-1">
-            <span className="text-sm sm:text-base font-black text-neutral-900 dark:text-slate-100 font-heading">
+            <span className="text-xs sm:text-base font-black text-neutral-900 dark:text-slate-100 font-heading">
               ₹{sellingPrice % 1 === 0 ? sellingPrice : sellingPrice.toFixed(2)}
             </span>
             {hasDiscount && (
@@ -237,7 +248,7 @@ export default function ProductCard({ product }) {
           <button
             type="button"
             onClick={handleQuickAdd}
-            className={`w-full xs:w-auto px-3 sm:px-3.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition-all duration-300 shadow-xs flex-shrink-0 flex items-center justify-center active:scale-95 ${
+            className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition-all duration-300 shadow-xs flex-shrink-0 flex items-center justify-center active:scale-95 ${
               added
                 ? 'bg-emerald-500 text-white shadow-emerald-500/20'
                 : 'bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200 dark:border-emerald-800/50'

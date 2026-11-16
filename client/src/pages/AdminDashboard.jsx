@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import api from '../services/api';
 import { getSocket } from '../services/socket';
@@ -69,6 +70,10 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+
+  useEffect(() => {
+    document.title = 'Craved Admin | Operations Center';
+  }, []);
 
   // Analytics Data
   const [analytics, setAnalytics] = useState(null);
@@ -695,12 +700,14 @@ export default function AdminDashboard() {
               {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
             <div className="flex items-center space-x-2">
-              <span className="h-8 w-8 rounded-xl bg-brand-500 flex items-center justify-center font-black text-white text-base shadow-sm">
-                C
+              <span className="h-8 w-8 rounded-xl bg-gradient-to-tr from-brand-500 to-amber-500 flex items-center justify-center font-black text-white text-base shadow-sm">
+                <Shield className="h-4 w-4" />
               </span>
-              <span className="font-black text-lg tracking-tight text-white hidden sm:inline">Crave Command</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                Super Admin
+              <span className="font-black text-lg tracking-tight text-white font-heading">
+                Craved Admin
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-500/20 text-brand-300 border border-brand-500/30 hidden xs:inline-block">
+                Operations
               </span>
             </div>
           </div>
@@ -712,11 +719,19 @@ export default function AdminDashboard() {
             </div>
 
             <div className="flex items-center space-x-2 bg-neutral-800/80 pl-2 pr-3 py-1 rounded-xl border border-neutral-700">
-              <div className="h-6 w-6 rounded-lg bg-purple-600 flex items-center justify-center text-white text-xs font-bold">
+              <div className="h-6 w-6 rounded-lg bg-brand-600 flex items-center justify-center text-white text-xs font-bold">
                 {user?.name?.[0] || 'A'}
               </div>
               <span className="text-xs font-bold text-neutral-200">{user?.name}</span>
             </div>
+
+            <Link
+              to="/"
+              className="text-xs font-bold text-neutral-400 hover:text-white px-2.5 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 transition-colors hidden sm:inline-flex items-center gap-1"
+            >
+              <span>Store</span>
+              <ExternalLink className="h-3 w-3" />
+            </Link>
           </div>
         </div>
       </header>

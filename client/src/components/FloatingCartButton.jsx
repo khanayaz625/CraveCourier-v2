@@ -10,12 +10,14 @@ export default function FloatingCartButton() {
 
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Hide before sign in, on empty cart, or on cart and checkout pages
+  // Hide before sign in, on empty cart, or on cart, checkout, admin and delivery pages
   const isHidden =
     !isAuthenticated ||
     totalQuantity === 0 ||
     location.pathname === '/cart' ||
-    location.pathname === '/checkout';
+    location.pathname === '/checkout' ||
+    location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/delivery');
 
   if (isHidden) return null;
 

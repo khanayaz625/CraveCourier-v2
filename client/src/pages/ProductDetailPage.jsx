@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useCartStore } from '../store/useCartStore';
 import { useWishlistStore } from '../store/useWishlistStore';
+import { useAuthStore } from '../store/useAuthStore';
 import ProductCard from '../components/ProductCard';
 import EmptyState from '../components/EmptyState';
 import { ProductDetailSkeleton } from '../components/SkeletonLoader';
@@ -105,7 +106,13 @@ export default function ProductDetailPage() {
     ? activeVariant.discountPercent
     : (hasDiscount ? Math.round((savings / mrp) * 100) : 0);
 
+  const { isAuthenticated, openAuthModal } = useAuthStore();
+
   const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      openAuthModal();
+      return;
+    }
     try {
       await useCartStore.getState().addItem(product, quantity, activeVariant);
       setAdded(true);

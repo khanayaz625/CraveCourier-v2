@@ -112,7 +112,7 @@ export default function ProductListingPage() {
   ].filter(Boolean).length;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <div className="max-w-6xl mx-auto px-3.5 sm:px-4 py-6 space-y-6 overflow-x-hidden">
       {/* Search Header Row */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         <div className="w-full sm:max-w-md">
@@ -186,7 +186,7 @@ export default function ProductListingPage() {
 
       {/* Horizontal Scrollable Category Bar (All 19 Categories) */}
       <div className="relative">
-        <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none px-0.5">
           <button
             type="button"
             onClick={() => handleFilterChange('category', 'all')}
@@ -301,7 +301,7 @@ export default function ProductListingPage() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 justify-items-center sm:justify-items-stretch">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 w-full">
               {Array.from({ length: 8 }).map((_, i) => (
                 <ProductCardSkeleton key={i} />
               ))}
@@ -318,7 +318,7 @@ export default function ProductListingPage() {
               />
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 justify-items-center sm:justify-items-stretch">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 w-full">
               {products.map((product) => (
                 <ProductCard key={product._id} product={product} />
               ))}

@@ -1,14 +1,22 @@
 import { io } from 'socket.io-client';
 
 const getSocketUrl = () => {
-  const envUrl =
+  let url = (
     import.meta.env.VITE_SOCKET_URL ||
-    import.meta.env.VITE_API_BASE_URL?.replace(/\/api\/?$/, '') ||
-    import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '');
+    import.meta.env.VITE_API_BASE_URL ||
+    import.meta.env.VITE_API_URL ||
+    ''
+  ).trim();
 
-  if (envUrl && !envUrl.includes('cravecourier-api.onrender.com')) {
-    return envUrl;
+  // If pointing to the outdated 'cravecourier-api' host, redirect to the live Render deployment
+  if (url.includes('cravecourier-api.onrender.com')) {
+    url = 'https://cravecourier-v2-1.onrender.com';
   }
+
+  if (url) {
+    return url.replace(/\/api\/?$/, '').replace(/\/+$/, '');
+  }
+
   if (
     typeof window !== 'undefined' &&
     !window.location.hostname.includes('localhost') &&

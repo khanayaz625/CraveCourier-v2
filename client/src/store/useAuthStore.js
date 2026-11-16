@@ -8,6 +8,10 @@ export const useAuthStore = create((set, get) => ({
   isAuthenticated: false,
   isLoading: true,
   error: null,
+  authModalOpen: false,
+
+  openAuthModal: () => set({ authModalOpen: true }),
+  closeAuthModal: () => set({ authModalOpen: false }),
 
   clearError: () => set({ error: null }),
 

@@ -5,6 +5,7 @@ import SearchBar from '../components/SearchBar';
 import ProductCard from '../components/ProductCard';
 import { ProductCardSkeleton, CategoryChipSkeleton } from '../components/SkeletonLoader';
 import EmptyState from '../components/EmptyState';
+import { useAuthStore } from '../store/useAuthStore';
 import {
   Zap,
   ArrowRight,
@@ -18,10 +19,23 @@ import {
 } from 'lucide-react';
 
 export default function HomePage() {
+  const { isAuthenticated } = useAuthStore();
   const [categories, setCategories] = useState([]);
   const [banners, setBanners] = useState([]);
   const [sections, setSections] = useState({ deals: [], popular: [], groceries: [] });
   const [loading, setLoading] = useState(true);
+  const [hasPriorOrders, setHasPriorOrders] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      api.get('/orders/my-orders?limit=1')
+        .then((res) => {
+          const count = res.data?.pagination?.total ?? (res.data?.orders?.length || 0);
+          if (count > 0) setHasPriorOrders(true);
+        })
+        .catch(() => {});
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const fetchHomeData = async () => {
@@ -45,7 +59,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 space-y-12 pb-24 md:pb-12">
+    <div className="max-w-6xl mx-auto px-3.5 sm:px-4 py-6 space-y-10 sm:space-y-12 pb-24 md:pb-12 overflow-x-hidden">
       {/* 1. Gradient Hero Section */}
       <section className="relative rounded-3xl sm:rounded-4xl bg-gradient-to-br from-brand-500 via-brand-600 to-amber-500 p-5 sm:p-12 text-white shadow-glow overflow-hidden">
         <div className="relative z-10 max-w-xl space-y-3 sm:space-y-4">
@@ -138,7 +152,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="flex items-center space-x-2.5 sm:space-x-3 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex items-center space-x-2 sm:space-x-3 overflow-x-auto pb-2 scrollbar-none px-0.5">
           <Link
             to="/products"
             className="flex-shrink-0 flex items-center space-x-2 bg-brand-500 text-white rounded-full px-4 sm:px-5 py-2 font-bold text-xs shadow-md shadow-brand-500/20 hover:bg-brand-600 transition-all hover:scale-105"
@@ -199,7 +213,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 justify-items-center sm:justify-items-stretch">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 w-full">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : sections.deals.map((product) => <ProductCard key={product._id} product={product} />)}
@@ -229,7 +243,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 justify-items-center sm:justify-items-stretch">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 w-full">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : sections.popular.map((product) => (
@@ -261,7 +275,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 justify-items-center sm:justify-items-stretch">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 w-full">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : sections.groceries.map((product) => (
@@ -270,27 +284,29 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. Bottom Coupon CTA Card */}
-      <section className="bg-neutral-900 dark:bg-slate-900 rounded-4xl p-6 sm:p-10 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-card border border-neutral-800 dark:border-slate-800">
-        <div className="space-y-2 text-center sm:text-left">
-          <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
-            Welcome Promo
-          </span>
-          <h3 className="text-xl sm:text-3xl font-black font-heading">
-            Use code <code className="text-brand-400 font-mono">WELCOME50</code> at checkout
-          </h3>
-          <p className="text-xs sm:text-sm text-neutral-400 max-w-lg">
-            Enjoy 50% discount on your first order up to ₹50. Free delivery within 1 km, flat ₹20 beyond, zero hidden fees!
-          </p>
-        </div>
-        <Link
-          to="/products"
-          className="touch-target whitespace-nowrap px-8 py-3.5 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-xs sm:text-sm font-bold rounded-2xl shadow-glow transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
-        >
-          <ShoppingBag className="h-4 w-4" />
-          <span>Start Ordering Now</span>
-        </Link>
-      </section>
+      {/* 7. Bottom Coupon CTA Card (First Order Only) */}
+      {!hasPriorOrders && (
+        <section className="bg-neutral-900 dark:bg-slate-900 rounded-4xl p-6 sm:p-10 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-card border border-neutral-800 dark:border-slate-800">
+          <div className="space-y-2 text-center sm:text-left">
+            <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+              Welcome Promo
+            </span>
+            <h3 className="text-xl sm:text-3xl font-black font-heading">
+              Use code <code className="text-brand-400 font-mono">WELCOME50</code> at checkout
+            </h3>
+            <p className="text-xs sm:text-sm text-neutral-400 max-w-lg">
+              Enjoy 50% discount on your first order up to ₹50. Free delivery within 1 km, flat ₹20 beyond, zero hidden fees!
+            </p>
+          </div>
+          <Link
+            to="/products"
+            className="touch-target whitespace-nowrap px-8 py-3.5 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-xs sm:text-sm font-bold rounded-2xl shadow-glow transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+          >
+            <ShoppingBag className="h-4 w-4" />
+            <span>Start Ordering Now</span>
+          </Link>
+        </section>
+      )}
     </div>
   );
 }

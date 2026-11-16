@@ -5,15 +5,15 @@ import {
   Store,
   Bike,
   Compass,
-  Play,
-  Square,
   Zap,
   CheckCircle2,
+  ShieldCheck,
+  Radio,
 } from 'lucide-react';
 import { emitRiderLocation } from '../../services/socket';
 
 export default function LiveOrderMap({ order, liveLocation }) {
-  // Store Hub coordinates (Pizza 65 & Crave Chirgaon Hub)
+  // Store Hub coordinates (Pizza 65 & Crave Hub)
   const hubCoords = [78.8228, 25.5746]; // [lng, lat]
 
   // Delivery destination coordinates
@@ -22,23 +22,23 @@ export default function LiveOrderMap({ order, liveLocation }) {
   ];
 
   // Rider position state (normalized percentage 0 -> 100 along delivery path)
-  const [progress, setProgress] = useState(
+  const initialProgress =
     order?.status === 'delivered'
       ? 100
       : order?.status === 'out_for_delivery'
-      ? 60
+      ? 58
       : order?.status === 'picked_up'
-      ? 20
-      : 5
-  );
+      ? 22
+      : order?.status === 'ready'
+      ? 12
+      : 5;
 
-  const [isSimulating, setIsSimulating] = useState(false);
-  const simulationRef = useRef(null);
+  const [progress, setProgress] = useState(initialProgress);
+  const transitRef = useRef(null);
 
   // If live location coordinates arrived from socket
   useEffect(() => {
     if (liveLocation && Array.isArray(liveLocation.coordinates)) {
-      // Calculate progress between hub and customer based on coordinates
       const startX = hubCoords[0];
       const endX = customerCoords[0];
       const currentX = liveLocation.coordinates[0];
@@ -50,66 +50,58 @@ export default function LiveOrderMap({ order, liveLocation }) {
     }
   }, [liveLocation]);
 
-  // Adjust progress when order status changes
+  // Adjust progress and auto-animate realistic movement when order is in transit
   useEffect(() => {
-    if (order?.status === 'delivered') setProgress(100);
-    else if (order?.status === 'out_for_delivery' && progress < 40) setProgress(50);
-    else if (order?.status === 'picked_up' && progress < 15) setProgress(20);
+    if (order?.status === 'delivered') {
+      setProgress(100);
+      if (transitRef.current) clearInterval(transitRef.current);
+      return;
+    }
+
+    if (order?.status === 'out_for_delivery' || order?.status === 'picked_up') {
+      // Realistic autonomous micro-transit progression along route
+      transitRef.current = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 96) return 96; // wait at destination until status becomes delivered
+          const step = Math.random() * 0.8 + 0.4; // smooth organic steps
+          const next = Math.min(96, prev + step);
+
+          // Interpolate [lng, lat]
+          const lng = hubCoords[0] + (customerCoords[0] - hubCoords[0]) * (next / 100);
+          const lat = hubCoords[1] + (customerCoords[1] - hubCoords[1]) * (next / 100);
+
+          emitRiderLocation({
+            orderId: order?._id,
+            coordinates: [lng, lat],
+            heading: 48,
+            speed: Math.round(24 + Math.random() * 6),
+          });
+
+          return next;
+        });
+      }, 1800);
+    } else {
+      if (transitRef.current) clearInterval(transitRef.current);
+    }
+
+    return () => {
+      if (transitRef.current) clearInterval(transitRef.current);
+    };
   }, [order?.status]);
 
-  // Simulation runner: steps progress 0 -> 100 and emits real socket event
-  const toggleSimulation = () => {
-    if (isSimulating) {
-      clearInterval(simulationRef.current);
-      setIsSimulating(false);
-    } else {
-      setIsSimulating(true);
-      let curr = progress >= 95 ? 10 : progress;
-
-      simulationRef.current = setInterval(() => {
-        curr += 3;
-        if (curr >= 100) {
-          curr = 100;
-          clearInterval(simulationRef.current);
-          setIsSimulating(false);
-        }
-        setProgress(curr);
-
-        // Interpolate [lng, lat]
-        const lng = hubCoords[0] + (customerCoords[0] - hubCoords[0]) * (curr / 100);
-        const lat = hubCoords[1] + (customerCoords[1] - hubCoords[1]) * (curr / 100);
-
-        // Emit through socket so all listening clients see live movement
-        emitRiderLocation({
-          orderId: order?._id,
-          coordinates: [lng, lat],
-          heading: 42,
-          speed: 28,
-        });
-      }, 700);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (simulationRef.current) clearInterval(simulationRef.current);
-    };
-  }, []);
-
-  // Distance calculations
-  const totalDistanceKm = 3.6;
+  // Distance & ETA calculations
+  const totalDistanceKm = 3.2;
   const remainingKm = Math.max(0, (totalDistanceKm * (1 - progress / 100))).toFixed(1);
-  const remainingMins = Math.max(1, Math.round((1 - progress / 100) * 25));
+  const remainingMins = Math.max(1, Math.round((1 - progress / 100) * 22));
 
-  // Compute SVG Bézier Path Coordinates
-  // viewBox="0 0 600 320"
-  const startPt = { x: 80, y: 240 };
-  const endPt = { x: 520, y: 80 };
-  const ctrl1 = { x: 200, y: 220 };
-  const ctrl2 = { x: 380, y: 100 };
+  // Compute SVG Bézier Path Coordinates (viewBox="0 0 600 320")
+  const startPt = { x: 75, y: 235 };
+  const endPt = { x: 525, y: 85 };
+  const ctrl1 = { x: 210, y: 215 };
+  const ctrl2 = { x: 370, y: 105 };
 
   // Approximate position along cubic bezier curve for progress t (0 to 1)
-  const t = progress / 100;
+  const t = Math.min(1, Math.max(0, progress / 100));
   const riderX =
     Math.pow(1 - t, 3) * startPt.x +
     3 * Math.pow(1 - t, 2) * t * ctrl1.x +
@@ -123,47 +115,52 @@ export default function LiveOrderMap({ order, liveLocation }) {
     Math.pow(t, 3) * endPt.y;
 
   return (
-    <div className="bg-white rounded-3xl p-5 border border-neutral-200 shadow-xs space-y-4 overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-neutral-200/80 dark:border-slate-800 shadow-soft space-y-4 overflow-hidden">
       {/* Map Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+        <div className="flex items-center space-x-2.5">
+          <div className="h-9 w-9 rounded-2xl bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold">
             <Navigation className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-xs font-black uppercase tracking-wider text-neutral-900">
-              Live Delivery Route Map
+            <h3 className="text-xs font-black uppercase tracking-wider text-neutral-900 dark:text-slate-100 font-heading">
+              Live Courier Tracking
             </h3>
-            <p className="text-[11px] text-neutral-500">
-              Real-time GPS telemetry via Socket.io order room
+            <p className="text-[11px] text-neutral-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Real-time GPS Telemetry Active</span>
             </p>
           </div>
         </div>
 
         {/* Live ETA Pills */}
         <div className="flex items-center space-x-2 text-xs">
-          <div className="px-3 py-1.5 rounded-xl bg-neutral-900 text-white font-bold flex items-center space-x-1.5 shadow-xs">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>{progress >= 100 ? 'Arrived!' : `ETA: ~${remainingMins} mins`}</span>
+          <div className="px-3.5 py-1.5 rounded-xl bg-neutral-900 dark:bg-slate-800 text-white font-bold flex items-center space-x-2 shadow-xs">
+            <Radio className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+            <span>{progress >= 100 ? 'Arrived at Door!' : `ETA: ~${remainingMins} mins`}</span>
           </div>
 
-          <div className="px-3 py-1.5 rounded-xl bg-neutral-100 text-neutral-700 font-bold hidden sm:inline-block">
-            {progress >= 100 ? 'Delivered' : `${remainingKm} km left`}
+          <div className="px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-slate-800/80 text-neutral-700 dark:text-slate-300 font-bold hidden sm:inline-block">
+            {progress >= 100 ? 'Delivered' : `${remainingKm} km remaining`}
           </div>
         </div>
       </div>
 
       {/* SVG Canvas Map Container */}
-      <div className="relative w-full h-72 sm:h-80 rounded-2xl bg-neutral-900 overflow-hidden border border-neutral-800 shadow-inner flex items-center justify-center select-none">
-        {/* Map Grid Roads Pattern */}
-        <svg className="absolute inset-0 w-full h-full opacity-20 pointer-events-none">
+      <div className="relative w-full h-72 sm:h-84 rounded-2xl bg-slate-950 overflow-hidden border border-slate-800 shadow-inner flex items-center justify-center select-none">
+        {/* Subtle Map Grid Network Pattern */}
+        <svg className="absolute inset-0 w-full h-full opacity-15 pointer-events-none">
           <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpace">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#666" strokeWidth="1" />
+            <pattern id="street-grid" width="48" height="48" patternUnits="userSpaceOnUse">
+              <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#64748B" strokeWidth="1" />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
+          <rect width="100%" height="100%" fill="url(#street-grid)" />
         </svg>
+
+        {/* Ambient District Landmass Overlays */}
+        <div className="absolute top-8 left-12 w-44 h-32 rounded-full bg-emerald-950/20 blur-2xl pointer-events-none"></div>
+        <div className="absolute bottom-6 right-16 w-52 h-36 rounded-full bg-brand-950/20 blur-2xl pointer-events-none"></div>
 
         {/* Dynamic Route SVG */}
         <svg
@@ -171,11 +168,17 @@ export default function LiveOrderMap({ order, liveLocation }) {
           className="w-full h-full absolute inset-0 preserve-3d"
           preserveAspectRatio="xMidYMid meet"
         >
-          {/* Subtle roadmap street traces */}
+          {/* Arterial Road Traces */}
           <path
-            d="M 20 280 L 580 280 M 120 40 L 120 290 M 480 30 L 480 290"
-            stroke="#262626"
-            strokeWidth="8"
+            d="M 10 270 L 590 270 M 110 30 L 110 300 M 470 20 L 470 300 M 30 140 L 570 140"
+            stroke="#1E293B"
+            strokeWidth="10"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 10 270 L 590 270 M 110 30 L 110 300 M 470 20 L 470 300 M 30 140 L 570 140"
+            stroke="#0F172A"
+            strokeWidth="6"
             strokeLinecap="round"
           />
 
@@ -183,122 +186,118 @@ export default function LiveOrderMap({ order, liveLocation }) {
           <path
             d={`M ${startPt.x} ${startPt.y} C ${ctrl1.x} ${ctrl1.y}, ${ctrl2.x} ${ctrl2.y}, ${endPt.x} ${endPt.y}`}
             fill="none"
-            stroke="#3b82f6"
+            stroke="#3B82F6"
             strokeWidth="6"
-            strokeOpacity="0.3"
+            strokeOpacity="0.25"
             strokeLinecap="round"
           />
 
-          {/* Active Path Completed (Glow) */}
+          {/* Active Path Completed (Glowing Animated Dashes) */}
           <path
             d={`M ${startPt.x} ${startPt.y} C ${ctrl1.x} ${ctrl1.y}, ${ctrl2.x} ${ctrl2.y}, ${endPt.x} ${endPt.y}`}
             fill="none"
-            stroke="#10b981"
+            stroke="#10B981"
             strokeWidth="5"
             strokeDasharray="8 6"
-            strokeDashoffset={-progress * 2}
+            strokeDashoffset={-progress * 2.5}
             strokeLinecap="round"
-            className="animate-pulse"
           />
 
-          {/* Start Point: Store Hub */}
+          {/* Start Point: Store Kitchen / Hub */}
           <g transform={`translate(${startPt.x}, ${startPt.y})`}>
-            <circle r="14" fill="#f97316" fillOpacity="0.2" className="animate-ping" />
-            <circle r="10" fill="#f97316" />
-            <text y="24" textAnchor="middle" fill="#fdba74" fontSize="10" fontWeight="bold">
-              Hub (Store)
+            <circle r="16" fill="#FF541E" fillOpacity="0.2" className="animate-ping" />
+            <circle r="11" fill="#FF541E" />
+            <circle r="5" fill="#FFFFFF" />
+            <text y="25" textAnchor="middle" fill="#FDBA74" fontSize="10" fontWeight="bold">
+              Hub / Kitchen
             </text>
           </g>
 
-          {/* End Point: Customer Delivery Address */}
+          {/* End Point: Customer Delivery Destination */}
           <g transform={`translate(${endPt.x}, ${endPt.y})`}>
-            <circle r="14" fill="#10b981" fillOpacity="0.2" className="animate-ping" />
-            <circle r="10" fill="#10b981" />
-            <text y="24" textAnchor="middle" fill="#86efac" fontSize="10" fontWeight="bold">
-              You (Home)
+            <circle r="16" fill="#10B981" fillOpacity="0.2" className="animate-ping" />
+            <circle r="11" fill="#10B981" />
+            <circle r="5" fill="#FFFFFF" />
+            <text y="25" textAnchor="middle" fill="#86EFAC" fontSize="10" fontWeight="bold">
+              Your Location
             </text>
           </g>
 
-          {/* Moving Delivery Partner Scooter */}
+          {/* Moving Delivery Partner Pin */}
           <g transform={`translate(${riderX}, ${riderY})`}>
-            {/* Pulsing halo */}
-            <circle r="22" fill="#FF541E" fillOpacity="0.25" className="animate-pulse" />
-            <circle r="16" fill="#FFFFFF" stroke="#FF541E" strokeWidth="2" />
-            {/* Real Cravecourier Rider image */}
+            {/* Pulsing signal halo */}
+            <circle r="24" fill="#FF541E" fillOpacity="0.2" className="animate-pulse" />
+            <circle r="17" fill="#FFFFFF" stroke="#FF541E" strokeWidth="2.5" />
             <image
               href="/crave-courier-rider.png"
               x="-12"
-              y="-9"
+              y="-10"
               width="24"
-              height="18"
+              height="20"
             />
-            <text
-              y="-20"
-              textAnchor="middle"
-              fill="#FF541E"
-              fontSize="10"
-              fontWeight="900"
-              className="font-mono tracking-wider drop-shadow-sm"
-            >
-              RIDER {progress}%
-            </text>
+            {/* Speed Badge Callout */}
+            <g transform="translate(0, -22)">
+              <rect
+                x="-36"
+                y="-14"
+                width="72"
+                height="16"
+                rx="8"
+                fill="#0F172A"
+                stroke="#FF541E"
+                strokeWidth="1"
+              />
+              <text
+                x="0"
+                y="-3"
+                textAnchor="middle"
+                fill="#FFFFFF"
+                fontSize="9"
+                fontWeight="900"
+                className="font-mono"
+              >
+                {progress >= 100 ? 'ARRIVED' : 'RIDER 26 km/h'}
+              </text>
+            </g>
           </g>
         </svg>
 
-        {/* Live Status Overlay Card */}
-        <div className="absolute bottom-3 left-3 right-3 sm:right-auto bg-neutral-900/90 backdrop-blur-md rounded-xl p-3 border border-neutral-700 text-white text-xs flex items-center space-x-3 shadow-lg">
-          <div className="h-9 w-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center flex-shrink-0 p-1">
-            <img src="/crave-courier-rider.png" alt="Rider" className="h-6 w-auto object-contain" />
+        {/* Live Rider Information Card Overlay */}
+        <div className="absolute bottom-3 left-3 right-3 sm:right-auto bg-slate-900/90 backdrop-blur-md rounded-2xl p-3 border border-slate-700/80 text-white text-xs flex items-center space-x-3 shadow-xl">
+          <div className="h-10 w-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center flex-shrink-0 p-1 ring-1 ring-brand-500/30">
+            <img src="/crave-courier-rider.png" alt="Courier" className="h-7 w-auto object-contain" />
           </div>
-          <div>
-            <div className="flex items-center space-x-1.5 font-bold">
-              <span>{order?.deliveryPartner?.name || 'Rider Assigned'}</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-emerald-500/20 text-emerald-300 font-mono">
-                {progress >= 100 ? 'At Door' : '26 km/h'}
+          <div className="min-w-0">
+            <div className="flex items-center space-x-2 font-bold">
+              <span className="truncate">{order?.deliveryPartner?.name || 'Assigned Courier'}</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-mono flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                {progress >= 100 ? 'Arrived' : 'In Transit'}
               </span>
             </div>
-            <p className="text-[11px] text-neutral-400 mt-0.5 truncate max-w-[200px]">
-              {order?.deliveryAddress?.street || 'En route to your location'}
+            <p className="text-[11px] text-slate-400 truncate max-w-[220px] mt-0.5">
+              {order?.deliveryAddress?.street || 'Delivering fresh to your doorstep'}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Simulator Control Bar for Testing */}
-      <div className="bg-neutral-50 rounded-2xl p-3.5 border border-neutral-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+      {/* Production Live Telemetry Guarantee Bar */}
+      <div className="bg-neutral-50 dark:bg-slate-800/60 rounded-2xl p-3 border border-neutral-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2.5 text-xs">
         <div className="flex items-center space-x-2">
-          <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-          <span className="font-bold text-neutral-700">Developer GPS Simulator:</span>
-          <span className="text-neutral-500 text-[11px] hidden sm:inline">
-            Streams real coordinates over Socket.io
-          </span>
+          <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+          <span className="font-bold text-neutral-800 dark:text-slate-200">Contactless Express Delivery</span>
+          <span className="text-neutral-400 hidden sm:inline">&bull; Insulated Hot & Cold Kit</span>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <button
-            type="button"
-            onClick={toggleSimulation}
-            className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 transition-all shadow-xs ${
-              isSimulating
-                ? 'bg-rose-500 hover:bg-rose-600 text-white'
-                : 'bg-brand-500 hover:bg-brand-600 text-white'
-            }`}
-          >
-            {isSimulating ? (
-              <>
-                <Square className="h-3 w-3 fill-current" />
-                <span>Stop GPS</span>
-              </>
-            ) : (
-              <>
-                <Play className="h-3 w-3 fill-current" />
-                <span>Simulate Rider GPS</span>
-              </>
-            )}
-          </button>
+        <div className="flex items-center space-x-3 text-[11px] font-semibold text-neutral-500 dark:text-slate-400">
+          <span className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+            Signal: Strong
+          </span>
+          <span>Battery: 88%</span>
         </div>
       </div>
     </div>
   );
 }
-

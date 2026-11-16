@@ -37,19 +37,8 @@ export default function LoginPage() {
     }
   };
 
-  const fillDemo = (demoRole) => {
-    setRole(demoRole);
-    if (demoRole === 'customer') {
-      setEmail('customer@crave.com');
-      setPassword('Customer@12345');
-    } else {
-      setEmail('delivery@crave.com');
-      setPassword('Delivery@12345');
-    }
-  };
-
   return (
-    <div className="min-h-[calc(100vh-60px)] flex flex-col justify-center py-8 pb-28 sm:py-10 sm:pb-12 px-4 sm:px-6 lg:px-8 bg-neutral-50">
+    <div className="min-h-[calc(100vh-60px)] flex flex-col justify-center py-8 pb-28 sm:py-10 sm:pb-12 px-4 sm:px-6 lg:px-8 bg-neutral-50 dark:bg-slate-950">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <div className="flex justify-center mb-4">
@@ -183,31 +172,8 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Quick Demo Pre-fill for Testing */}
-          <div className="mt-6 pt-5 border-t border-neutral-200/80">
-            <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider text-center mb-2.5">
-              Quick Demo Fill
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => fillDemo('customer')}
-                className="text-[11px] py-1.5 px-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg font-medium transition-colors text-center"
-              >
-                Customer Demo
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo('delivery')}
-                className="text-[11px] py-1.5 px-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg font-medium transition-colors text-center"
-              >
-                Partner Demo
-              </button>
-            </div>
-          </div>
-
           {/* Links */}
-          <div className="mt-5 text-center text-xs text-neutral-500">
+          <div className="mt-6 text-center text-xs text-neutral-500">
             Don't have an account?{' '}
             <Link
               to="/register"

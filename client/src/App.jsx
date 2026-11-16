@@ -11,6 +11,7 @@ import BottomNav from './components/BottomNav';
 import FloatingCartButton from './components/FloatingCartButton';
 import InstallPwaPrompt from './components/InstallPwaPrompt';
 import FirstTimeSignupModal from './components/FirstTimeSignupModal';
+import AuthRequiredModal from './components/AuthRequiredModal';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleRoute from './components/RoleRoute';
 import ToastContainer from './components/notifications/ToastContainer';
@@ -30,6 +31,7 @@ const OrdersPage = lazy(() => import('./pages/OrdersPage'));
 const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'));
 const DeliveryDashboard = lazy(() => import('./pages/DeliveryDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AccountPage = lazy(() => import('./pages/AccountPage'));
 
 // Authentication Pages
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -98,6 +100,8 @@ export default function App() {
       <div className="min-h-screen bg-neutral-50 dark:bg-slate-950 text-neutral-900 dark:text-slate-100 flex flex-col justify-between font-sans transition-colors duration-200">
         <Navbar />
         <ToastContainer />
+        <AuthRequiredModal />
+        <FirstTimeSignupModal />
 
         <main className="flex-1 pb-24 md:pb-8">
           <Suspense fallback={<RouteLoader />}>
@@ -111,6 +115,7 @@ export default function App() {
 
               {/* Customer Storefront (Home) */}
               <Route path="/" element={<HomePage />} />
+              <Route path="/account" element={<AccountPage />} />
 
               {/* Catalog & Product Discovery */}
               <Route path="/products" element={<ProductListingPage />} />
