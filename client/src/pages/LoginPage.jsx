@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { User, Bike, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowRight, Shield } from 'lucide-react';
@@ -11,11 +11,23 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState('');
 
-  const { login, isLoading, error: storeError, clearError } = useAuthStore();
+  const { login, isLoading, error: storeError, clearError, isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from?.pathname || (role === 'delivery' ? '/partner' : '/');
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === 'delivery') {
+        navigate('/partner', { replace: true });
+      } else if (user.role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, navigate, from]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

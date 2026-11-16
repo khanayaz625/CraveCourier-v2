@@ -1,12 +1,32 @@
 import { create } from 'zustand';
-import api, { setAccessToken } from '../services/api';
+import api, { setAccessToken, getAccessToken } from '../services/api';
 import { useCartStore } from './useCartStore';
 
+const getInitialAuthState = () => {
+  if (typeof window === 'undefined') {
+    return { user: null, accessToken: null, isAuthenticated: false };
+  }
+  try {
+    const token = localStorage.getItem('crave_auth_token');
+    const storedUser = localStorage.getItem('crave_auth_user');
+    if (token && storedUser) {
+      const user = JSON.parse(storedUser);
+      setAccessToken(token);
+      return { user, accessToken: token, isAuthenticated: true };
+    }
+  } catch (err) {
+    console.error('Failed to parse auth state from localStorage:', err);
+  }
+  return { user: null, accessToken: null, isAuthenticated: false };
+};
+
+const initialAuth = getInitialAuthState();
+
 export const useAuthStore = create((set, get) => ({
-  user: null,
-  accessToken: null,
-  isAuthenticated: false,
-  isLoading: true,
+  user: initialAuth.user,
+  accessToken: initialAuth.accessToken,
+  isAuthenticated: initialAuth.isAuthenticated,
+  isLoading: false,
   error: null,
   authModalOpen: false,
 
@@ -16,16 +36,57 @@ export const useAuthStore = create((set, get) => ({
   clearError: () => set({ error: null }),
 
   /**
-   * Boot-up session check using the httpOnly refresh cookie
+   * Boot-up session check: retains persisted session on refresh and validates in background
    */
   checkAuth: async () => {
-    set({ isLoading: true, error: null });
+    const currentToken = getAccessToken();
+    const storedUser =
+      typeof window !== 'undefined' ? localStorage.getItem('crave_auth_user') : null;
+
+    if (currentToken && storedUser) {
+      // User is already signed in via persistent storage.
+      // Validate session in the background without blocking the UI.
+      try {
+        const res = await api.get('/auth/me');
+        const user = res.data?.user;
+        if (user) {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('crave_auth_user', JSON.stringify(user));
+          }
+          set({ user, isAuthenticated: true, isLoading: false });
+        }
+        useCartStore.getState().syncGuestCart();
+        useCartStore.getState().fetchCart();
+      } catch (err) {
+        // Only clear session if token is truly invalid/expired (401)
+        if (err.statusCode === 401 || err.response?.status === 401) {
+          setAccessToken(null);
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('crave_auth_token');
+            localStorage.removeItem('crave_auth_user');
+          }
+          set({
+            user: null,
+            accessToken: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        }
+      }
+      return;
+    }
+
+    // No localStorage session: check for httpOnly refresh cookie
     try {
       const res = await api.post('/auth/refresh-token');
       const token = res.data?.accessToken;
       const user = res.data?.user;
 
       setAccessToken(token);
+      if (typeof window !== 'undefined' && token && user) {
+        localStorage.setItem('crave_auth_token', token);
+        localStorage.setItem('crave_auth_user', JSON.stringify(user));
+      }
       set({
         user,
         accessToken: token,
@@ -36,6 +97,10 @@ export const useAuthStore = create((set, get) => ({
       useCartStore.getState().fetchCart();
     } catch {
       setAccessToken(null);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('crave_auth_token');
+        localStorage.removeItem('crave_auth_user');
+      }
       set({
         user: null,
         accessToken: null,
@@ -55,6 +120,10 @@ export const useAuthStore = create((set, get) => ({
       const { user, accessToken } = res.data;
 
       setAccessToken(accessToken);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('crave_auth_token', accessToken);
+        localStorage.setItem('crave_auth_user', JSON.stringify(user));
+      }
       set({
         user,
         accessToken,
@@ -80,6 +149,10 @@ export const useAuthStore = create((set, get) => ({
       const { user, accessToken } = res.data;
 
       setAccessToken(accessToken);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('crave_auth_token', accessToken);
+        localStorage.setItem('crave_auth_user', JSON.stringify(user));
+      }
       set({
         user,
         accessToken,
@@ -104,11 +177,17 @@ export const useAuthStore = create((set, get) => ({
       const res = await api.post('/auth/register', userData);
       const { user, accessToken, devOtp } = res.data;
 
-      setAccessToken(accessToken);
+      if (accessToken) {
+        setAccessToken(accessToken);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('crave_auth_token', accessToken);
+          localStorage.setItem('crave_auth_user', JSON.stringify(user));
+        }
+      }
       set({
         user,
         accessToken,
-        isAuthenticated: true,
+        isAuthenticated: !!accessToken,
         isLoading: false,
       });
       return { user, devOtp };
@@ -128,6 +207,10 @@ export const useAuthStore = create((set, get) => ({
       // Proceed with local logout regardless of network error
     } finally {
       setAccessToken(null);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('crave_auth_token');
+        localStorage.removeItem('crave_auth_user');
+      }
       set({
         user: null,
         accessToken: null,

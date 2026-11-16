@@ -44,7 +44,7 @@ export default function FloatingCartButton() {
             View Basket
           </span>
           <span className="text-xs sm:text-sm font-black tracking-tight">
-            ₹{(totals?.grandTotal || 0) % 1 === 0 ? (totals?.grandTotal || 0) : (totals?.grandTotal || 0).toFixed(2)}
+            ₹{(totals?.itemTotal || 0) % 1 === 0 ? (totals?.itemTotal || 0) : (totals?.itemTotal || 0).toFixed(2)}
           </span>
         </div>
 

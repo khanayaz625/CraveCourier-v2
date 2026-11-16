@@ -39,19 +39,34 @@ const api = axios.create({
   timeout: 45000,
 });
 
-let inMemoryToken = null;
+let inMemoryToken =
+  typeof window !== 'undefined' ? localStorage.getItem('crave_auth_token') : null;
 
 export const setAccessToken = (token) => {
   inMemoryToken = token;
+  if (typeof window !== 'undefined') {
+    if (token) {
+      localStorage.setItem('crave_auth_token', token);
+    } else {
+      localStorage.removeItem('crave_auth_token');
+    }
+  }
 };
 
-export const getAccessToken = () => inMemoryToken;
+export const getAccessToken = () => {
+  if (inMemoryToken) return inMemoryToken;
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('crave_auth_token');
+  }
+  return null;
+};
 
-// Request Interceptor: Attach in-memory access token
+// Request Interceptor: Attach access token from memory or persistent storage
 api.interceptors.request.use(
   (config) => {
-    if (inMemoryToken) {
-      config.headers.Authorization = `Bearer ${inMemoryToken}`;
+    const token = getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -115,6 +130,10 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         setAccessToken(null);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('crave_auth_token');
+          localStorage.removeItem('crave_auth_user');
+        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

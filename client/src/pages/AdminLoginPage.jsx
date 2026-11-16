@@ -9,12 +9,15 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState('');
 
-  const { adminLogin, isLoading, error: storeError, clearError } = useAuthStore();
+  const { adminLogin, isLoading, error: storeError, clearError, isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'Craved Admin | Secure Login';
-  }, []);
+    if (isAuthenticated && user?.role === 'admin') {
+      navigate('/admin', { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
