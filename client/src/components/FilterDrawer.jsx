@@ -132,7 +132,7 @@ export default function FilterDrawer({
             <label className="block font-bold text-neutral-800 mb-2 uppercase tracking-wider text-[10px]">
               Categories
             </label>
-            <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
+            <div className="space-y-1 max-h-40 overflow-y-auto pr-1 scrollbar-none no-scrollbar [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <button
                 type="button"
                 onClick={() => onFilterChange('category', 'all')}

@@ -186,7 +186,7 @@ export default function ProductListingPage() {
 
       {/* Horizontal Scrollable Category Bar (All 19 Categories) */}
       <div className="relative">
-        <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none px-0.5">
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none no-scrollbar [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-0.5">
           <button
             type="button"
             onClick={() => handleFilterChange('category', 'all')}

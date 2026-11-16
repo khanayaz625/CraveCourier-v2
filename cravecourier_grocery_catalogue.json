@@ -98,7 +98,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Fortune Moong Dal Dhuli (Yellow Split), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -145,7 +145,8 @@
       "dhuli moong",
       "split moong"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAL-003",
@@ -311,7 +312,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Fortune Masoor Dal Malka (Red Split), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -358,7 +359,8 @@
       "red lentils",
       "split masoor"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAL-006",
@@ -446,7 +448,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1514733670139-4d87a1941d55?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tata Sampann Urad Dal Dhuli (White Split), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -493,7 +495,8 @@
       "idli dal",
       "dosa batter dal"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1514733670139-4d87a1941d55?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAL-008",
@@ -514,7 +517,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1514733670139-4d87a1941d55?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Catch Sabut Urad Kaali (Dal Makhani Special), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -561,7 +564,8 @@
       "black gram",
       "kaali dal"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1514733670139-4d87a1941d55?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAL-009",
@@ -649,7 +653,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1587334274328-64186a80aeee?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tata Sampann Kabuli Chana (Jumbo Chickpeas), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -706,7 +710,8 @@
       "chickpeas",
       "white chana"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1587334274328-64186a80aeee?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAL-011",
@@ -727,7 +732,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1587334274328-64186a80aeee?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Rajdhani Desi Kala Chana (Brown Chickpeas), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -774,7 +779,8 @@
       "brown chickpeas",
       "ghugni"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1587334274328-64186a80aeee?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAL-012",
@@ -795,7 +801,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Fortune Royal Rajma Chitra (Himalayan), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -842,7 +848,8 @@
       "rajma chawal",
       "chitra"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAL-013",
@@ -863,7 +870,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Catch Kashmiri Red Small Rajma, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -909,7 +916,8 @@
       "red rajma",
       "jammu rajma"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAL-014",
@@ -1055,7 +1063,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Fortune Soybean Whole Grains, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -1101,7 +1109,8 @@
       "soya whole",
       "protein grain"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-ATT-001",
@@ -1191,7 +1200,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Aashirvaad Multigrain Atta with 6 Grains, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -1228,7 +1237,8 @@
       "fiber atta",
       "aashirvaad multigrain"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-ATT-003",
@@ -1249,7 +1259,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Fortune Chakki Fresh Pure Wheat Atta, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -1285,7 +1295,8 @@
       "wheat flour",
       "chakki fresh"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-ATT-004",
@@ -1306,7 +1317,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Rajdhani Superfine Besan (Gram Flour), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -1344,7 +1355,8 @@
       "pakora besan",
       "rajdhani besan"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-ATT-005",
@@ -1365,7 +1377,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1543362906-acfc16c67564?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tata Sampann Fine Granulated Sooji / Rawa, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -1402,7 +1414,8 @@
       "semolina",
       "halwa sooji"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1543362906-acfc16c67564?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-ATT-006",
@@ -1481,7 +1494,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Organic Tattva Fine Rice Flour (Chawal Atta), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -1517,7 +1530,8 @@
       "chawal ka atta",
       "modak flour"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-ATT-008",
@@ -1538,7 +1552,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Rajdhani Yellow Makki Ka Atta (Maize Flour), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -1565,7 +1579,8 @@
       "maize flour",
       "makki ki roti"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-ATT-009",
@@ -1586,7 +1601,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Organic Tattva Desi Bajra Flour (Pearl Millet), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -1613,7 +1628,8 @@
       "millet flour",
       "bajra roti"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-ATT-010",
@@ -1739,7 +1755,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Ramdev Pure Kuttu Ka Atta (Buckwheat), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -1776,7 +1792,8 @@
       "vrat atta",
       "navratri atta"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-ATT-013",
@@ -1797,7 +1814,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Ramdev Pure Singhara Atta (Water Chestnut), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -1823,7 +1840,8 @@
       "water chestnut flour",
       "vrat flour"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-ATT-014",
@@ -1902,7 +1920,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tata Sampann Thick Rice Poha (Flattened Rice), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -1939,7 +1957,8 @@
       "kanda poha",
       "chivda poha"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-ATT-016",
@@ -1960,7 +1979,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Rajdhani Paper Thin Poha for Chivda, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -1997,7 +2016,8 @@
       "nylon poha",
       "chivda"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-001",
@@ -2076,7 +2096,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Daawat Biryani Basmati Rice Longest Grain, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -2112,7 +2132,8 @@
       "longest basmati",
       "pulao rice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-003",
@@ -2133,7 +2154,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1568600891621-50f697b9a1c7?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of India Gate Feast Rozzana Basmati Rice, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -2169,7 +2190,8 @@
       "everyday basmati",
       "daily rice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-004",
@@ -2190,7 +2212,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596560548464-f010549b84d7?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Fortune Special Biryani Basmati Rice, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -2226,7 +2248,8 @@
       "sella basmati",
       "1121 rice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-005",
@@ -2304,7 +2327,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of India Gate Mogra Basmati Rice (Broken), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -2340,7 +2363,8 @@
       "broken basmati",
       "kheer rice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-007",
@@ -2361,7 +2385,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1568600891621-50f697b9a1c7?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Royal Bullet Wada Kolam Rice, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -2397,7 +2421,8 @@
       "kolam rice",
       "bullet kolam"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-008",
@@ -2418,7 +2443,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596560548464-f010549b84d7?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of India Gate Sona Masoori Raw Rice, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -2454,7 +2479,8 @@
       "andhra rice",
       "daily rice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-009",
@@ -2532,7 +2558,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Bengal Pure Govindobhog Fragrant Rice, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -2559,7 +2585,8 @@
       "payesh rice",
       "bengali rice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-011",
@@ -2580,7 +2607,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1568600891621-50f697b9a1c7?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Maharashtra Indrayani Scented Sticky Rice, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -2606,7 +2633,8 @@
       "varan bhat",
       "scented rice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-012",
@@ -2627,7 +2655,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596560548464-f010549b84d7?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of India Gate Brown Basmati Quick Cook Rice, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -2654,7 +2682,8 @@
       "diet rice",
       "low gi rice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-013",
@@ -2675,7 +2704,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1516684732162-798a0062be99?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Daawat Quick Cooking Brown Rice, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -2700,7 +2729,8 @@
       "daawat brown rice",
       "quick brown rice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1516684732162-798a0062be99?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-014",
@@ -2721,7 +2751,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of South Special Parboiled Idli Rice, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -2747,7 +2777,8 @@
       "parboiled rice",
       "dosa rice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-RIC-015",
@@ -2768,7 +2799,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1568600891621-50f697b9a1c7?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Seeraga Samba / Jeera Rice Traditional, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -2795,7 +2826,8 @@
       "jeerakasala",
       "ambur biryani rice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-OIL-001",
@@ -2884,7 +2916,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1594998893017-36147cbcae05?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Engine Brand Agmark Kachi Ghani Mustard Oil, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -2920,7 +2952,8 @@
       "engine sarson",
       "agmark mustard"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-OIL-003",
@@ -2941,7 +2974,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Fortune Sunlite Refined Sunflower Oil, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -2977,7 +3010,8 @@
       "refined oil",
       "fortune sunflower"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-OIL-004",
@@ -3400,7 +3434,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1533246736444-59cb2cf35767?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Figaro Pure Olive Oil Glass Bottle, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -3436,7 +3470,8 @@
       "olive oil",
       "cooking olive oil"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1533246736444-59cb2cf35767?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-OIL-012",
@@ -3457,7 +3492,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1594998893017-36147cbcae05?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1533246736444-59cb2cf35767?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Borges Extra Virgin Olive Oil Cold Pressed, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -3492,7 +3527,8 @@
       "borges evoo",
       "extra virgin olive oil"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1533246736444-59cb2cf35767?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-OIL-013",
@@ -3570,7 +3606,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1594998893017-36147cbcae05?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Fortune Rice Bran Health Physically Refined Oil, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -3605,7 +3641,8 @@
       "rice bran oil",
       "fortune rice bran"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-OIL-015",
@@ -3799,7 +3836,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Everest Tikhalal Hot Chilli Powder, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -3835,7 +3872,8 @@
       "everest chilli",
       "spicy chilli powder"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-MAS-004",
@@ -3856,7 +3894,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1596040033282-e0d046c8e37e?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Everest Coriander Powder (Dhaniya), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -3892,7 +3930,8 @@
       "coriander powder",
       "everest dhaniya"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1596040033282-e0d046c8e37e?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-MAS-005",
@@ -3981,7 +4020,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Catch Small Black Mustard Seeds (Rai / Sarson), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -4017,7 +4056,8 @@
       "mustard seeds",
       "sarson ke dane"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-MAS-007",
@@ -4038,7 +4078,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of MDH Garam Masala Shahi Blend, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -4074,7 +4114,8 @@
       "shahi garam masala",
       "curry powder"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-MAS-008",
@@ -4152,7 +4193,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Everest Kitchen King Masala All-in-One, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -4178,7 +4219,8 @@
       "everest kitchen king",
       "sabji masala"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-MAS-010",
@@ -4292,7 +4334,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of MTR Madras Sambar Powder, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -4328,7 +4370,8 @@
       "mtr sambar",
       "madras sambar"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-MAS-013",
@@ -4463,7 +4506,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Catch Whole Cloves (Laung), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -4499,7 +4542,8 @@
       "cloves",
       "lavang"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-MAS-016",
@@ -4520,7 +4564,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Catch Green Cardamom (Chhoti Elaichi) Jumbo, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -4556,7 +4600,8 @@
       "green cardamom",
       "chhoti elaichi"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-MAS-017",
@@ -4577,7 +4622,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Catch Black Peppercorns Whole (Kali Mirch), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -4613,7 +4658,8 @@
       "black pepper",
       "peppercorns"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-MAS-018",
@@ -4785,7 +4831,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of MDH Kasuri Lal Mirch Kashmiri Chilli, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -4811,7 +4857,8 @@
       "deghi mirch",
       "kashmiri chilli"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-MAS-022",
@@ -4832,7 +4879,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tata Sampann Hing (Compounded Asafoetida), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -4859,7 +4906,8 @@
       "bandhani hing",
       "tadka hing"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SUG-001",
@@ -4938,7 +4986,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1626082896492-766af4eb6501?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tata Vacuum Evaporated Iodized Salt, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -4965,7 +5013,8 @@
       "iodized salt",
       "white salt"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SUG-003",
@@ -4986,7 +5035,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1626082896492-766af4eb6501?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tata Salt Lite Low Sodium Salt (15% Less Sodium), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -5012,7 +5061,8 @@
       "low sodium salt",
       "bp salt"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SUG-004",
@@ -5033,7 +5083,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1626082896492-766af4eb6501?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tata Rock Salt (Sendha Namak), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -5070,7 +5120,8 @@
       "pink salt",
       "vrat namak"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SUG-005",
@@ -5091,7 +5142,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1626082896492-766af4eb6501?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Catch Kala Namak Sprinkler (Black Salt), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -5127,7 +5178,8 @@
       "black salt",
       "raita salt"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SUG-006",
@@ -5148,7 +5200,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1581441363689-1f3c3c414635?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Organic Tattva Desi Jaggery Cubes (Gur), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -5185,7 +5237,8 @@
       "desi gur",
       "cane jaggery"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SUG-007",
@@ -5206,7 +5259,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1581441363689-1f3c3c414635?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Organic Tattva Natural Jaggery Powder (Shakkar), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -5242,7 +5295,8 @@
       "jaggery powder",
       "gur powder"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SUG-008",
@@ -5677,7 +5731,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Happilo Indian Long Golden Raisins (Kishmish), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -5714,7 +5768,8 @@
       "kismis",
       "dry grapes"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DRY-004",
@@ -5735,7 +5790,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Happilo Roasted & Salted Pistachios (Pista), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -5772,7 +5827,8 @@
       "salted pista",
       "happilo pista"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DRY-005",
@@ -6109,7 +6165,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1536591375315-1b83683e326c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Happilo Royal Trail Mix Nut & Fruit Medley, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -6135,7 +6191,8 @@
       "mixed nuts",
       "dry fruit mix"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DRY-012",
@@ -6203,7 +6260,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Happilo Dry Afghan Black Raisins with Seeds, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -6229,7 +6286,8 @@
       "kali kishmish",
       "munakka"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DRY-014",
@@ -6345,7 +6403,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tata Tea Gold Strong & Aromatic Leaf Blend, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -6392,7 +6450,8 @@
       "assam tea",
       "black tea"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BEV-002",
@@ -6481,7 +6540,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Wagh Bakri Premium CTC Tea Leaf Pouch, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -6517,7 +6576,8 @@
       "chai",
       "gujarat tea"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BEV-004",
@@ -6538,7 +6598,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Nescafe Classic 100% Pure Instant Coffee Jar, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -6575,7 +6635,8 @@
       "black coffee",
       "nescafe classic"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BEV-005",
@@ -6596,7 +6657,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Bru Instant Coffee Chicory Mix Pouch, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -6633,7 +6694,8 @@
       "coffee chicory",
       "south coffee"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BEV-006",
@@ -6702,7 +6764,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Cadbury Bournvita Pro-Health Nutrition Drink, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -6739,7 +6801,8 @@
       "cadbury bournvita",
       "milk drink"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BEV-008",
@@ -6760,7 +6823,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Horlicks Classic Malt Health Drink Jar, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -6796,7 +6859,8 @@
       "malt drink",
       "milk powder"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BEV-009",
@@ -6864,7 +6928,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Frooti Fresh Mango Drink Bottle, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -6900,7 +6964,8 @@
       "mango drink",
       "mango juice"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BEV-011",
@@ -6979,7 +7044,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Limca Lime 'n' Lemon Fizzy Drink, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -7015,7 +7080,8 @@
       "lemon soda",
       "fizzy drink"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BEV-013",
@@ -7036,7 +7102,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Red Bull Energy Drink Can (250ml), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -7062,7 +7128,8 @@
       "energy drink",
       "caffeine"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BEV-014",
@@ -7130,7 +7197,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Society Masala CTC Tea Pouch, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -7156,7 +7223,8 @@
       "masala tea",
       "spiced chai"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BEV-016",
@@ -7338,7 +7406,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Sunfeast Dark Fantasy Choco Fills Cookies, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -7374,7 +7442,8 @@
       "choco fills",
       "chocolate biscuits"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SNK-004",
@@ -7395,7 +7464,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Britannia Marie Gold Crisp Tea Biscuits, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -7431,7 +7500,8 @@
       "marie biscuits",
       "tea biscuits"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SNK-005",
@@ -7509,7 +7579,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1621996346565-e3d5d6281788?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Haldiram's Nagpur Bhujia Sev Spicy, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -7556,7 +7626,8 @@
       "sev",
       "namkeen"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SNK-007",
@@ -7577,7 +7648,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1621996346565-e3d5d6281788?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Haldiram's Aloo Bhujia Spicy Potato Sev, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -7613,7 +7684,8 @@
       "potato sev",
       "haldiram namkeen"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SNK-008",
@@ -7634,7 +7706,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1621996346565-e3d5d6281788?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Haldiram's All In One Spicy Mixture, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -7670,7 +7742,8 @@
       "mixture namkeen",
       "chanachur"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SNK-009",
@@ -7691,7 +7764,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1621996346565-e3d5d6281788?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Bikaji Salted Moong Dal Fried Namkeen, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -7726,7 +7799,8 @@
       "moong dal namkeen",
       "bikaji moong dal"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SNK-010",
@@ -7965,7 +8039,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Haldiram's Desi Ghee Soan Papdi Box, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -8001,7 +8075,8 @@
       "haldiram sweets",
       "mithai"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SNK-015",
@@ -8069,7 +8144,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1589733955941-5eeaf752f6dd?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Bikano Royal Gulab Jamun Tin (1kg), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -8095,7 +8170,8 @@
       "bikano sweet",
       "mithai tin"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1589733955941-5eeaf752f6dd?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SNK-017",
@@ -8174,7 +8250,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1621996346565-e3d5d6281788?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Haldiram's Salted Roasted Peanuts (Moongfali), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -8200,7 +8276,8 @@
       "singdana",
       "salted peanuts"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SAU-001",
@@ -8221,7 +8298,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Maggi 2-Minute Rich Tomato Ketchup Bottle, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -8257,7 +8334,8 @@
       "tomato sauce",
       "ketchup squeezy"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SAU-002",
@@ -8278,7 +8356,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Kissan Fresh Tomato Sauce Squeezy Pouch, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -8314,7 +8392,8 @@
       "kissan sauce",
       "tomato pouch"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SAU-003",
@@ -8335,7 +8414,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Ching's Secret Hot & Spicy Green Chilli Sauce, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -8361,7 +8440,8 @@
       "chings sauce",
       "chinese sauce"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SAU-004",
@@ -8382,7 +8462,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Ching's Secret Dark Soy Sauce, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -8408,7 +8488,8 @@
       "dark soy",
       "chings soy"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SAU-005",
@@ -8534,7 +8615,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1589135233689-d56d68b08709?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tops Stuffed Red Chilli Pickle (Lal Mirch Banarasi), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -8560,7 +8641,8 @@
       "banarasi achaar",
       "bharwa mirchi"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SAU-008",
@@ -8581,7 +8663,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Dabur Hommade Fresh Ginger Garlic Paste Pouch, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -8617,7 +8699,8 @@
       "adrak lahsun",
       "dabur hommade"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SAU-009",
@@ -8752,7 +8835,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1514944298352-70b9380ff9dc?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tops Pure White Cooking Synthetic Vinegar, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -8779,7 +8862,8 @@
       "cooking vinegar",
       "white vinegar"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1514944298352-70b9380ff9dc?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SAU-012",
@@ -8800,7 +8884,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Ching's Secret Schezwan Chutney Dip, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -8826,7 +8910,8 @@
       "schezwan sauce",
       "momo chutney"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-SAU-013",
@@ -8894,7 +8979,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Kitchen King Pure Food Grade Meetha Soda (Baking Soda), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -8920,7 +9005,8 @@
       "meetha soda",
       "sodium bicarbonate"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAI-001",
@@ -9056,7 +9142,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Amul Pasteurized Salted Butter Delicious, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -9093,7 +9179,8 @@
       "salted butter",
       "butter block"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAI-004",
@@ -9506,7 +9593,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Epigamia Natural Greek Yogurt High Protein, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -9532,7 +9619,8 @@
       "epigamia",
       "protein yogurt"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAI-012",
@@ -9553,7 +9641,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Yakult Probiotic Fermented Milk Drink (Pack of 5), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -9579,7 +9667,8 @@
       "probiotic",
       "fermented drink"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-DAI-013",
@@ -9763,7 +9852,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Surf Excel Easy Wash Detergent Powder, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -9810,7 +9899,8 @@
       "washing powder",
       "surf"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-CLN-002",
@@ -9831,7 +9921,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Ariel Matic Top & Front Load Detergent Powder, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -9867,7 +9957,8 @@
       "ariel matic",
       "washing machine powder"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-CLN-003",
@@ -9945,7 +10036,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1607006314187-573e047466fa?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Rin Advanced Detergent Soap Bar (Pack of 4), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -9971,7 +10062,8 @@
       "rin soap",
       "detergent bar"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-CLN-005",
@@ -10144,7 +10236,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1585421514738-01798e348b17?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Harpic Power Plus 10X Max Clean Toilet Cleaner, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -10180,7 +10272,8 @@
       "toilet cleaner",
       "bathroom cleaner"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-CLN-009",
@@ -10258,7 +10351,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1585421514738-01798e348b17?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Colin Glass and Household Surface Cleaner Spray, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -10284,7 +10377,8 @@
       "glass cleaner",
       "window cleaner"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-CLN-011",
@@ -10305,7 +10399,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Dettol Multi-Use Antiseptic Disinfectant Liquid, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -10341,7 +10435,8 @@
       "antiseptic",
       "disinfectant dettol"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-CLN-012",
@@ -10607,7 +10702,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1559591937-e1069f102553?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Colgate Strong Teeth Calcium Toothpaste, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -10644,7 +10739,8 @@
       "strong teeth",
       "colgate white"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1559591937-e1069f102553?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-PER-002",
@@ -10665,7 +10761,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1559591937-e1069f102553?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Sensodyne Fresh Mint Sensitive Toothpaste, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -10701,7 +10797,8 @@
       "sensitive teeth",
       "mint toothpaste"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1559591937-e1069f102553?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-PER-003",
@@ -10722,7 +10819,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1559591937-e1069f102553?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Colgate ZigZag Charcoal Medium Toothbrush (Pack of 4), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -10748,7 +10845,8 @@
       "toothbrush",
       "zigzag brush"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1559591937-e1069f102553?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-PER-004",
@@ -10769,7 +10867,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1607006314187-573e047466fa?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Dettol Original Germ Protection Bathing Soap (Buy 4 Get 1), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -10795,7 +10893,8 @@
       "bathing soap",
       "germ protection"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-PER-005",
@@ -10816,7 +10915,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1607006314187-573e047466fa?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Dove Cream Beauty Bathing Bar (Pack of 3), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -10842,7 +10941,8 @@
       "beauty bar",
       "moisturizing soap"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-PER-006",
@@ -10863,7 +10963,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1607006314187-573e047466fa?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Pears Pure & Gentle Glycerin Transparent Soap, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -10889,7 +10989,8 @@
       "glycerin soap",
       "transparent soap"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-PER-007",
@@ -10910,7 +11011,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1607006314187-573e047466fa?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Lifebuoy Total 10 Antibacterial Soap Bar (Pack of 4), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -10936,7 +11037,8 @@
       "total 10",
       "soap"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-PER-008",
@@ -10957,7 +11059,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Head & Shoulders Anti-Dandruff Cool Menthol Shampoo, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -10994,7 +11096,8 @@
       "anti dandruff",
       "cool menthol"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-PER-009",
@@ -11015,7 +11118,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Clinic Plus Strong & Long Health Shampoo, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -11051,7 +11154,8 @@
       "shampoo",
       "strong and long"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-PER-010",
@@ -11303,7 +11407,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Gillette Mach3 Turbo Razor with Extra Blade, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -11340,7 +11444,8 @@
       "shaving razor",
       "blades"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-PER-015",
@@ -11512,7 +11617,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Boroline Antiseptic Ayurvedic Skin Cream, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -11538,7 +11643,8 @@
       "antiseptic cream",
       "crack cream"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-VEG-001",
@@ -11763,7 +11869,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Fresh Green Chillies (Hari Mirch), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -11799,7 +11905,8 @@
       "green chilli",
       "spicy chilli"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-VEG-005",
@@ -12190,7 +12297,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1596040033282-e0d046c8e37e?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Fresh Green Coriander Leaves (Hara Dhaniya), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -12227,7 +12334,8 @@
       "hara dhaniya",
       "cilantro"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1596040033282-e0d046c8e37e?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-VEG-013",
@@ -12248,7 +12356,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Crisp Green Capsicum (Shimla Mirch), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -12284,7 +12392,8 @@
       "capsicum",
       "green bell pepper"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-VEG-014",
@@ -13279,7 +13388,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1612927601601-6638404737ce?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Ching's Secret Veg Hakka Noodles Pouch, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -13315,7 +13424,8 @@
       "hakka noodles",
       "chowmein"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-INS-004",
@@ -13336,7 +13446,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1521483451569-e33803c0330c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Kellogg's Real Almond & Honey Corn Flakes, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -13373,7 +13483,8 @@
       "breakfast cereal",
       "honey flakes"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-INS-005",
@@ -13394,7 +13505,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Quaker 100% Whole Grain Rolled Oats Pouch, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -13431,7 +13542,8 @@
       "breakfast oats",
       "oats"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-INS-006",
@@ -13603,7 +13715,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1589733955941-5eeaf752f6dd?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Gits Instant Gulab Jamun Dessert Mix, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -13639,7 +13751,8 @@
       "gulab jamun mix",
       "instant dessert"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1589733955941-5eeaf752f6dd?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-INS-010",
@@ -13812,7 +13925,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Tata Sampann 6 Grain Khichdi Ready Mix, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -13838,7 +13951,8 @@
       "tata khichdi",
       "healthy khichdi"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-INS-014",
@@ -14398,7 +14512,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Harvest Gold Multigrain Brown Toast Rusk, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -14424,7 +14538,8 @@
       "rusk",
       "multigrain toast"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BAK-011",
@@ -14691,7 +14806,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Johnson's Baby No More Tears Gentle Shampoo (500ml), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -14727,7 +14842,8 @@
       "baby shampoo",
       "no more tears"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BAB-005",
@@ -14748,7 +14864,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Johnson's Baby Gentle Bath Soap Bar (Pack of 3), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -14773,7 +14889,8 @@
       "baby soap",
       "johnsons soap"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BAB-006",
@@ -14851,7 +14968,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1533246736444-59cb2cf35767?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Himalaya Herbal Baby Massage Oil with Olive Oil, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -14886,7 +15003,8 @@
       "baby massage oil",
       "himalaya baby oil"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1533246736444-59cb2cf35767?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BAB-008",
@@ -14907,7 +15025,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Nestle Cerelac Stage 1 Wheat Apple Baby Cereal, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -14934,7 +15052,8 @@
       "baby cereal",
       "nestle"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BAB-009",
@@ -14955,7 +15074,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Nestle Cerelac Stage 2 Rice Khichdi Mix, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -14980,7 +15099,8 @@
       "cerelac stage 2",
       "baby khichdi"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BAB-010",
@@ -15048,7 +15168,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Mother Sparsh 99% Pure Water Unscented Baby Wipes, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -15074,7 +15194,8 @@
       "water wipes",
       "cotton wipes"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-BAB-012",
@@ -15141,7 +15262,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1602928321679-560bb453f190?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Cycle Pure Agarbatti Yagna Temple Incense Sticks, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -15168,7 +15289,8 @@
       "incense sticks",
       "puja dhoop"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1602928321679-560bb453f190?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-POO-002",
@@ -15189,7 +15311,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1602928321679-560bb453f190?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Mangaldeep Temple Fragrance Incense Sticks (Buy 1 Get 1), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -15215,7 +15337,8 @@
       "agarbatti pack",
       "pooja agarbatti"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1602928321679-560bb453f190?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-POO-003",
@@ -15236,7 +15359,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1626082896492-766af4eb6501?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1609137144822-4752c019917f?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Mangalam 100% Pure Bhimseni Camphor Flakes (Kapoor), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -15273,7 +15396,8 @@
       "bhimseni kapoor",
       "mangalam camphor"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1609137144822-4752c019917f?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-POO-004",
@@ -15294,7 +15418,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1574870111867-089730e5a72b?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Pure Cow Ghee Diya Wicks / Batti (Pack of 50), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -15331,7 +15455,8 @@
       "diya wicks",
       "pooja wicks"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1574870111867-089730e5a72b?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-POO-005",
@@ -15352,7 +15477,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1605335197825-9a8d9a11db7c?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Pure Cotton Long & Round Wicks (Phool Batti Pack of 200), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -15378,7 +15503,8 @@
       "cotton wicks",
       "diya batti"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1605335197825-9a8d9a11db7c?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-POO-006",
@@ -15399,7 +15525,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Traditional Roli Kumkum & Pure Sindoor Powder, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -15426,7 +15552,8 @@
       "sindoor",
       "tilak"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-POO-007",
@@ -15447,7 +15574,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Pure Chandan Kesar Tika Paste / Sandalwood, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -15473,7 +15600,8 @@
       "sandalwood paste",
       "kesar chandan"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-POO-008",
@@ -15541,7 +15669,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Pure Gangajal Holy Water Sealed Bottle (500ml), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": true,
@@ -15577,7 +15705,8 @@
       "holy water",
       "ganga jal"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-POO-010",
@@ -15598,7 +15727,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1574870111867-089730e5a72b?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Traditional Handcrafted Brass Pooja Diya, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -15624,7 +15753,8 @@
       "aarti diya",
       "pooja deepak"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1574870111867-089730e5a72b?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-POO-011",
@@ -15645,7 +15775,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1626082896492-766af4eb6501?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1508873535684-277a3cbcc4e8?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Homelite Long Safety Matchbox (Bundle of 10 Boxes), Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -15671,7 +15801,8 @@
       "machis",
       "homelite matchbox"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1508873535684-277a3cbcc4e8?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-POO-012",
@@ -15692,7 +15823,7 @@
     "isVeg": true,
     "type": "grocery",
     "images": [
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop&q=80&ar=1:1"
+      "https://images.unsplash.com/photo-1519791883288-dc8bd696e667?w=600&auto=format&fit=crop&q=80&ar=1:1"
     ],
     "imagePrompt": "Professional 1:1 e-commerce product photograph of Cycle Dhoop Batti Dry Guggal Sticks, Indian retail grocery packaging on clean pure white background, studio soft lighting, centered, sharp focus, 4k.",
     "isFeatured": false,
@@ -15718,7 +15849,8 @@
       "guggal dhoop",
       "dhoop batti"
     ],
-    "isActive": true
+    "isActive": true,
+    "image": "https://images.unsplash.com/photo-1519791883288-dc8bd696e667?w=600&auto=format&fit=crop&q=80&ar=1:1"
   },
   {
     "productId": "CC-POO-013",

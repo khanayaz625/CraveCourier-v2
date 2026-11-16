@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Star, Plus, Minus, Check, Heart, Flame, Sparkles } from 'lucide-react';
 import { useCartStore } from '../store/useCartStore';
 import { useWishlistStore } from '../store/useWishlistStore';
@@ -91,14 +91,27 @@ export default function ProductCard({ product }) {
     }
   };
 
+  const navigate = useNavigate();
+
   const handleWishlistToggle = (e) => {
     e.preventDefault();
     e.stopPropagation();
     toggleWishlist(product);
   };
 
+  const handleCardClick = (e) => {
+    // If clicking on an interactive control (button, input, link, variant pill), let that element handle it
+    if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a')) {
+      return;
+    }
+    navigate(`/products/${product.slug || product._id}`);
+  };
+
   return (
-    <div className="group relative bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800/80 hover:border-emerald-400 dark:hover:border-emerald-500/60 p-2.5 sm:p-3.5 flex flex-col justify-between shadow-soft hover:shadow-card hover:-translate-y-0.5 transition-all duration-300 w-full text-left overflow-hidden">
+    <div
+      onClick={handleCardClick}
+      className="group relative bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800/80 hover:border-emerald-400 dark:hover:border-emerald-500/60 p-2.5 sm:p-3.5 flex flex-col justify-between shadow-soft hover:shadow-card hover:-translate-y-0.5 transition-all duration-300 w-full text-left overflow-hidden cursor-pointer"
+    >
       <div>
         {/* Top Badges & Thumbnail Container (1:1 Square) */}
         <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-neutral-50 dark:bg-slate-800/60 flex items-center justify-center p-2">

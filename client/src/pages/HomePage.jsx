@@ -152,7 +152,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="flex items-center space-x-2 sm:space-x-3 overflow-x-auto pb-2 scrollbar-none px-0.5">
+        <div className="flex items-center space-x-2 sm:space-x-3 overflow-x-auto pb-2 scrollbar-none no-scrollbar [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-0.5">
           <Link
             to="/products"
             className="flex-shrink-0 flex items-center space-x-2 bg-brand-500 text-white rounded-full px-4 sm:px-5 py-2 font-bold text-xs shadow-md shadow-brand-500/20 hover:bg-brand-600 transition-all hover:scale-105"

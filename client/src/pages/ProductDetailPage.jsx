@@ -43,9 +43,9 @@ export default function ProductDetailPage() {
       setError(null);
       try {
         const res = await api.get(`/products/${identifier}`);
-        const prod = res.data?.product;
+        const prod = res.data?.product || res?.product || (res?.data && !res?.data?.product ? res.data : null);
         setProduct(prod);
-        setRelatedProducts(res.data?.relatedProducts || []);
+        setRelatedProducts(res.data?.relatedProducts || res?.relatedProducts || []);
 
         // Pick default variant index if variants exist
         if (prod?.variants && prod.variants.length > 0) {
@@ -231,7 +231,7 @@ export default function ProductDetailPage() {
                   <Layers className="h-3.5 w-3.5" /> Select Pack Size:
                 </span>
                 <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                  {product.variants[selectedVariantIndex].size}
+                  {product.variants[selectedVariantIndex]?.size || 'Standard'}
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">

@@ -120,6 +120,9 @@ export default function App() {
               {/* Catalog & Product Discovery */}
               <Route path="/products" element={<ProductListingPage />} />
               <Route path="/products/:identifier" element={<ProductDetailPage />} />
+              <Route path="/product/:identifier" element={<ProductDetailPage />} />
+              <Route path="/product" element={<ProductListingPage />} />
+              <Route path="/menu" element={<ProductListingPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
 
               {/* Shopping Cart & 3-Step Checkout */}
