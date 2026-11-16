@@ -64,7 +64,7 @@ export default function CartPage() {
 
   const handleProceedToCheckout = () => {
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: { pathname: '/checkout' } } });
+      navigate('/register', { state: { from: { pathname: '/checkout' } } });
     } else {
       navigate('/checkout');
     }

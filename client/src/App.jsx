@@ -10,6 +10,7 @@ import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 import FloatingCartButton from './components/FloatingCartButton';
 import InstallPwaPrompt from './components/InstallPwaPrompt';
+import FirstTimeSignupModal from './components/FirstTimeSignupModal';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleRoute from './components/RoleRoute';
 import ToastContainer from './components/notifications/ToastContainer';
@@ -173,6 +174,9 @@ export default function App() {
 
         {/* Global Floating Cart Button */}
         <FloatingCartButton />
+
+        {/* First-Time Visitor Signup to Order Welcome Modal */}
+        <FirstTimeSignupModal />
 
         {/* Install PWA Prompt Banner */}
         <InstallPwaPrompt />
