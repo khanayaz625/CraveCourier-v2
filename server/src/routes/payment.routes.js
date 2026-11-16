@@ -3,6 +3,8 @@ import {
   createPaymentIntent,
   confirmStripePayment,
   createCodOrder,
+  createRazorpayOrder,
+  verifyRazorpayPayment,
   handleStripeWebhook,
   refundOrder,
 } from '../controllers/payment.controller.js';
@@ -18,7 +20,11 @@ router.post('/create-intent', protect, createPaymentIntent);
 router.post('/confirm', protect, confirmStripePayment);
 router.post('/create-cod-order', protect, createCodOrder);
 
-// 3. Admin-Triggered Refunds
+// 3. Razorpay Endpoints (UPI, Cards, NetBanking, Wallets)
+router.post('/razorpay/create-order', protect, createRazorpayOrder);
+router.post('/razorpay/verify', protect, verifyRazorpayPayment);
+
+// 4. Admin-Triggered Refunds
 router.post('/refund/:orderId', protect, authorize('admin'), refundOrder);
 
 export default router;

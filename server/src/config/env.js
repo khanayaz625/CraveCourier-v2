@@ -76,5 +76,7 @@ export const ENV = {
   RATE_LIMIT_MAX: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder_crave',
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder_crave',
-  STRIPE_CURRENCY: (process.env.STRIPE_CURRENCY || 'usd').toLowerCase(),
+  STRIPE_CURRENCY: (process.env.STRIPE_CURRENCY || 'inr').toLowerCase(),
+  RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || 'rzp_test_U0kEbnHVgIfK1G',
+  RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || 'gAxJ8oYQzJH9ee2z74hGIuOZ',
 };

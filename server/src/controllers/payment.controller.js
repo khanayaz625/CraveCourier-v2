@@ -1,4 +1,6 @@
+import crypto from 'crypto';
 import { stripe, isStripeConfigured } from '../config/stripe.js';
+import { razorpay, isRazorpayConfigured } from '../config/razorpay.js';
 import { ENV } from '../config/env.js';
 import { Cart } from '../models/Cart.model.js';
 import { Order } from '../models/Order.model.js';
@@ -612,6 +614,22 @@ export const refundOrder = asyncHandler(async (req, res) => {
         amount: Math.round(order.totals.grandTotal * 100),
       };
     }
+  } else if (order.paymentMethod === 'razorpay' && order.paymentId) {
+    if (isRazorpayConfigured() && !order.paymentId.startsWith('pay_mock_')) {
+      try {
+        refundRecord = await razorpay.payments.refund(order.paymentId, {
+          notes: { reason },
+        });
+      } catch (rzpErr) {
+        throw new ApiError(500, `Razorpay Refund API error: ${rzpErr.message}`);
+      }
+    } else {
+      refundRecord = {
+        id: `rfnd_mock_${Date.now()}`,
+        status: 'processed',
+        amount: Math.round(order.totals.grandTotal * 100),
+      };
+    }
   }
 
   // Update order status
@@ -645,6 +663,190 @@ export const refundOrder = asyncHandler(async (req, res) => {
       order,
       refund: refundRecord,
     }, 'Order refunded and inventory restored successfully')
+  );
+});
+
+/**
+ * @desc    Create Razorpay Order
+ * @route   POST /api/payments/razorpay/create-order
+ * @access  Private (Customer)
+ */
+export const createRazorpayOrder = asyncHandler(async (req, res) => {
+  const { addressId, deliverySlot, note } = req.body;
+
+  let cart = await Cart.findOne({ user: req.user._id });
+  if (!cart || cart.items.length === 0) {
+    throw new ApiError(400, 'Your cart is empty. Add items before checking out.');
+  }
+
+  await cart.recalculateTotals();
+  await cart.save();
+
+  if (cart.items.length === 0) {
+    throw new ApiError(400, 'All items in your cart are currently out of stock.');
+  }
+
+  const user = await User.findById(req.user._id);
+  const address = user.addresses.id(addressId) || user.addresses.find((a) => a.isDefault) || user.addresses[0];
+  if (!address) {
+    throw new ApiError(400, 'Please select or provide a valid delivery address.');
+  }
+
+  const deliveryFee = computeDeliveryFee(address);
+  cart.totals.deliveryFee = deliveryFee;
+  cart.totals.tax = 0;
+  cart.totals.grandTotal = Math.max(0, Math.round((cart.totals.itemTotal + deliveryFee - (cart.totals.couponDiscount || 0)) * 100) / 100);
+  await cart.save();
+
+  const amountInPaise = Math.round(cart.totals.grandTotal * 100);
+
+  const options = {
+    amount: amountInPaise,
+    currency: 'INR',
+    receipt: `rcpt_${Date.now()}_${req.user._id.toString().slice(-4)}`,
+    notes: {
+      userId: req.user._id.toString(),
+      addressId: address._id.toString(),
+      deliverySlot: deliverySlot || 'Standard Delivery',
+      deliveryNote: note || '',
+    },
+  };
+
+  const razorpayOrder = await razorpay.orders.create(options);
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      orderId: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+      keyId: ENV.RAZORPAY_KEY_ID,
+      totals: { ...cart.totals },
+      user: {
+        name: user.name,
+        email: user.email,
+        phone: address.phone || user.phone || '',
+      },
+    }, 'Razorpay order created successfully')
+  );
+});
+
+/**
+ * @desc    Verify Razorpay Payment Signature and Create Order
+ * @route   POST /api/payments/razorpay/verify
+ * @access  Private (Customer)
+ */
+export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    addressId,
+    deliverySlot,
+    note,
+  } = req.body;
+
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    throw new ApiError(400, 'Missing required Razorpay payment confirmation details');
+  }
+
+  // 1. Cryptographic HMAC-SHA256 signature verification
+  const generatedSignature = crypto
+    .createHmac('sha256', ENV.RAZORPAY_KEY_SECRET)
+    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+    .digest('hex');
+
+  if (generatedSignature !== razorpay_signature) {
+    throw new ApiError(400, 'Cryptographic payment verification failed. Unauthorized signature.');
+  }
+
+  // 2. Fetch User & Address
+  const user = await User.findById(req.user._id);
+  const address = user.addresses.id(addressId) || user.addresses.find((a) => a.isDefault) || user.addresses[0];
+  if (!address) {
+    throw new ApiError(400, 'Invalid delivery address');
+  }
+
+  // 3. Fetch cart & recalculate
+  const cart = await Cart.findOne({ user: req.user._id });
+  if (!cart || cart.items.length === 0) {
+    throw new ApiError(400, 'Your cart is empty');
+  }
+
+  await cart.recalculateTotals();
+  const deliveryFee = computeDeliveryFee(address);
+  cart.totals.deliveryFee = deliveryFee;
+  cart.totals.tax = 0;
+  cart.totals.grandTotal = Math.max(0, Math.round((cart.totals.itemTotal + deliveryFee - (cart.totals.couponDiscount || 0)) * 100) / 100);
+
+  // 4. Build snapshot items
+  const snapshotItems = await buildOrderItemsSnapshot(cart.items);
+  if (snapshotItems.length === 0) {
+    throw new ApiError(400, 'No active items available for checkout');
+  }
+
+  // 5. Create Order
+  const orderNumber = generateOrderNumber();
+  const order = await Order.create({
+    orderNumber,
+    customer: req.user._id,
+    items: snapshotItems,
+    deliveryAddress: {
+      street: address.street,
+      city: address.city,
+      state: address.state,
+      pincode: address.pincode,
+      landmark: address.landmark || '',
+      phone: address.phone || user.phone,
+      coordinates: address.coordinates || { type: 'Point', coordinates: [78.8228, 25.5746] },
+    },
+    status: 'placed',
+    statusTimeline: [
+      { status: 'placed', timestamp: new Date(), note: `Paid via Razorpay UPI/Card (${deliverySlot || 'Standard Delivery'})` },
+    ],
+    paymentStatus: 'paid',
+    paymentMethod: 'razorpay',
+    paymentId: razorpay_payment_id,
+    totals: { ...cart.totals },
+    coupon: cart.couponApplied ? { code: 'PROMO_APPLIED', discountValue: cart.totals.couponDiscount } : null,
+    estimatedDeliveryTime: new Date(Date.now() + 35 * 60 * 1000), // ~35 minutes
+  });
+
+  // 6. Record Payment
+  await Payment.create({
+    order: order._id,
+    user: req.user._id,
+    amount: cart.totals.grandTotal,
+    currency: 'INR',
+    paymentMethod: 'razorpay',
+    paymentGateway: 'razorpay',
+    transactionId: razorpay_payment_id,
+    status: 'completed',
+    rawResponse: {
+      razorpay_order_id,
+      razorpay_payment_id,
+      verified: true,
+      note: note || '',
+    },
+  });
+
+  // 7. Decrement Inventory
+  await decrementInventory(cart.items);
+
+  // 8. Clear Cart
+  cart.items = [];
+  cart.couponApplied = null;
+  await cart.recalculateTotals();
+  await cart.save();
+
+  // 9. Push Order Notification
+  await pushOrderStatusNotification(order, 'placed');
+
+  return res.status(201).json(
+    new ApiResponse(201, {
+      order,
+      orderId: order._id,
+      orderNumber: order.orderNumber,
+    }, 'Razorpay payment verified and order placed successfully')
   );
 });
 

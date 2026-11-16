@@ -55,9 +55,13 @@ export default function CheckoutPage() {
   const [deliveryNote, setDeliveryNote] = useState('');
 
   // Payment method state
-  const [paymentMethod, setPaymentMethod] = useState('stripe'); // 'stripe' | 'razorpay' | 'cod'
+  const [paymentMethod, setPaymentMethod] = useState('razorpay'); // 'razorpay' | 'cod' | 'stripe'
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(null);
+
+  // Razorpay Payment State
+  const [isRazorpayLoading, setIsRazorpayLoading] = useState(false);
+  const [razorpayError, setRazorpayError] = useState(null);
 
   // Stripe Payment Intent State
   const [paymentIntentData, setPaymentIntentData] = useState(null);
@@ -188,9 +192,110 @@ export default function CheckoutPage() {
     }
   };
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handlePayWithRazorpay = async () => {
+    if (!selectedAddressId) {
+      alert('Please select or add a delivery address first.');
+      setCurrentStep(1);
+      return;
+    }
+
+    setIsRazorpayLoading(true);
+    setRazorpayError(null);
+
+    try {
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded || !window.Razorpay) {
+        throw new Error('Unable to connect to Razorpay SDK. Please check your internet connection.');
+      }
+
+      // 1. Create order on backend
+      const res = await api.post('/payments/razorpay/create-order', {
+        addressId: selectedAddressId,
+        deliverySlot: selectedSlot,
+        note: deliveryNote,
+      });
+
+      const { orderId, amount, currency, keyId, user: prefillUser } = res.data.data;
+
+      // 2. Open Razorpay Checkout modal
+      const options = {
+        key: keyId,
+        amount,
+        currency: currency || 'INR',
+        name: 'CraveCourier',
+        description: `Order Checkout - ${items.length} item(s)`,
+        image: '/crave-courier-pin.png',
+        order_id: orderId,
+        prefill: {
+          name: prefillUser?.name || user?.name || '',
+          email: prefillUser?.email || user?.email || '',
+          contact: prefillUser?.phone || user?.phone || '',
+        },
+        theme: {
+          color: '#FF541E',
+        },
+        handler: async (response) => {
+          try {
+            setIsRazorpayLoading(true);
+            const verifyRes = await api.post('/payments/razorpay/verify', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              addressId: selectedAddressId,
+              deliverySlot: selectedSlot,
+              note: deliveryNote,
+            });
+
+            const createdOrder = verifyRes.data?.data?.order;
+            setOrderSuccess(createdOrder || true);
+            clearCart();
+            triggerOrderCelebration();
+
+            const targetOrderId = createdOrder?._id || verifyRes.data?.data?.orderId;
+            navigate(`/orders/${targetOrderId}`);
+          } catch (err) {
+            setRazorpayError(err.response?.data?.message || err.message || 'Payment verification failed');
+            setIsRazorpayLoading(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsRazorpayLoading(false);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (resp) {
+        setRazorpayError(resp.error?.description || 'Payment was unsuccessful or cancelled.');
+        setIsRazorpayLoading(false);
+      });
+      rzp.open();
+    } catch (err) {
+      setRazorpayError(err.response?.data?.message || err.message || 'Failed to initialize Razorpay checkout');
+      setIsRazorpayLoading(false);
+    }
+  };
+
   // Place / Confirm Order (Shared handler for Step 3 and mobile bar)
   const handlePlaceOrder = () => {
-    if (paymentMethod === 'cod') {
+    if (paymentMethod === 'razorpay') {
+      handlePayWithRazorpay();
+    } else if (paymentMethod === 'cod') {
       handlePlaceCodOrder();
     } else if (paymentMethod === 'stripe') {
       const form = document.getElementById('stripe-payment-form');
@@ -199,8 +304,6 @@ export default function CheckoutPage() {
       } else {
         alert('Please complete the card details below.');
       }
-    } else if (paymentMethod === 'razorpay') {
-      alert('Razorpay test mode: Please select Credit / Debit Card (Stripe) or Cash on Delivery.');
     }
   };
 
@@ -638,22 +741,22 @@ export default function CheckoutPage() {
               <div className="space-y-3">
                 {[
                   {
-                    id: 'stripe',
-                    title: 'Credit / Debit Card (Stripe)',
-                    desc: 'Instant and secure payment with Visa, Mastercard, Amex',
-                    tag: 'Most Popular',
-                  },
-                  {
                     id: 'razorpay',
-                    title: 'Razorpay / UPI / NetBanking',
-                    desc: 'Fast checkout via UPI (Google Pay, PhonePe) or bank cards',
-                    tag: 'Zero Fee',
+                    title: 'Razorpay / UPI / Cards / NetBanking',
+                    desc: 'Fast checkout via Google Pay, PhonePe, Paytm, RuPay, Cards & NetBanking',
+                    tag: 'Recommended (Fast UPI)',
                   },
                   {
                     id: 'cod',
                     title: 'Cash on Delivery (COD)',
                     desc: 'Pay cash or digital scan upon delivery to your rider',
                     tag: 'Pay at Door',
+                  },
+                  {
+                    id: 'stripe',
+                    title: 'Credit / Debit Card (Stripe)',
+                    desc: 'Instant and secure payment with Visa, Mastercard, Amex',
+                    tag: 'Card Gateway',
                   },
                 ].map((m) => (
                   <label
@@ -689,6 +792,64 @@ export default function CheckoutPage() {
 
               {/* Dynamic Payment Handler Section */}
               <div className="pt-2 border-t border-neutral-100">
+                {paymentMethod === 'razorpay' && (
+                  <div className="bg-gradient-to-br from-orange-50/70 to-amber-50/40 dark:from-slate-800/80 dark:to-slate-900/80 rounded-2xl p-5 border border-brand-200 dark:border-brand-900/50 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-3">
+                        <div className="h-10 w-10 rounded-xl bg-brand-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                          <Zap className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-slate-100">
+                              Razorpay Instant Checkout
+                            </h4>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
+                              Instant UPI
+                            </span>
+                          </div>
+                          <p className="text-xs text-neutral-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                            Pay with Google Pay, PhonePe, Paytm, BHIM UPI, RuPay, Debit/Credit Cards & NetBanking.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-brand-100 dark:border-slate-800 text-xs flex justify-between items-center font-bold">
+                      <span className="text-neutral-600 dark:text-slate-400">Total Payable Amount:</span>
+                      <span className="text-base font-black text-brand-600 dark:text-brand-400">
+                        ₹{effectiveGrandTotal % 1 === 0 ? effectiveGrandTotal : effectiveGrandTotal.toFixed(2)}
+                      </span>
+                    </div>
+
+                    {razorpayError && (
+                      <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4 text-rose-600 flex-shrink-0" />
+                        <span>{razorpayError}</span>
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      disabled={isRazorpayLoading}
+                      onClick={handlePayWithRazorpay}
+                      className="w-full py-3.5 px-4 rounded-xl font-black text-sm text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 shadow-md shadow-brand-500/25 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99]"
+                    >
+                      {isRazorpayLoading ? (
+                        <>
+                          <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Opening Razorpay Secure Gateway...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="h-4 w-4" />
+                          <span>Pay ₹{effectiveGrandTotal} via Razorpay (UPI / Cards)</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
                 {paymentMethod === 'stripe' && (
                   <div>
                     {isCreatingIntent && (
@@ -776,17 +937,7 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {paymentMethod === 'razorpay' && (
-                  <div className="bg-blue-50 rounded-2xl p-5 border border-blue-200 text-blue-900 space-y-3 text-xs">
-                    <div className="flex items-center gap-2 font-bold text-sm">
-                      <ShieldCheck className="h-4 w-4 text-blue-600" />
-                      <span>Razorpay UPI & NetBanking Gateway</span>
-                    </div>
-                    <p className="text-blue-700 leading-relaxed">
-                      Razorpay supports Google Pay, PhonePe, Paytm, and Indian NetBanking. For instant testing in USD, select <strong>Credit / Debit Card (Stripe)</strong> or <strong>Cash on Delivery (COD)</strong> above.
-                    </p>
-                  </div>
-                )}
+
               </div>
 
               <div className="pt-2 flex justify-between">
@@ -884,10 +1035,16 @@ export default function CheckoutPage() {
             <button
               type="button"
               onClick={handlePlaceOrder}
-              disabled={isSubmitting}
-              className="px-5 py-2.5 bg-brand-500 text-white font-bold text-xs rounded-xl shadow-md"
+              disabled={isSubmitting || isRazorpayLoading}
+              className="px-5 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 text-white font-bold text-xs rounded-xl shadow-md disabled:opacity-50 flex items-center gap-1.5"
             >
-              {isSubmitting ? 'Placing Order...' : 'Confirm Order'}
+              {isRazorpayLoading
+                ? 'Opening Gateway...'
+                : isSubmitting
+                ? 'Placing Order...'
+                : paymentMethod === 'razorpay'
+                ? `Pay ₹${effectiveGrandTotal}`
+                : 'Confirm Order'}
             </button>
           ) : (
             <button
