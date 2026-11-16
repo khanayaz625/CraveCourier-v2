@@ -54,7 +54,8 @@ export default defineConfig({
         categories: ['food', 'shopping', 'lifestyle'],
       },
       workbox: {
-        navigateFallback: '/offline.html',
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
         runtimeCaching: [
           // 1. External Media & Image Assets (Cloudinary & Unsplash) - CacheFirst
