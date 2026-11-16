@@ -1,5 +1,11 @@
+import dns from 'dns';
 import mongoose from 'mongoose';
 import { ENV } from './env.js';
+
+// Resolve DNS SRV lookups reliably across platforms (Atlas mongodb+srv)
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (_) {}
 
 let isConnected = false;
 

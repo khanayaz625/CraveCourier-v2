@@ -1,9 +1,14 @@
+import dns from 'dns';
 import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { ENV } from '../config/env.js';
 import { Category, Product, User } from '../models/index.js';
+
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (_) {}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
