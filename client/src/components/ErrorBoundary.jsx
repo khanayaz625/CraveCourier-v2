@@ -15,6 +15,10 @@ export default class ErrorBoundary extends React.Component {
     console.error('[ErrorBoundary caught error]:', error, errorInfo);
   }
 
+  handleReset = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
   handleReload = () => {
     window.location.reload();
   };
@@ -37,6 +41,11 @@ export default class ErrorBoundary extends React.Component {
             <p className="text-xs text-neutral-500 dark:text-slate-400 leading-relaxed">
               We encountered an issue loading this section. Please reload the page or return to the storefront.
             </p>
+            {this.state.error && (
+              <p className="text-[11px] font-mono text-rose-500 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl text-left truncate">
+                {this.state.error.message || String(this.state.error)}
+              </p>
+            )}
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
               <button
                 type="button"

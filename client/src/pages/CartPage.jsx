@@ -100,8 +100,9 @@ export default function CartPage() {
 
   // Free delivery threshold ($35)
   const freeDeliveryThreshold = 35;
-  const amountNeededForFree = Math.max(0, freeDeliveryThreshold - totals.itemTotal);
-  const freeDeliveryProgress = Math.min(100, Math.round((totals.itemTotal / freeDeliveryThreshold) * 100));
+  const itemTotalSafe = totals?.itemTotal || 0;
+  const amountNeededForFree = Math.max(0, freeDeliveryThreshold - itemTotalSafe);
+  const freeDeliveryProgress = Math.min(100, Math.round((itemTotalSafe / freeDeliveryThreshold) * 100));
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6 pb-24 md:pb-12">
@@ -142,14 +143,15 @@ export default function CartPage() {
         {/* Left Column: Cart Items List */}
         <div className="lg:col-span-2 space-y-3.5">
           {items.map((item) => {
-            const product = item.product;
-            const price = product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price;
+            const product = item?.product;
+            if (!product) return null;
+            const price = product.discountPrice && product.discountPrice > 0 ? product.discountPrice : (product.price || 0);
             const subtotal = price * item.quantity;
             const isGrocery = product.type === 'grocery';
 
             return (
               <div
-                key={product._id}
+                key={product._id || item._id}
                 className="bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800 p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-soft hover:shadow-card transition-all"
               >
                 {/* Product Thumbnail & Names */}
@@ -336,7 +338,7 @@ export default function CartPage() {
               <div className="flex justify-between">
                 <span>Item Total</span>
                 <span className="font-bold text-neutral-900 dark:text-slate-100">
-                  ₹{totals.itemTotal % 1 === 0 ? totals.itemTotal : totals.itemTotal.toFixed(2)}
+                  ₹{(totals?.itemTotal || 0) % 1 === 0 ? (totals?.itemTotal || 0) : (totals?.itemTotal || 0).toFixed(2)}
                 </span>
               </div>
 
@@ -345,8 +347,8 @@ export default function CartPage() {
                   <span>Delivery Fee</span>
                   <span className="text-[10px] text-neutral-400 block">Free within 1km &bull; ₹20 beyond</span>
                 </div>
-                <span className={`font-bold ${totals.deliveryFee === 0 ? 'text-emerald-600' : 'text-neutral-900 dark:text-slate-100'}`}>
-                  {totals.deliveryFee === 0 ? 'FREE (₹0)' : `₹${totals.deliveryFee}`}
+                <span className={`font-bold ${(totals?.deliveryFee || 0) === 0 ? 'text-emerald-600' : 'text-neutral-900 dark:text-slate-100'}`}>
+                  {(totals?.deliveryFee || 0) === 0 ? 'FREE (₹0)' : `₹${totals?.deliveryFee}`}
                 </span>
               </div>
 
@@ -355,10 +357,10 @@ export default function CartPage() {
                 <span className="font-bold text-emerald-600">₹0 (Zero Charges)</span>
               </div>
 
-              {totals.couponDiscount > 0 && (
+              {(totals?.couponDiscount || 0) > 0 && (
                 <div className="flex justify-between text-emerald-600 font-bold">
                   <span>Coupon Savings</span>
-                  <span>-₹{totals.couponDiscount % 1 === 0 ? totals.couponDiscount : totals.couponDiscount.toFixed(2)}</span>
+                  <span>-₹{(totals?.couponDiscount || 0) % 1 === 0 ? (totals?.couponDiscount || 0) : (totals?.couponDiscount || 0).toFixed(2)}</span>
                 </div>
               )}
             </div>
@@ -367,7 +369,7 @@ export default function CartPage() {
               <div className="flex items-baseline justify-between sm:block">
                 <span className="text-xs font-bold text-neutral-500 dark:text-slate-400 block sm:mb-0.5">Grand Total</span>
                 <span className="text-2xl font-black text-neutral-900 dark:text-slate-100 font-heading">
-                  ₹{totals.grandTotal % 1 === 0 ? totals.grandTotal : totals.grandTotal.toFixed(2)}
+                  ₹{(totals?.grandTotal || 0) % 1 === 0 ? (totals?.grandTotal || 0) : (totals?.grandTotal || 0).toFixed(2)}
                 </span>
               </div>
 

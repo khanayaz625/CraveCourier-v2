@@ -36,6 +36,7 @@ export default function ProductDetailPage() {
 
   const isInWishlist = useWishlistStore((state) => (product ? state.isInWishlist(product._id) : false));
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
+  const { isAuthenticated, openAuthModal } = useAuthStore();
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -105,8 +106,6 @@ export default function ProductDetailPage() {
   const discountPercent = activeVariant
     ? activeVariant.discountPercent
     : (hasDiscount ? Math.round((savings / mrp) * 100) : 0);
-
-  const { isAuthenticated, openAuthModal } = useAuthStore();
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {

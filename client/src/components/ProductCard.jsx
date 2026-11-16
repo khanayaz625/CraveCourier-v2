@@ -11,13 +11,13 @@ export default function ProductCard({ product }) {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const cartItems = useCartStore((state) => state.items);
 
-  const isInWishlist = useWishlistStore((state) => state.isInWishlist(product._id));
+  const isInWishlist = useWishlistStore((state) => (product ? state.isInWishlist(product._id) : false));
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
 
   const { isAuthenticated, openAuthModal } = useAuthStore();
 
   // Variant Selection
-  const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
+  const hasVariants = Array.isArray(product?.variants) && product.variants.length > 0;
   const defaultIndex = hasVariants
     ? Math.max(0, product.variants.findIndex((v) => v.isDefault))
     : 0;
@@ -26,21 +26,21 @@ export default function ProductCard({ product }) {
   const activeVariant = hasVariants ? product.variants[selectedVariantIndex] : null;
 
   // Pricing calculations based on selected variant or base product
-  const mrp = activeVariant ? activeVariant.mrp : (product.mrp || product.price);
+  const mrp = activeVariant ? activeVariant.mrp : (product?.mrp || product?.price || 0);
   const sellingPrice = activeVariant
     ? activeVariant.sellingPrice
-    : (product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price);
+    : (product?.discountPrice && product.discountPrice > 0 ? product.discountPrice : (product?.price || 0));
 
   const hasDiscount = mrp > sellingPrice;
   const discountPercent = activeVariant
     ? activeVariant.discountPercent
-    : (hasDiscount ? Math.round(((mrp - sellingPrice) / mrp) * 100) : 0);
+    : (hasDiscount && mrp > 0 ? Math.round(((mrp - sellingPrice) / mrp) * 100) : 0);
 
-  const isGrocery = product.type === 'grocery';
+  const isGrocery = product?.type === 'grocery';
 
   // Check if this specific product + variant is already in cart
   const existingCartItem = cartItems.find((it) => {
-    const sameProd = it.product?._id === product._id;
+    const sameProd = (it.product?._id || it.product) === product?._id;
     if (activeVariant && activeVariant.size) {
       return sameProd && it.selectedVariant?.size === activeVariant.size;
     }
@@ -106,6 +106,8 @@ export default function ProductCard({ product }) {
     }
     navigate(`/products/${product.slug || product._id}`);
   };
+
+  if (!product) return null;
 
   return (
     <div
