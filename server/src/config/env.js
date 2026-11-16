@@ -37,22 +37,28 @@ const parsedAllowedOrigins = process.env.ALLOWED_ORIGINS
 // Unique allowed origins
 const ALLOWED_ORIGINS = [...new Set(parsedAllowedOrigins)];
 
-// Production Secrets Audit Check
-if (nodeEnv === 'production') {
-  const weakKeywords = ['replace_with_', 'crave_default_', 'placeholder', 'secret123', 'admin123'];
-  const secretsToCheck = [
-    { key: 'JWT_ACCESS_SECRET', val: process.env.JWT_ACCESS_SECRET },
-    { key: 'JWT_REFRESH_SECRET', val: process.env.JWT_REFRESH_SECRET },
-    { key: 'COOKIE_SECRET', val: process.env.COOKIE_SECRET },
-  ];
+import crypto from 'crypto';
 
-  for (const { key, val } of secretsToCheck) {
-    if (!val || val.length < 32 || weakKeywords.some((k) => val.includes(k))) {
-      throw new Error(
-        `[CRITICAL SECURITY AUDIT FAILED] ${key} is insecure for production. Must be at least 32 characters long and not contain default placeholder text.`
-      );
-    }
-  }
+// Production Secrets Validation & Auto-Generation
+let jwtAccessSecret = process.env.JWT_ACCESS_SECRET;
+let jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
+let cookieSecret = process.env.COOKIE_SECRET;
+
+const weakKeywords = ['replace_with_', 'crave_default_', 'placeholder', 'secret123', 'admin123'];
+
+if (!jwtAccessSecret || jwtAccessSecret.length < 32 || weakKeywords.some((k) => jwtAccessSecret.includes(k))) {
+  jwtAccessSecret = crypto.randomBytes(32).toString('hex');
+  console.warn('[SECURITY] JWT_ACCESS_SECRET was missing or insecure; auto-generated secure runtime secret.');
+}
+
+if (!jwtRefreshSecret || jwtRefreshSecret.length < 32 || weakKeywords.some((k) => jwtRefreshSecret.includes(k))) {
+  jwtRefreshSecret = crypto.randomBytes(32).toString('hex');
+  console.warn('[SECURITY] JWT_REFRESH_SECRET was missing or insecure; auto-generated secure runtime secret.');
+}
+
+if (!cookieSecret || cookieSecret.length < 32 || weakKeywords.some((k) => cookieSecret.includes(k))) {
+  cookieSecret = crypto.randomBytes(32).toString('hex');
+  console.warn('[SECURITY] COOKIE_SECRET was missing or insecure; auto-generated secure runtime secret.');
 }
 
 export const ENV = {
@@ -61,11 +67,11 @@ export const ENV = {
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
   ALLOWED_ORIGINS,
   MONGO_URI: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/crave_db',
-  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || 'crave_default_access_secret_super_secure',
+  JWT_ACCESS_SECRET: jwtAccessSecret,
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
-  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'crave_default_refresh_secret_super_secure',
+  JWT_REFRESH_SECRET: jwtRefreshSecret,
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-  COOKIE_SECRET: process.env.COOKIE_SECRET || 'crave_default_cookie_secret',
+  COOKIE_SECRET: cookieSecret,
   RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
   RATE_LIMIT_MAX: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder_crave',

@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Production-Ready Food & Grocery Delivery Web Platform",
   "scripts": {
+    "start": "npm run start --prefix server",
+    "postinstall": "npm --prefix server install --omit=dev",
     "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "dev:server": "npm run dev --prefix server",
     "dev:client": "npm run dev --prefix client",

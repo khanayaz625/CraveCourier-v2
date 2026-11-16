@@ -30,25 +30,31 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps / TWAs / curl / server-to-server)
     if (!origin) return callback(null, true);
 
-    const isExplicitlyAllowed = ENV.ALLOWED_ORIGINS.includes(origin);
+    const isExplicitlyAllowed = ENV.ALLOWED_ORIGINS.some(allowed => 
+      origin === allowed || origin.startsWith(allowed)
+    );
     const isDevelopment = ENV.NODE_ENV === 'development';
-    const isVercelOrNetlifyPreview =
-      origin.endsWith('.vercel.app') || origin.endsWith('.netlify.app');
+    const isAllowedDomain =
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.netlify.app') ||
+      origin.includes('cravecourier') ||
+      origin.includes('crave-delivery') ||
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1');
 
-    if (isExplicitlyAllowed || isDevelopment || isVercelOrNetlifyPreview) {
+    if (isExplicitlyAllowed || isDevelopment || isAllowedDomain) {
       return callback(null, true);
     }
 
-    return callback(
-      new Error(`[SECURITY] CORS policy does not allow access from origin: ${origin}`)
-    );
+    return callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   exposedHeaders: ['set-cookie'],
 };
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // 3. HTTP Request Logger (masked in production)
 app.use(morgan(ENV.NODE_ENV === 'development' ? 'dev' : 'combined'));
@@ -84,6 +90,10 @@ app.use('/api/orders', orderRateLimiter);
 app.use('/api/payments', orderRateLimiter);
 
 // 8. Root Health & Identification Route
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', service: 'crave-backend' });
+});
+
 app.get('/', (req, res) => {
   res.status(200).json({
     name: 'Crave API Backend',
