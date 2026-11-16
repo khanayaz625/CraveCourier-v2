@@ -133,13 +133,17 @@ export default function ProductDetailPage() {
         <Link to="/" className="hover:text-emerald-600 transition-colors">Home</Link>
         <span>/</span>
         <Link to="/products" className="hover:text-emerald-600 transition-colors">CraveCourier</Link>
-        <span>/</span>
-        <Link
-          to={`/products?category=${product.category?.slug}`}
-          className="hover:text-emerald-600 transition-colors"
-        >
-          {product.category?.name || 'Category'}
-        </Link>
+        {product.category && (
+          <>
+            <span>/</span>
+            <Link
+              to={`/products?category=${product.category?.slug || product.category}`}
+              className="hover:text-emerald-600 transition-colors"
+            >
+              {product.category?.name || product.category || 'Category'}
+            </Link>
+          </>
+        )}
         <span>/</span>
         <span className="text-neutral-800 dark:text-slate-200 font-medium truncate max-w-[150px] sm:max-w-xs">
           {product.name}
@@ -154,7 +158,11 @@ export default function ProductDetailPage() {
             src={product.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800'}
             alt={product.name}
             loading="lazy"
-            className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800';
+            }}
+            className="w-full h-full object-contain"
           />
 
           {hasDiscount && discountPercent > 0 && (
@@ -279,52 +287,64 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {/* Quantity Stepper & Add to Cart */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-            <div className="flex items-center justify-between sm:justify-center border border-neutral-300 dark:border-slate-700 rounded-2xl p-1 bg-white dark:bg-slate-900 shadow-xs">
+          {/* Quantity Stepper & Add to Cart (Only for authenticated users) */}
+          {isAuthenticated ? (
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+              <div className="flex items-center justify-between sm:justify-center border border-neutral-300 dark:border-slate-700 rounded-2xl p-1 bg-white dark:bg-slate-900 shadow-xs">
+                <button
+                  type="button"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="h-10 w-10 rounded-xl flex items-center justify-center text-neutral-600 dark:text-slate-300 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
+                  aria-label="Decrease quantity"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="w-12 text-center font-bold text-sm text-neutral-900 dark:text-slate-100">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="h-10 w-10 rounded-xl flex items-center justify-center text-neutral-600 dark:text-slate-300 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
+                  aria-label="Increase quantity"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+
               <button
                 type="button"
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="h-10 w-10 rounded-xl flex items-center justify-center text-neutral-600 dark:text-slate-300 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
-                aria-label="Decrease quantity"
+                onClick={handleAddToCart}
+                className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm shadow-md transition-all active:scale-98 ${
+                  added
+                    ? 'bg-emerald-500 text-white shadow-emerald-500/20'
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
+                }`}
               >
-                <Minus className="h-4 w-4" />
-              </button>
-              <span className="w-12 text-center font-bold text-sm text-neutral-900 dark:text-slate-100">
-                {quantity}
-              </span>
-              <button
-                type="button"
-                onClick={() => setQuantity(quantity + 1)}
-                className="h-10 w-10 rounded-xl flex items-center justify-center text-neutral-600 dark:text-slate-300 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
-                aria-label="Increase quantity"
-              >
-                <Plus className="h-4 w-4" />
+                {added ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    <span>Added {quantity} to Cart (₹{(sellingPrice * quantity) % 1 === 0 ? (sellingPrice * quantity) : (sellingPrice * quantity).toFixed(2)})</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="h-4 w-4" />
+                    <span>Add to Cart &bull; ₹{(sellingPrice * quantity) % 1 === 0 ? (sellingPrice * quantity) : (sellingPrice * quantity).toFixed(2)}</span>
+                  </>
+                )}
               </button>
             </div>
-
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm shadow-md transition-all active:scale-98 ${
-                added
-                  ? 'bg-emerald-500 text-white shadow-emerald-500/20'
-                  : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
-              }`}
-            >
-              {added ? (
-                <>
-                  <Check className="h-4 w-4" />
-                  <span>Added {quantity} to Cart (₹{(sellingPrice * quantity) % 1 === 0 ? (sellingPrice * quantity) : (sellingPrice * quantity).toFixed(2)})</span>
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="h-4 w-4" />
-                  <span>Add to Cart &bull; ₹{(sellingPrice * quantity) % 1 === 0 ? (sellingPrice * quantity) : (sellingPrice * quantity).toFixed(2)}</span>
-                </>
-              )}
-            </button>
-          </div>
+          ) : (
+            <div className="pt-2">
+              <Link
+                to="/login"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white shadow-glow transition-all hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                <span>Sign In to Order &bull; ₹{sellingPrice % 1 === 0 ? sellingPrice : sellingPrice.toFixed(2)}</span>
+              </Link>
+            </div>
+          )}
 
           {/* Description & Details */}
           <div className="space-y-2 pt-2 border-t border-neutral-200 dark:border-slate-800">
@@ -371,7 +391,7 @@ export default function ProductDetailPage() {
       {relatedProducts.length > 0 && (
         <section className="pt-8 border-t border-neutral-200 dark:border-slate-800 space-y-4">
           <h2 className="text-lg font-black font-heading text-neutral-900 dark:text-slate-100">
-            More in {product.category?.name}
+            More in {product.category?.name || product.category || 'This Collection'}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 justify-items-center sm:justify-items-stretch">
             {relatedProducts.map((rel) => (

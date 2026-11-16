@@ -181,6 +181,10 @@ export default function HomePage() {
                   src={cat.image}
                   alt={cat.name}
                   loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100';
+                  }}
                   className="h-6 w-6 rounded-full object-cover ring-1 ring-neutral-200 dark:ring-slate-700"
                 />
                 <span className="whitespace-nowrap">{cat.name}</span>

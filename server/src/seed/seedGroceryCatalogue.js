@@ -38,7 +38,7 @@ const seedGroceryCatalogue = async () => {
     const categoriesMap = {
       'all-types-of-dal-and-pulses': {
         name: 'All Types of Dal and Pulses',
-        image: 'https://images.unsplash.com/photo-1585994192701-f1a505c817ea?w=500&auto=format&fit=crop&q=80&ar=1:1',
+        image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&auto=format&fit=crop&q=80&ar=1:1',
         description: 'Unpolished Toor, Moong, Chana, Masoor, Urad, Rajma & Kabuli Chana',
         subcategories: ['Yellow Dal', 'Whole Pulses', 'Split Pulses', 'Beans & Rajma', 'Chana & Chickpeas'],
         type: 'grocery',

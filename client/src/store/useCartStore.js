@@ -93,13 +93,45 @@ export const useCartStore = create((set, get) => ({
   },
 
   /**
-   * Add Item (supports product variants)
+   * Add Item (supports product variants with instant optimistic update)
    */
   addItem: async (product, quantity = 1, variant = null) => {
     const isAuthenticated = useAuthStore.getState().isAuthenticated;
 
     if (isAuthenticated) {
-      set({ isLoading: true, error: null });
+      // 1. Instant Optimistic State Update
+      const previousItems = [...get().items];
+      const previousTotals = { ...get().totals };
+
+      const currentItems = [...get().items];
+      const existingIndex = currentItems.findIndex((it) => {
+        const sameProduct = it.product?._id === product._id;
+        if (variant && variant.size) {
+          return sameProduct && it.selectedVariant?.size === variant.size;
+        }
+        return sameProduct && (!it.selectedVariant || !it.selectedVariant.size);
+      });
+
+      const effectivePrice = variant ? variant.sellingPrice : (product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price);
+
+      if (existingIndex > -1) {
+        currentItems[existingIndex] = {
+          ...currentItems[existingIndex],
+          quantity: currentItems[existingIndex].quantity + quantity,
+        };
+      } else {
+        currentItems.push({
+          product,
+          quantity,
+          selectedVariant: variant,
+          priceAtAddition: effectivePrice,
+        });
+      }
+
+      const optimisticTotals = calculateGuestTotals(currentItems, get().coupon);
+      set({ items: currentItems, totals: optimisticTotals, error: null });
+
+      // 2. Synchronize with Backend
       try {
         const payload = {
           productId: product._id,
@@ -110,21 +142,24 @@ export const useCartStore = create((set, get) => ({
         }
         const res = await api.post('/cart/items', payload);
         const cart = res.data;
-        set({
-          items: cart.items || [],
-          coupon: cart.couponApplied || null,
-          totals: cart.totals,
-          isLoading: false,
-        });
+        if (cart) {
+          set({
+            items: cart.items || currentItems,
+            coupon: cart.couponApplied || null,
+            totals: cart.totals || optimisticTotals,
+            isLoading: false,
+          });
+        }
       } catch (err) {
-        set({ error: err.message, isLoading: false });
+        // Rollback to previous state on failure
+        set({ items: previousItems, totals: previousTotals, error: err.message, isLoading: false });
         throw err;
       }
     } else {
       // Local Guest Cart
       const currentItems = [...get().items];
       const existingIndex = currentItems.findIndex((it) => {
-        const sameProduct = it.product._id === product._id;
+        const sameProduct = it.product?._id === product._id;
         if (variant && variant.size) {
           return sameProduct && it.selectedVariant?.size === variant.size;
         }
@@ -151,24 +186,46 @@ export const useCartStore = create((set, get) => ({
   },
 
   /**
-   * Update Quantity
+   * Update Quantity (with instant optimistic update)
    */
   updateQuantity: async (productId, quantity) => {
     const isAuthenticated = useAuthStore.getState().isAuthenticated;
 
     if (isAuthenticated) {
-      set({ isLoading: true });
+      // 1. Instant Optimistic State Update
+      const previousItems = [...get().items];
+      const previousTotals = { ...get().totals };
+
+      let currentItems = [...get().items];
+      if (quantity <= 0) {
+        currentItems = currentItems.filter((it) => (it.product?._id || it.product) !== productId);
+      } else {
+        const index = currentItems.findIndex((it) => (it.product?._id || it.product) === productId);
+        if (index > -1) {
+          currentItems[index] = {
+            ...currentItems[index],
+            quantity,
+          };
+        }
+      }
+
+      const optimisticTotals = calculateGuestTotals(currentItems, get().coupon);
+      set({ items: currentItems, totals: optimisticTotals, error: null });
+
+      // 2. Synchronize with Backend
       try {
         const res = await api.put(`/cart/items/${productId}`, { quantity });
         const cart = res.data;
-        set({
-          items: cart.items || [],
-          coupon: cart.couponApplied || null,
-          totals: cart.totals,
-          isLoading: false,
-        });
+        if (cart) {
+          set({
+            items: cart.items || currentItems,
+            coupon: cart.couponApplied || null,
+            totals: cart.totals || optimisticTotals,
+            isLoading: false,
+          });
+        }
       } catch (err) {
-        set({ error: err.message, isLoading: false });
+        set({ items: previousItems, totals: previousTotals, error: err.message, isLoading: false });
         throw err;
       }
     } else {
@@ -189,24 +246,32 @@ export const useCartStore = create((set, get) => ({
   },
 
   /**
-   * Remove Item
+   * Remove Item (with instant optimistic update)
    */
   removeItem: async (productId) => {
     const isAuthenticated = useAuthStore.getState().isAuthenticated;
 
     if (isAuthenticated) {
-      set({ isLoading: true });
+      const previousItems = [...get().items];
+      const previousTotals = { ...get().totals };
+
+      const currentItems = get().items.filter((it) => (it.product?._id || it.product) !== productId);
+      const optimisticTotals = calculateGuestTotals(currentItems, get().coupon);
+      set({ items: currentItems, totals: optimisticTotals, error: null });
+
       try {
         const res = await api.delete(`/cart/items/${productId}`);
         const cart = res.data;
-        set({
-          items: cart.items || [],
-          coupon: cart.couponApplied || null,
-          totals: cart.totals,
-          isLoading: false,
-        });
+        if (cart) {
+          set({
+            items: cart.items || currentItems,
+            coupon: cart.couponApplied || null,
+            totals: cart.totals || optimisticTotals,
+            isLoading: false,
+          });
+        }
       } catch (err) {
-        set({ error: err.message, isLoading: false });
+        set({ items: previousItems, totals: previousTotals, error: err.message, isLoading: false });
       }
     } else {
       const currentItems = get().items.filter((it) => it.product._id !== productId);

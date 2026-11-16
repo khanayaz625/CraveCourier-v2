@@ -285,13 +285,16 @@ export const getProductBySlugOrId = asyncHandler(async (req, res) => {
   }
 
   // Fetch 4 related products from the same category
-  const relatedProducts = await Product.find({
-    category: product.category._id,
-    _id: { $ne: product._id },
-    isActive: true,
-  })
-    .limit(4)
-    .lean();
+  const categoryId = product.category?._id || product.category;
+  const relatedProducts = categoryId
+    ? await Product.find({
+        category: categoryId,
+        _id: { $ne: product._id },
+        isActive: true,
+      })
+        .limit(4)
+        .lean()
+    : [];
 
   return res.status(200).json(
     new ApiResponse(

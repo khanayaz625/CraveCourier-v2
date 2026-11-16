@@ -15,6 +15,7 @@ import AuthRequiredModal from './components/AuthRequiredModal';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleRoute from './components/RoleRoute';
 import ToastContainer from './components/notifications/ToastContainer';
+import ErrorBoundary from './components/ErrorBoundary';
 import {
   showClientPushNotification,
   requestPushPermission,
@@ -101,83 +102,91 @@ export default function App() {
         <Navbar />
         <ToastContainer />
         <AuthRequiredModal />
-        <FirstTimeSignupModal />
 
         <main className="flex-1 pb-24 md:pb-8">
-          <Suspense fallback={<RouteLoader />}>
-            <Routes>
-              {/* Public Auth Routes */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/admin/login" element={<AdminLoginPage />} />
-              <Route path="/verify-email" element={<VerifyEmailPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <ErrorBoundary>
+            <Suspense fallback={<RouteLoader />}>
+              <Routes>
+                {/* Public Auth Routes */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/admin/login" element={<AdminLoginPage />} />
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-              {/* Customer Storefront (Home) */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/account" element={<AccountPage />} />
+                {/* Customer Storefront (Home) */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/account" element={<AccountPage />} />
 
-              {/* Catalog & Product Discovery */}
-              <Route path="/products" element={<ProductListingPage />} />
-              <Route path="/products/:identifier" element={<ProductDetailPage />} />
-              <Route path="/product/:identifier" element={<ProductDetailPage />} />
-              <Route path="/product" element={<ProductListingPage />} />
-              <Route path="/menu" element={<ProductListingPage />} />
-              <Route path="/wishlist" element={<WishlistPage />} />
+                {/* Catalog & Product Discovery */}
+                <Route path="/products" element={<ProductListingPage />} />
+                <Route path="/products/:identifier" element={<ProductDetailPage />} />
+                <Route path="/product/:identifier" element={<ProductDetailPage />} />
+                <Route path="/product" element={<ProductListingPage />} />
+                <Route path="/menu" element={<ProductListingPage />} />
+                <Route path="/wishlist" element={<WishlistPage />} />
 
-              {/* Shopping Cart & 3-Step Checkout */}
-              <Route path="/cart" element={<CartPage />} />
-              <Route
-                path="/checkout"
-                element={
-                  <ProtectedRoute>
-                    <CheckoutPage />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Shopping Cart & 3-Step Checkout (Protected) */}
+                <Route
+                  path="/cart"
+                  element={
+                    <ProtectedRoute>
+                      <CartPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/checkout"
+                  element={
+                    <ProtectedRoute>
+                      <CheckoutPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Orders & Real-time Tracking */}
-              <Route
-                path="/orders"
-                element={
-                  <ProtectedRoute>
-                    <OrdersPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/orders/:id"
-                element={
-                  <ProtectedRoute>
-                    <OrderDetailPage />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Orders & Real-time Tracking */}
+                <Route
+                  path="/orders"
+                  element={
+                    <ProtectedRoute>
+                      <OrdersPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/orders/:id"
+                  element={
+                    <ProtectedRoute>
+                      <OrderDetailPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Delivery Partner Portal (Role: delivery or admin) */}
-              <Route
-                path="/partner"
-                element={
-                  <RoleRoute allowedRoles={['delivery', 'admin']}>
-                    <DeliveryDashboard />
-                  </RoleRoute>
-                }
-              />
+                {/* Delivery Partner Portal (Role: delivery or admin) */}
+                <Route
+                  path="/partner"
+                  element={
+                    <RoleRoute allowedRoles={['delivery', 'admin']}>
+                      <DeliveryDashboard />
+                    </RoleRoute>
+                  }
+                />
 
-              {/* Admin Control Center (Role: admin) */}
-              <Route
-                path="/admin"
-                element={
-                  <RoleRoute allowedRoles={['admin']}>
-                    <AdminDashboard />
-                  </RoleRoute>
-                }
-              />
+                {/* Admin Control Center (Role: admin) */}
+                <Route
+                  path="/admin"
+                  element={
+                    <RoleRoute allowedRoles={['admin']}>
+                      <AdminDashboard />
+                    </RoleRoute>
+                  }
+                />
 
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
         </main>
 
         {/* Global Floating Cart Button */}

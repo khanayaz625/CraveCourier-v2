@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
+import api from '../services/api';
 import { useCartStore } from '../store/useCartStore';
 import { useAuthStore } from '../store/useAuthStore';
 import EmptyState from '../components/EmptyState';
@@ -79,6 +80,10 @@ export default function CartPage() {
     }
   };
 
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: { pathname: '/cart' } }} />;
+  }
+
   if (items.length === 0) {
     return (
       <div className="py-12">
@@ -152,6 +157,10 @@ export default function CartPage() {
                   <img
                     src={product.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'}
                     alt={product.name}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200';
+                    }}
                     className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-cover bg-neutral-100 dark:bg-slate-800 flex-shrink-0"
                   />
                   <div className="min-w-0 flex-1">

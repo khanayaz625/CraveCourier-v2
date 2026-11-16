@@ -40,14 +40,37 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-neutral-200/80 dark:border-slate-800 px-3.5 sm:px-4 py-2 sm:py-2.5 shadow-soft transition-colors duration-200">
-      <div className="max-w-6xl mx-auto flex items-center justify-between">
-        {/* Brand Logo & Desktop Storefront Navigation */}
-        <div className="flex items-center space-x-6 flex-shrink-0">
+      <div className="max-w-6xl mx-auto flex items-center justify-between relative">
+        {/* Mobile Left Action: Theme Toggle */}
+        <div className="flex sm:hidden items-center">
+          <button
+            onClick={toggleTheme}
+            className="p-1.5 rounded-xl text-neutral-500 dark:text-slate-400 hover:text-neutral-900 dark:hover:text-slate-100 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            aria-label="Toggle Dark Mode"
+          >
+            {theme === 'dark' ? (
+              <Sun className="h-4.5 w-4.5 text-amber-400 animate-pop" />
+            ) : (
+              <Moon className="h-4.5 w-4.5 text-slate-600 animate-pop" />
+            )}
+          </button>
+        </div>
+
+        {/* Center App Icon on Mobile (Always Centered) */}
+        <div className="sm:hidden absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-auto">
+          <Link to="/" className="flex items-center justify-center group">
+            <BrandLogo size="md" />
+          </Link>
+        </div>
+
+        {/* Desktop Left: Brand Logo & Desktop Storefront Navigation */}
+        <div className="hidden sm:flex items-center space-x-6 flex-shrink-0">
           <Link to="/" className="flex items-center group flex-shrink-0">
             <BrandLogo size="md" />
           </Link>
 
-          <nav className="hidden sm:flex items-center space-x-1 text-xs font-bold">
+          <nav className="flex items-center space-x-1 text-xs font-bold">
             <Link
               to="/products"
               className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
@@ -71,10 +94,10 @@ export default function Navbar() {
 
         {/* Dynamic Role Navigation, Theme Toggle, & Actions */}
         <div className="flex items-center space-x-1 sm:space-x-2">
-          {/* Dark Mode Toggle */}
+          {/* Desktop-only Theme Toggle (on mobile it sits cleanly on the left) */}
           <button
             onClick={toggleTheme}
-            className="p-1.5 sm:p-2 rounded-xl text-neutral-500 dark:text-slate-400 hover:text-neutral-900 dark:hover:text-slate-100 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
+            className="hidden sm:flex p-1.5 sm:p-2 rounded-xl text-neutral-500 dark:text-slate-400 hover:text-neutral-900 dark:hover:text-slate-100 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors items-center justify-center"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             aria-label="Toggle Dark Mode"
           >
@@ -103,20 +126,22 @@ export default function Navbar() {
             )}
           </Link>
 
-          {/* Cart Icon Shortcut */}
-          <Link
-            to="/cart"
-            className="relative p-1.5 sm:p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors flex items-center justify-center"
-            title="Shopping Cart"
-            aria-label="View Shopping Cart"
-          >
-            <ShoppingBag className="h-4.5 sm:h-5 w-4.5 sm:w-5" />
-            {cartItemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-4 sm:h-5 w-4 sm:w-5 rounded-full bg-brand-500 text-white text-[9px] sm:text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
-                {cartItemCount > 99 ? '99+' : cartItemCount}
-              </span>
-            )}
-          </Link>
+          {/* Cart Icon Shortcut: Strictly hidden before login */}
+          {isAuthenticated && (
+            <Link
+              to="/cart"
+              className="relative p-1.5 sm:p-2 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors flex items-center justify-center"
+              title="Shopping Cart"
+              aria-label="View Shopping Cart"
+            >
+              <ShoppingBag className="h-4.5 sm:h-5 w-4.5 sm:w-5" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-4 sm:h-5 w-4 sm:w-5 rounded-full bg-brand-500 text-white text-[9px] sm:text-[10px] font-black flex items-center justify-center shadow-xs animate-pop">
+                  {cartItemCount > 99 ? '99+' : cartItemCount}
+                </span>
+              )}
+            </Link>
+          )}
 
           {isAuthenticated && user ? (
             <div className="flex items-center space-x-1.5 sm:space-x-2">

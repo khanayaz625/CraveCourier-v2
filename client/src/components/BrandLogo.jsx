@@ -25,7 +25,7 @@ export default function BrandLogo({
       <img
         src="/app-icon-squircle.png"
         alt="Cravecourier App Icon"
-        className={`${iconSizes[size] || iconSizes.md} rounded-2xl shadow-sm object-contain ${className}`}
+        className={`${iconSizes[size] || iconSizes.md} rounded-2xl shadow-sm object-contain mx-auto ${className}`}
       />
     );
   }
@@ -35,7 +35,7 @@ export default function BrandLogo({
       <img
         src="/crave-courier-rider.png"
         alt="Cravecourier Rider"
-        className={`${iconSizes[size] || iconSizes.md} object-contain ${className}`}
+        className={`${iconSizes[size] || iconSizes.md} object-contain mx-auto ${className}`}
       />
     );
   }
@@ -45,14 +45,14 @@ export default function BrandLogo({
       <img
         src="/crave-courier-pin.png"
         alt="Cravecourier Badge"
-        className={`${iconSizes[size] || iconSizes.md} object-contain ${className}`}
+        className={`${iconSizes[size] || iconSizes.md} object-contain mx-auto ${className}`}
       />
     );
   }
 
   // Default 'full' variant: Icon + "Cravecourier" typography matching the brand sheet
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
+    <div className={`flex items-center justify-center space-x-2 ${className}`}>
       <img
         src="/crave-courier-pin.png"
         alt="Cravecourier"
@@ -60,7 +60,7 @@ export default function BrandLogo({
       />
       {showText && (
         <span
-          className={`font-black tracking-tight font-heading leading-none whitespace-nowrap ${
+          className={`font-black tracking-tight font-heading leading-none whitespace-nowrap self-center ${
             textSizes[size] || textSizes.md
           }`}
         >

@@ -140,8 +140,12 @@ export default function SearchBar({ placeholder = 'Search burgers, pizzas, fresh
                     >
                       <div className="flex items-center space-x-2.5">
                         <img
-                          src={p.images?.[0]}
+                          src={p.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'}
                           alt={p.name}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100';
+                          }}
                           className="h-10 w-10 rounded-lg object-cover flex-shrink-0"
                         />
                         <div>

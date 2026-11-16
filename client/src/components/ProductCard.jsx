@@ -120,7 +120,11 @@ export default function ProductCard({ product }) {
               src={product.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'}
               alt={product.name}
               loading="lazy"
-              className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-300 ease-out"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400';
+              }}
+              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 ease-out"
             />
           </Link>
 
@@ -235,51 +239,53 @@ export default function ProductCard({ product }) {
           )}
         </div>
 
-        {cartQuantity > 0 ? (
-          <div className="flex items-center bg-emerald-600 text-white rounded-xl p-0.5 shadow-xs flex-shrink-0">
+        {isAuthenticated && (
+          cartQuantity > 0 ? (
+            <div className="flex items-center bg-emerald-600 text-white rounded-xl p-0.5 shadow-xs flex-shrink-0">
+              <button
+                type="button"
+                onClick={handleDecrement}
+                className="p-1 hover:bg-emerald-700 rounded-lg transition-colors"
+                aria-label="Decrease quantity"
+              >
+                <Minus className="h-3 w-3" />
+              </button>
+              <span className="px-2 text-xs font-black min-w-[16px] text-center">
+                {cartQuantity}
+              </span>
+              <button
+                type="button"
+                onClick={handleIncrement}
+                className="p-1 hover:bg-emerald-700 rounded-lg transition-colors"
+                aria-label="Increase quantity"
+              >
+                <Plus className="h-3 w-3" />
+              </button>
+            </div>
+          ) : (
             <button
               type="button"
-              onClick={handleDecrement}
-              className="p-1 hover:bg-emerald-700 rounded-lg transition-colors"
-              aria-label="Decrease quantity"
+              onClick={handleQuickAdd}
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition-all duration-300 shadow-xs flex-shrink-0 flex items-center justify-center active:scale-95 ${
+                added
+                  ? 'bg-emerald-500 text-white shadow-emerald-500/20'
+                  : 'bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200 dark:border-emerald-800/50'
+              }`}
+              aria-label={`Add ${product.name} to cart`}
             >
-              <Minus className="h-3 w-3" />
+              {added ? (
+                <span className="flex items-center gap-0.5 animate-pop">
+                  <Check className="h-3.5 w-3.5" />
+                  <span>Added</span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-0.5">
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>Add</span>
+                </span>
+              )}
             </button>
-            <span className="px-2 text-xs font-black min-w-[16px] text-center">
-              {cartQuantity}
-            </span>
-            <button
-              type="button"
-              onClick={handleIncrement}
-              className="p-1 hover:bg-emerald-700 rounded-lg transition-colors"
-              aria-label="Increase quantity"
-            >
-              <Plus className="h-3 w-3" />
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={handleQuickAdd}
-            className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition-all duration-300 shadow-xs flex-shrink-0 flex items-center justify-center active:scale-95 ${
-              added
-                ? 'bg-emerald-500 text-white shadow-emerald-500/20'
-                : 'bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200 dark:border-emerald-800/50'
-            }`}
-            aria-label={`Add ${product.name} to cart`}
-          >
-            {added ? (
-              <span className="flex items-center gap-0.5 animate-pop">
-                <Check className="h-3.5 w-3.5" />
-                <span>Added</span>
-              </span>
-            ) : (
-              <span className="flex items-center gap-0.5">
-                <Plus className="h-3.5 w-3.5" />
-                <span>Add</span>
-              </span>
-            )}
-          </button>
+          )
         )}
       </div>
     </div>

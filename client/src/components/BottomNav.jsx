@@ -11,12 +11,16 @@ export default function BottomNav() {
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   // Streamlined, shorter navigation tabs
-  // "Orders" is strictly hidden for unauthenticated visitors
+  // "Orders" and "Cart" are strictly hidden before login
   const navLinks = [
     { to: '/', label: 'Home', icon: Home, exact: true },
     { to: '/products', label: 'Explore', icon: Compass },
-    ...(isAuthenticated ? [{ to: '/orders', label: 'Orders', icon: Package }] : []),
-    { to: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount },
+    ...(isAuthenticated
+      ? [
+          { to: '/orders', label: 'Orders', icon: Package },
+          { to: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount },
+        ]
+      : []),
     { to: '/account', label: 'Account', icon: User },
   ];
 
@@ -30,7 +34,7 @@ export default function BottomNav() {
       aria-label="Mobile Navigation"
       className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-neutral-200/80 dark:border-slate-800 safe-bottom shadow-lg transition-colors duration-200"
     >
-      <div className={`grid ${isAuthenticated ? 'grid-cols-5' : 'grid-cols-4'} h-12 sm:h-13 items-center px-1 max-w-md mx-auto`}>
+      <div className={`grid ${isAuthenticated ? 'grid-cols-5' : 'grid-cols-3'} h-12 sm:h-13 items-center px-1 max-w-md mx-auto`}>
         {navLinks.map((item) => {
           const Icon = item.icon;
           const isActive = item.exact
