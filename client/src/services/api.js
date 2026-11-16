@@ -1,7 +1,26 @@
 import axios from 'axios';
 
+const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  // If envUrl is the old/non-existent 'cravecourier-api' URL, automatically route to the live Render deployment
+  if (envUrl && !envUrl.includes('cravecourier-api.onrender.com')) {
+    return envUrl;
+  }
+  // In production / deployed domains, default to the live Render backend
+  if (
+    typeof window !== 'undefined' &&
+    !window.location.hostname.includes('localhost') &&
+    !window.location.hostname.includes('127.0.0.1')
+  ) {
+    return 'https://cravecourier-v2-1.onrender.com/api';
+  }
+  return 'http://localhost:5000/api';
+};
+
+export const BASE_URL = getBaseUrl();
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  baseURL: BASE_URL,
   withCredentials: true, // Send httpOnly cookies (crave_refreshToken)
   headers: {
     'Content-Type': 'application/json',
@@ -71,7 +90,7 @@ api.interceptors.response.use(
 
       try {
         const refreshResponse = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth/refresh-token`,
+          `${BASE_URL}/auth/refresh-token`,
           {},
           { withCredentials: true }
         );

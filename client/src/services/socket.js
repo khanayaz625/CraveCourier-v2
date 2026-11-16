@@ -1,10 +1,25 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/api\/?$/, '') ||
-  import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') ||
-  'http://localhost:5000';
+const getSocketUrl = () => {
+  const envUrl =
+    import.meta.env.VITE_SOCKET_URL ||
+    import.meta.env.VITE_API_BASE_URL?.replace(/\/api\/?$/, '') ||
+    import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '');
+
+  if (envUrl && !envUrl.includes('cravecourier-api.onrender.com')) {
+    return envUrl;
+  }
+  if (
+    typeof window !== 'undefined' &&
+    !window.location.hostname.includes('localhost') &&
+    !window.location.hostname.includes('127.0.0.1')
+  ) {
+    return 'https://cravecourier-v2-1.onrender.com';
+  }
+  return 'http://localhost:5000';
+};
+
+const SOCKET_URL = getSocketUrl();
 
 let socket = null;
 
