@@ -8,6 +8,8 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "seed": "node src/seed/seed.js",
+    "seed:catalogue": "node src/seed/seedGroceryCatalogue.js",
+    "seed:all": "node src/seed/seed.js && node src/seed/seedGroceryCatalogue.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --detectOpenHandles --forceExit",
     "lint": "eslint src/",
     "format": "prettier --write \"src/**/*.{js,json}\""
