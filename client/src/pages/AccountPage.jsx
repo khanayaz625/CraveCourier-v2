@@ -27,6 +27,7 @@ import {
   CheckCircle2,
   Bell,
 } from 'lucide-react';
+import UserAvatar from '../components/UserAvatar';
 
 export default function AccountPage() {
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -62,11 +63,7 @@ export default function AccountPage() {
         <>
           {/* User Profile Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-neutral-200/80 dark:border-slate-800 shadow-soft flex items-center space-x-4">
-            <img
-              src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-              alt={user.name}
-              className="h-16 w-16 rounded-2xl object-cover ring-2 ring-brand-500/30 flex-shrink-0"
-            />
+            <UserAvatar user={user} size="lg" className="h-16 w-16 !text-lg !rounded-2xl" />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <h2 className="text-base sm:text-lg font-black text-neutral-900 dark:text-slate-100 truncate font-heading">

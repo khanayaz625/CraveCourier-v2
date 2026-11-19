@@ -120,6 +120,12 @@ export default function ProductDetailPage() {
   const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
   const activeVariant = hasVariants ? product.variants[selectedVariantIndex] : null;
 
+  // Clean English name (guarantees no Hindi words/scripts appear)
+  const cleanName = (product?.name || '')
+    .replace(/\s*\([\u0900-\u097F\s\-&,.]+\)/g, '')
+    .replace(/[\u0900-\u097F]/g, '')
+    .trim();
+
   // Active pricing calculations
   const mrp = activeVariant ? (activeVariant.mrp || 0) : (product?.mrp || product?.price || 0);
   const sellingPrice = activeVariant
@@ -133,16 +139,12 @@ export default function ProductDetailPage() {
     : (hasDiscount && mrp > 0 ? Math.round((savings / mrp) * 100) : 0);
 
   const handleAddToCart = async () => {
-    if (!isAuthenticated) {
-      openAuthModal();
-      return;
-    }
     try {
       await useCartStore.getState().addItem(product, quantity, activeVariant);
       setAdded(true);
       setTimeout(() => setAdded(false), 1500);
     } catch (err) {
-      alert(err.message || 'Failed to add item to cart');
+      console.error('Failed to add item to cart:', err);
     }
   };
 
@@ -170,7 +172,7 @@ export default function ProductDetailPage() {
         )}
         <span>/</span>
         <span className="text-neutral-800 dark:text-slate-200 font-medium truncate max-w-[150px] sm:max-w-xs">
-          {product.name}
+          {cleanName}
         </span>
       </nav>
 
@@ -180,7 +182,7 @@ export default function ProductDetailPage() {
         <div className="relative aspect-square w-full rounded-3xl overflow-hidden bg-neutral-50 dark:bg-slate-900 shadow-sm border border-neutral-200/80 dark:border-slate-800 p-6 flex items-center justify-center">
           <img
             src={product.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800'}
-            alt={product.name}
+            alt={cleanName}
             loading="lazy"
             onError={(e) => {
               e.currentTarget.onerror = null;
@@ -233,7 +235,7 @@ export default function ProductDetailPage() {
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black font-heading text-neutral-900 dark:text-slate-100 leading-tight">
-              {product.name}
+              {cleanName}
             </h1>
 
             <p className="text-xs text-neutral-500 dark:text-slate-400 mt-1">
@@ -311,64 +313,52 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {/* Quantity Stepper & Add to Cart (Only for authenticated users) */}
-          {isAuthenticated ? (
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-              <div className="flex items-center justify-between sm:justify-center border border-neutral-300 dark:border-slate-700 rounded-2xl p-1 bg-white dark:bg-slate-900 shadow-xs">
-                <button
-                  type="button"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="h-10 w-10 rounded-xl flex items-center justify-center text-neutral-600 dark:text-slate-300 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
-                  aria-label="Decrease quantity"
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="w-12 text-center font-bold text-sm text-neutral-900 dark:text-slate-100">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="h-10 w-10 rounded-xl flex items-center justify-center text-neutral-600 dark:text-slate-300 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
-                  aria-label="Increase quantity"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-
+          {/* Quantity Stepper & Add to Cart */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+            <div className="flex items-center justify-between sm:justify-center border border-neutral-300 dark:border-slate-700 rounded-2xl p-1 bg-white dark:bg-slate-900 shadow-xs">
               <button
                 type="button"
-                onClick={handleAddToCart}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm shadow-md transition-all active:scale-98 ${
-                  added
-                    ? 'bg-emerald-500 text-white shadow-emerald-500/20'
-                    : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
-                }`}
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="h-10 w-10 rounded-xl flex items-center justify-center text-neutral-600 dark:text-slate-300 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
+                aria-label="Decrease quantity"
               >
-                {added ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    <span>Added {quantity} to Cart (₹{(sellingPrice * quantity) % 1 === 0 ? (sellingPrice * quantity) : (sellingPrice * quantity).toFixed(2)})</span>
-                  </>
-                ) : (
-                  <>
-                    <ShoppingBag className="h-4 w-4" />
-                    <span>Add to Cart &bull; ₹{(sellingPrice * quantity) % 1 === 0 ? (sellingPrice * quantity) : (sellingPrice * quantity).toFixed(2)}</span>
-                  </>
-                )}
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="w-12 text-center font-bold text-sm text-neutral-900 dark:text-slate-100">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity(quantity + 1)}
+                className="h-10 w-10 rounded-xl flex items-center justify-center text-neutral-600 dark:text-slate-300 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
+                aria-label="Increase quantity"
+              >
+                <Plus className="h-4 w-4" />
               </button>
             </div>
-          ) : (
-            <div className="pt-2">
-              <Link
-                to="/login"
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white shadow-glow transition-all hover:scale-[1.01] active:scale-[0.99]"
-              >
-                <ShoppingBag className="h-4 w-4" />
-                <span>Sign In to Order &bull; ₹{sellingPrice % 1 === 0 ? sellingPrice : sellingPrice.toFixed(2)}</span>
-              </Link>
-            </div>
-          )}
+
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm shadow-md transition-all active:scale-98 ${
+                added
+                  ? 'bg-brand-500 text-white shadow-brand-500/20'
+                  : 'bg-brand-500 hover:bg-brand-600 text-white shadow-brand-500/20'
+              }`}
+            >
+              {added ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  <span>Added {quantity} to Cart (₹{(sellingPrice * quantity) % 1 === 0 ? (sellingPrice * quantity) : (sellingPrice * quantity).toFixed(2)})</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="h-4 w-4" />
+                  <span>Add to Cart &bull; ₹{(sellingPrice * quantity) % 1 === 0 ? (sellingPrice * quantity) : (sellingPrice * quantity).toFixed(2)}</span>
+                </>
+              )}
+            </button>
+          </div>
 
           {/* Description & Details */}
           <div className="space-y-2 pt-2 border-t border-neutral-200 dark:border-slate-800">

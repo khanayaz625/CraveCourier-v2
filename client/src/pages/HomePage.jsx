@@ -164,10 +164,10 @@ export default function HomePage() {
             Array.from({ length: 4 }).map((_, i) => <CategoryChipSkeleton key={i} />)
           ) : (
             (categories.length > 0 ? categories : [
-              { slug: 'pizzas', name: 'Pizzas 🍕', image: '/images/products/margherita-pizza.jpg' },
               { slug: 'burgers', name: 'Burgers 🍔', image: '/images/products/veg-aloo-tikki-cheese-burger.jpg' },
+              { slug: 'pizzas', name: 'Pizzas 🍕', image: '/images/products/margherita-pizza.jpg' },
               { slug: 'sandwiches', name: 'Sandwiches 🥪', image: '/images/products/cheese-corn-grilled-paneer-sandwich.jpg' },
-              { slug: 'fries', name: 'Fries & Sides 🍟', image: '/images/products/peri-peri-fries.jpg' },
+              { slug: 'fries-sides', name: 'Fries & Sides 🍟', image: '/images/products/peri-peri-fries.jpg' },
             ]).map((cat) => (
               <Link
                 key={cat.slug || cat._id}

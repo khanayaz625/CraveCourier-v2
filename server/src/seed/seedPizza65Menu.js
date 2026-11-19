@@ -90,10 +90,10 @@ export async function seedPizza65() {
     // 4. All 18 Items from the Pizza 65 Menu Card
     const pizza65Products = [
       // ==========================================
-      // PIZZAS (पिज़्ज़ा)
+      // PIZZAS
       // ==========================================
       {
-        name: 'Margherita Pizza (मार्गेरीटा पिज़्ज़ा)',
+        name: 'Margherita Pizza',
         brand: 'Pizza 65',
         categorySlug: 'pizzas',
         subcategory: 'Pizzas',
@@ -111,7 +111,7 @@ export async function seedPizza65() {
         tags: ['pizza', 'margherita', 'cheese', 'pizza 65', 'veg'],
       },
       {
-        name: 'Delight Corn Pizza (डिलाइट कॉर्न पिज़्ज़ा)',
+        name: 'Delight Corn Pizza',
         brand: 'Pizza 65',
         categorySlug: 'pizzas',
         subcategory: 'Pizzas',
@@ -129,7 +129,7 @@ export async function seedPizza65() {
         tags: ['pizza', 'corn', 'sweet corn', 'pizza 65', 'veg'],
       },
       {
-        name: 'Mix Veg Paneer Pizza (मिक्स वेज पनीर पिज़्ज़ा)',
+        name: 'Mix Veg Paneer Pizza',
         brand: 'Pizza 65',
         categorySlug: 'pizzas',
         subcategory: 'Pizzas',
@@ -147,7 +147,7 @@ export async function seedPizza65() {
         tags: ['pizza', 'paneer', 'mix veg', 'pizza 65', 'veg'],
       },
       {
-        name: 'Tandoori Paneer Cheese Pizza (तन्दूरी पनीर चीज पिज़्ज़ा)',
+        name: 'Tandoori Paneer Cheese Pizza',
         brand: 'Pizza 65',
         categorySlug: 'pizzas',
         subcategory: 'Pizzas',
@@ -165,7 +165,7 @@ export async function seedPizza65() {
         tags: ['pizza', 'tandoori paneer', 'cheese', 'spicy', 'pizza 65', 'veg'],
       },
       {
-        name: 'Shahi Double Cheese Paneer Pizza (शाही डबल चीज पनीर पिज़्ज़ा)',
+        name: 'Shahi Double Cheese Paneer Pizza',
         brand: 'Pizza 65',
         categorySlug: 'pizzas',
         subcategory: 'Pizzas',
@@ -183,7 +183,7 @@ export async function seedPizza65() {
         tags: ['pizza', 'double cheese', 'shahi', 'paneer', 'pizza 65', 'veg'],
       },
       {
-        name: 'Kulhad Pizza (कुल्हड़ पिज़्ज़ा)',
+        name: 'Kulhad Pizza',
         brand: 'Pizza 65',
         categorySlug: 'pizzas',
         subcategory: 'Pizzas',
@@ -202,10 +202,10 @@ export async function seedPizza65() {
       },
 
       // ==========================================
-      // BURGERS (बर्गर)
+      // BURGERS
       // ==========================================
       {
-        name: 'Veg Aloo Tikki Burger (वेज आलू टिक्की बर्गर)',
+        name: 'Veg Aloo Tikki Burger',
         brand: 'Pizza 65',
         categorySlug: 'burgers',
         subcategory: 'Burgers',
@@ -222,7 +222,7 @@ export async function seedPizza65() {
         tags: ['burger', 'aloo tikki', 'crispy', 'pizza 65', 'veg'],
       },
       {
-        name: 'Veg Aloo Tikki Cheese Burger (वेज आलू टिक्की चीज बर्गर)',
+        name: 'Veg Aloo Tikki Cheese Burger',
         brand: 'Pizza 65',
         categorySlug: 'burgers',
         subcategory: 'Burgers',
@@ -239,7 +239,7 @@ export async function seedPizza65() {
         tags: ['burger', 'cheese burger', 'aloo tikki', 'pizza 65', 'veg'],
       },
       {
-        name: 'Paneer Aloo Tikki Cheese Burger (पनीर आलू टिक्की चीज बर्गर)',
+        name: 'Paneer Aloo Tikki Cheese Burger',
         brand: 'Pizza 65',
         categorySlug: 'burgers',
         subcategory: 'Burgers',
@@ -256,7 +256,7 @@ export async function seedPizza65() {
         tags: ['burger', 'paneer burger', 'cheese burger', 'pizza 65', 'veg'],
       },
       {
-        name: 'Double Aloo Tikki Cheese Burger (डबल आलू टिक्की चीज बर्गर)',
+        name: 'Double Aloo Tikki Cheese Burger',
         brand: 'Pizza 65',
         categorySlug: 'burgers',
         subcategory: 'Burgers',
@@ -274,10 +274,10 @@ export async function seedPizza65() {
       },
 
       // ==========================================
-      // SANDWICHES (सेन्डविच)
+      // SANDWICHES
       // ==========================================
       {
-        name: 'Veg Sandwich (वेज सेन्डविच)',
+        name: 'Veg Sandwich',
         brand: 'Pizza 65',
         categorySlug: 'sandwiches',
         subcategory: 'Sandwiches',
@@ -295,7 +295,7 @@ export async function seedPizza65() {
         tags: ['sandwich', 'veg sandwich', 'pizza 65', 'veg'],
       },
       {
-        name: 'Veg Cheese Sandwich (वेज चीज सेन्डविच)',
+        name: 'Veg Cheese Sandwich',
         brand: 'Pizza 65',
         categorySlug: 'sandwiches',
         subcategory: 'Sandwiches',
@@ -313,7 +313,7 @@ export async function seedPizza65() {
         tags: ['sandwich', 'cheese sandwich', 'grilled', 'pizza 65', 'veg'],
       },
       {
-        name: 'Cheese Corn Grilled Paneer Sandwich (चीज कॉर्न ग्रिल्ड पनीर सेन्डविच)',
+        name: 'Cheese Corn Grilled Paneer Sandwich',
         brand: 'Pizza 65',
         categorySlug: 'sandwiches',
         subcategory: 'Sandwiches',
@@ -331,7 +331,7 @@ export async function seedPizza65() {
         tags: ['sandwich', 'paneer sandwich', 'corn cheese', 'grilled', 'pizza 65', 'veg'],
       },
       {
-        name: 'Masala Cheese Pizza Sandwich (मसाला चीज पिज़्ज़ा सेन्डविच)',
+        name: 'Masala Cheese Pizza Sandwich',
         brand: 'Pizza 65',
         categorySlug: 'sandwiches',
         subcategory: 'Sandwiches',
@@ -350,10 +350,10 @@ export async function seedPizza65() {
       },
 
       // ==========================================
-      // FRIES (फ्राइज)
+      // FRIES
       // ==========================================
       {
-        name: 'Plain Salted Fries (प्लेन फ्राइज)',
+        name: 'Plain Salted Fries',
         brand: 'Pizza 65',
         categorySlug: 'fries',
         subcategory: 'Fries',
@@ -370,7 +370,7 @@ export async function seedPizza65() {
         tags: ['fries', 'french fries', 'salted', 'pizza 65', 'veg'],
       },
       {
-        name: 'Peri-Peri Fries (पेरी-पेरी फ्राइज)',
+        name: 'Peri-Peri Fries',
         brand: 'Pizza 65',
         categorySlug: 'fries',
         subcategory: 'Fries',
@@ -387,7 +387,7 @@ export async function seedPizza65() {
         tags: ['fries', 'peri peri', 'spicy fries', 'pizza 65', 'veg'],
       },
       {
-        name: 'Cheese Fries (चीज फ्राइज)',
+        name: 'Cheese Fries',
         brand: 'Pizza 65',
         categorySlug: 'fries',
         subcategory: 'Fries',
@@ -404,7 +404,7 @@ export async function seedPizza65() {
         tags: ['fries', 'cheese fries', 'cheddar', 'pizza 65', 'veg'],
       },
       {
-        name: 'Mayo-Cheesy Pizza Fries (मेयो-चीजी पिज़्ज़ा फ्राइज)',
+        name: 'Mayo-Cheesy Pizza Fries',
         brand: 'Pizza 65',
         categorySlug: 'fries',
         subcategory: 'Fries',

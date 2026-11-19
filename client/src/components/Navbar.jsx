@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import NotificationBell from './notifications/NotificationBell';
 import BrandLogo from './BrandLogo';
+import UserAvatar from './UserAvatar';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -79,11 +80,7 @@ export default function Navbar() {
                   title="My Account"
                   className="flex items-center justify-center p-0.5 rounded-full hover:ring-2 hover:ring-brand-500 transition-all"
                 >
-                  <img
-                    src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                    alt={user?.name || 'User'}
-                    className="h-7 w-7 rounded-full object-cover ring-1 ring-brand-500/40"
-                  />
+                  <UserAvatar user={user} size="sm" />
                 </Link>
 
                 <button
@@ -238,11 +235,7 @@ export default function Navbar() {
                 {/* User Avatar & Logout */}
                 <div className="flex items-center space-x-2 pl-2 border-l border-neutral-200 dark:border-slate-800">
                   <Link to="/account" title="Account" className="flex items-center space-x-2">
-                    <img
-                      src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                      alt={user.name}
-                      className="h-8 w-8 rounded-full object-cover ring-2 ring-brand-500/30"
-                    />
+                    <UserAvatar user={user} size="md" />
                     <span className="text-xs font-bold text-neutral-800 dark:text-slate-200 hidden md:inline truncate max-w-[120px]">
                       {user.name}
                     </span>

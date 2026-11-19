@@ -112,57 +112,43 @@ export default function ProductListingPage() {
   ].filter(Boolean).length;
 
   return (
-    <div className="max-w-6xl mx-auto px-3.5 sm:px-4 py-6 space-y-6 overflow-x-hidden">
-      {/* Search Header Row */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        <div className="w-full sm:max-w-md">
-          <SearchBar placeholder="Search Indian groceries, pulses, spices..." initialValue={search} />
+    <div className="max-w-6xl mx-auto px-3.5 sm:px-4 py-6 space-y-5 overflow-x-hidden">
+      {/* Interactive Explore Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-slate-100 font-heading tracking-tight">
+            Order your favourite food!
+          </h1>
+          <p className="text-xs text-neutral-500 dark:text-slate-400 mt-0.5">
+            Juicy burgers, cheesy pizzas, loaded sandwiches &amp; crispy fries
+          </p>
+        </div>
+      </div>
+
+      {/* Search Header & Filter Controls */}
+      <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+        <div className="flex-1 max-w-xl">
+          <SearchBar placeholder="Search delicious burgers, pizzas, fries..." initialValue={search} />
         </div>
 
-        {/* Mobile Filter Toggle & Sort Dropdown */}
+        {/* Filter Toggle & Sort Dropdown */}
         <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2">
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-neutral-800 dark:text-slate-200 shadow-xs flex-shrink-0"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 flex-shrink-0 transition-transform active:scale-95"
           >
-            <Filter className="h-4 w-4 text-emerald-600" />
+            <Filter className="h-4 w-4" />
             <span>Filters</span>
             {activeFiltersCount > 0 && (
-              <span className="h-4 w-4 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-bold">
+              <span className="h-4 w-4 rounded-full bg-white text-brand-600 text-[10px] flex items-center justify-center font-black">
                 {activeFiltersCount}
               </span>
             )}
           </button>
 
-          {/* Quick Preset Buttons */}
-          <div className="hidden md:flex items-center space-x-1.5">
-            <button
-              type="button"
-              onClick={() => handleFilterChange('isBestseller', isBestseller === 'true' ? '' : 'true')}
-              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${isBestseller === 'true'
-                ? 'bg-amber-500 text-white shadow-xs'
-                : 'bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 text-neutral-700 dark:text-slate-300 hover:border-amber-300'
-                }`}
-            >
-              <Flame className="h-3.5 w-3.5" />
-              Bestsellers
-            </button>
-            <button
-              type="button"
-              onClick={() => handleFilterChange('hasDiscount', hasDiscount === 'true' ? '' : 'true')}
-              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${hasDiscount === 'true'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 text-neutral-700 dark:text-slate-300 hover:border-emerald-300'
-                }`}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              Special Deals
-            </button>
-          </div>
-
           {/* Sort Selector */}
-          <div className="flex-1 sm:flex-none flex items-center space-x-1.5 bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 rounded-2xl px-3 py-2 sm:py-1.5 shadow-xs">
+          <div className="flex-1 sm:flex-none flex items-center space-x-1.5 bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 rounded-2xl px-3 py-2 shadow-xs">
             <ArrowUpDown className="h-3.5 w-3.5 text-neutral-400 flex-shrink-0" />
             <select
               value={sort}
@@ -182,32 +168,43 @@ export default function ProductListingPage() {
         </div>
       </div>
 
-      {/* Horizontal Scrollable Category Bar (All 19 Categories) */}
-      <div className="relative">
+      {/* Interactive Category Pills (Burgers, Pizzas, Sandwiches, Fries) */}
+      <div className="relative pt-1">
         <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none no-scrollbar [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-0.5">
           <button
             type="button"
             onClick={() => handleFilterChange('category', 'all')}
-            className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl text-[11px] sm:text-xs font-bold transition-all ${category === 'all'
-              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-              : 'bg-white dark:bg-slate-900 text-neutral-700 dark:text-slate-300 border border-neutral-200 dark:border-slate-800 hover:border-emerald-300'
-              }`}
+            className={`flex-shrink-0 px-4 py-2 rounded-2xl text-xs font-black transition-all ${
+              category === 'all'
+                ? 'bg-brand-500 text-white shadow-md shadow-brand-500/25 scale-102'
+                : 'bg-white dark:bg-slate-900 text-neutral-700 dark:text-slate-300 border border-neutral-200/80 dark:border-slate-800 hover:border-brand-300'
+            }`}
           >
             All Items
           </button>
-          {categories.map((c) => (
-            <button
-              key={c.slug}
-              type="button"
-              onClick={() => handleFilterChange('category', c.slug)}
-              className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl text-[11px] sm:text-xs font-bold transition-all ${category === c.slug
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                : 'bg-white dark:bg-slate-900 text-neutral-700 dark:text-slate-300 border border-neutral-200 dark:border-slate-800 hover:border-emerald-300'
+          {categories.map((c) => {
+            const isSelected = category === c.slug;
+            const emoji =
+              c.slug === 'burgers' ? '🍔 ' :
+              c.slug === 'pizzas' ? '🍕 ' :
+              c.slug === 'sandwiches' ? '🥪 ' :
+              c.slug === 'fries-sides' ? '🍟 ' : '';
+
+            return (
+              <button
+                key={c.slug}
+                type="button"
+                onClick={() => handleFilterChange('category', c.slug)}
+                className={`flex-shrink-0 px-4 py-2 rounded-2xl text-xs font-black transition-all ${
+                  isSelected
+                    ? 'bg-brand-500 text-white shadow-md shadow-brand-500/25 scale-102'
+                    : 'bg-white dark:bg-slate-900 text-neutral-700 dark:text-slate-300 border border-neutral-200/80 dark:border-slate-800 hover:border-brand-300'
                 }`}
-            >
-              {c.name}
-            </button>
-          ))}
+              >
+                {emoji}{c.name}
+              </button>
+            );
+          })}
         </div>
       </div>
 

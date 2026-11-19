@@ -16,19 +16,20 @@ export default function BottomNav() {
         .reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)
     : 0;
 
-  // Streamlined, shorter navigation tabs
-  // "Orders" and "Cart" are strictly hidden before login
-  const navLinks = [
-    { to: '/', label: 'Home', icon: Home, exact: true },
-    { to: '/products', label: 'Explore', icon: Compass },
-    ...(isAuthenticated
-      ? [
-          { to: '/orders', label: 'Orders', icon: Package },
-          { to: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount },
-        ]
-      : []),
-    { to: '/account', label: 'Account', icon: User, badge: unreadCount },
-  ];
+  // Account is prominently centered in the bottom navigation bar
+  const navLinks = isAuthenticated
+    ? [
+        { to: '/', label: 'Home', icon: Home, exact: true },
+        { to: '/products', label: 'Explore', icon: Compass },
+        { to: '/account', label: 'Account', icon: User, badge: unreadCount, isCenter: true },
+        { to: '/orders', label: 'Orders', icon: Package },
+        { to: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount },
+      ]
+    : [
+        { to: '/', label: 'Home', icon: Home, exact: true },
+        { to: '/account', label: 'Account', icon: User, badge: unreadCount, isCenter: true },
+        { to: '/products', label: 'Explore', icon: Compass },
+      ];
 
   // Separate app experience: Hide mobile bottom nav inside Craved Admin and Courier portal
   if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/partner')) {
@@ -46,6 +47,38 @@ export default function BottomNav() {
           const isActive = item.exact
             ? location.pathname === item.to
             : location.pathname.startsWith(item.to);
+
+          if (item.isCenter) {
+            return (
+              <Link
+                key={item.label}
+                to={item.to}
+                className="flex flex-col items-center justify-center relative -top-2 py-0.5 transition-transform active:scale-95 group"
+              >
+                <div
+                  className={`h-10 w-10 sm:h-11 sm:w-11 rounded-full flex items-center justify-center shadow-md transition-all ${
+                    isActive
+                      ? 'bg-brand-500 text-white shadow-brand-500/40 ring-3 ring-brand-100 dark:ring-brand-950/60'
+                      : 'bg-white dark:bg-slate-800 text-neutral-600 dark:text-slate-300 border-2 border-neutral-200 dark:border-slate-700 hover:border-brand-400'
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  {item.badge > 0 && (
+                    <span className="absolute top-0 right-0 h-3.5 min-w-[14px] px-0.5 rounded-full bg-rose-500 text-white text-[8px] font-black flex items-center justify-center shadow-xs">
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </span>
+                  )}
+                </div>
+                <span
+                  className={`text-[9px] mt-0.5 tracking-tight font-bold ${
+                    isActive ? 'text-brand-600 dark:text-brand-400' : 'text-neutral-500 dark:text-slate-400'
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          }
 
           return (
             <Link
