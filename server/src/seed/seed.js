@@ -87,37 +87,8 @@ const seedDatabase = async () => {
       role: 'customer',
       isActive: true,
       isEmailVerified: true,
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80',
-      addresses: [
-        {
-          label: 'Home',
-          street: 'Imli Ke Pass, Main Road',
-          city: 'Chirgaon',
-          state: 'Uttar Pradesh',
-          pincode: '284301',
-          landmark: 'Near Bus Stand & Pizza 65 (Within 1km - FREE Delivery)',
-          phone: '+919876500004',
-          coordinates: {
-            type: 'Point',
-            coordinates: [78.8235, 25.5752], // ~0.1 km from Hub -> 1km Free Delivery (₹0)!
-          },
-          isDefault: true,
-        },
-        {
-          label: 'Work',
-          street: 'Station Road, Mandi Gate',
-          city: 'Chirgaon',
-          state: 'Uttar Pradesh',
-          pincode: '284301',
-          landmark: 'Railway Station Road (2.4km - ₹20 Delivery)',
-          phone: '+919876500004',
-          coordinates: {
-            type: 'Point',
-            coordinates: [78.8410, 25.5890], // ~2.4 km from Hub -> Beyond 1km (+₹20 Delivery Charge)
-          },
-          isDefault: false,
-        },
-      ],
+      avatar: '',
+      addresses: [],
     });
 
     // Seed Delivery Partner Profile

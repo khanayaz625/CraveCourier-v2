@@ -5,6 +5,13 @@ import {
   isSoundEnabled,
   toggleSoundEnabled,
 } from '../services/soundEffects';
+import {
+  showClientPushNotification,
+  requestPushPermission,
+  requestBackgroundRunning,
+  releaseBackgroundRunning,
+  isPushNotificationSupported,
+} from '../services/pushNotification';
 
 export const useNotificationStore = create((set, get) => ({
   notifications: [],
@@ -13,6 +20,56 @@ export const useNotificationStore = create((set, get) => ({
   isDrawerOpen: false,
   toasts: [], // Active floating push toasts
   soundEnabled: isSoundEnabled(),
+  permission:
+    typeof window !== 'undefined' && 'Notification' in window
+      ? Notification.permission
+      : 'unsupported',
+  isBgTrackingActive: false,
+  bgTrackingDetails: null,
+
+  // Request native system notification permissions
+  requestPermission: async () => {
+    const res = await requestPushPermission();
+    const updated = typeof window !== 'undefined' && 'Notification' in window
+      ? Notification.permission
+      : 'unsupported';
+    set({ permission: updated });
+    return res;
+  },
+
+  // Toggle Background Live Tracking & Screen WakeLock
+  toggleBackgroundTracking: async () => {
+    const current = get().isBgTrackingActive;
+    if (current) {
+      await releaseBackgroundRunning();
+      set({ isBgTrackingActive: false, bgTrackingDetails: null });
+      return false;
+    } else {
+      const res = await requestBackgroundRunning();
+      set({ isBgTrackingActive: true, bgTrackingDetails: res });
+      // Show confirmation toast
+      get().addToast({
+        id: 'bg-active-' + Date.now(),
+        title: 'Background Tracking Active',
+        message: 'Live GPS route updates will remain synchronized in the background.',
+        type: 'system',
+      });
+      return true;
+    }
+  },
+
+  // Trigger test notification across panel and system tray
+  sendTestNotification: async () => {
+    const testItem = {
+      _id: 'test-' + Date.now(),
+      title: 'Crave Courier Live Alert',
+      message: 'Your order is being freshly prepared at Pizza 65 & Crave Hub!',
+      type: 'order_update',
+      createdAt: new Date().toISOString(),
+      read: false,
+    };
+    get().handleIncomingNotification(testItem);
+  },
 
   // Drawer Controls
   openDrawer: () => {
@@ -80,6 +137,13 @@ export const useNotificationStore = create((set, get) => ({
   // Receive a real-time incoming push notification (from Socket.io)
   handleIncomingNotification: (notification) => {
     playNotificationSoundForEvent(notification);
+
+    // Show native OS/browser system notification on each and every notification
+    showClientPushNotification({
+      title: notification.title || 'Crave Courier Alert',
+      body: notification.message || 'New order status update',
+      data: notification.data || {},
+    });
 
     set((state) => {
       // Avoid duplicate notifications

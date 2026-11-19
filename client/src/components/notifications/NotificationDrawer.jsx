@@ -14,6 +14,10 @@ import {
   CheckCircle2,
   ShoppingBag,
   Sparkles,
+  Radio,
+  Shield,
+  Zap,
+  Send,
 } from 'lucide-react';
 
 export default function NotificationDrawer() {
@@ -27,6 +31,11 @@ export default function NotificationDrawer() {
     loading,
     soundEnabled,
     toggleSound,
+    permission,
+    requestPermission,
+    isBgTrackingActive,
+    toggleBackgroundTracking,
+    sendTestNotification,
   } = useNotificationStore();
 
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'unread' | 'orders'
@@ -219,6 +228,84 @@ export default function NotificationDrawer() {
           >
             Orders
           </button>
+        </div>
+
+        {/* Real Notification Permission & Background Tracking Status Panel */}
+        <div className="p-3 bg-neutral-50 dark:bg-slate-900/80 border-b border-neutral-100 dark:border-slate-800 space-y-2 flex-shrink-0">
+          {/* Permission Card */}
+          {permission !== 'granted' ? (
+            <div className="p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/30 rounded-2xl border border-amber-200 dark:border-amber-800/60 flex items-start gap-2.5">
+              <span className="p-1.5 rounded-xl bg-amber-500 text-white flex-shrink-0 mt-0.5">
+                <Bell className="h-3.5 w-3.5 animate-bounce" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-black text-amber-950 dark:text-amber-200">
+                  Allow Real-Time System Notifications
+                </p>
+                <p className="text-[10px] text-amber-800 dark:text-amber-400 mt-0.5 leading-tight">
+                  Get live order milestones and rider arrival alerts directly on your device lock screen.
+                </p>
+                <button
+                  type="button"
+                  onClick={requestPermission}
+                  className="mt-2 px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[11px] font-bold shadow-xs transition-transform active:scale-95"
+                >
+                  Enable Device Notifications
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="px-3 py-1.5 bg-emerald-50/80 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-[11px]">
+              <span className="flex items-center gap-1.5 font-bold text-emerald-800 dark:text-emerald-300">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                System Notifications: Active
+              </span>
+              <button
+                type="button"
+                onClick={sendTestNotification}
+                className="text-[10px] font-bold text-emerald-700 hover:text-emerald-900 dark:text-emerald-400 underline underline-offset-2"
+              >
+                Send Test Alert
+              </button>
+            </div>
+          )}
+
+          {/* Background Running Tracking Permission Card */}
+          <div className="px-3 py-2 bg-white dark:bg-slate-800 rounded-xl border border-neutral-200/80 dark:border-slate-700 flex items-center justify-between gap-2 shadow-2xs">
+            <div className="flex items-center gap-2 min-w-0">
+              <span
+                className={`p-1.5 rounded-lg flex-shrink-0 ${
+                  isBgTrackingActive
+                    ? 'bg-brand-500 text-white animate-pulse'
+                    : 'bg-neutral-100 dark:bg-slate-700 text-neutral-500 dark:text-slate-400'
+                }`}
+              >
+                <Radio className="h-3.5 w-3.5" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold text-neutral-900 dark:text-slate-100 truncate">
+                  Background Live GPS Tracking
+                </p>
+                <p className="text-[9px] text-neutral-400 dark:text-slate-400 truncate">
+                  {isBgTrackingActive
+                    ? 'Screen kept awake & telemetry syncing'
+                    : 'Allows persistent live route sync when app is backgrounded'}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={toggleBackgroundTracking}
+              className={`px-2.5 py-1 rounded-xl text-[10px] font-black transition-all flex-shrink-0 ${
+                isBgTrackingActive
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'bg-neutral-100 hover:bg-neutral-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-neutral-700 dark:text-slate-200'
+              }`}
+            >
+              {isBgTrackingActive ? 'Active 🟢' : 'Enable'}
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Notification Items List */}

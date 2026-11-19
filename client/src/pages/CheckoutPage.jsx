@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import api from '../services/api';
 import StripePaymentForm from '../components/checkout/StripePaymentForm';
 import { triggerOrderCelebration } from '../utils/confetti';
+import LocationPickerModal from '../components/location/LocationPickerModal';
 import {
   MapPin,
   Clock,
@@ -150,10 +151,9 @@ export default function CheckoutPage() {
     checkRadius(coords);
   };
 
-  const handleAddNewAddressSubmit = async (e) => {
-    e.preventDefault();
+  const handleAddNewAddressSubmit = async (addressData) => {
     try {
-      const res = await api.post('/users/addresses', newAddress);
+      const res = await api.post('/users/addresses', addressData);
       const updatedList = res.data || [];
       setAddresses(updatedList);
       const added = updatedList[updatedList.length - 1];
@@ -163,7 +163,7 @@ export default function CheckoutPage() {
           added.coordinates?.coordinates &&
           (added.coordinates.coordinates[0] !== 0 || added.coordinates.coordinates[1] !== 0)
             ? added.coordinates.coordinates
-            : newAddress.coordinates;
+            : addressData.coordinates;
         checkRadius(coords);
       }
       setShowAddAddressModal(false);
@@ -1085,120 +1085,13 @@ export default function CheckoutPage() {
         )}
       </div>
 
-      {/* Add New Address Modal with Map Pin Coordinate Simulation */}
-      {showAddAddressModal && (
-        <div className="fixed inset-0 z-50 bg-neutral-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
-              <h3 className="font-black text-sm text-neutral-900">Add New Delivery Location</h3>
-              <button
-                type="button"
-                onClick={() => setShowAddAddressModal(false)}
-                className="text-neutral-400 hover:text-neutral-600 text-xs font-bold"
-              >
-                Close
-              </button>
-            </div>
-
-            <form onSubmit={handleAddNewAddressSubmit} className="space-y-3 text-xs">
-              <div>
-                <label className="block font-bold text-neutral-700 mb-1">Address Label</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {['Home', 'Work', 'Other'].map((l) => (
-                    <button
-                      key={l}
-                      type="button"
-                      onClick={() => setNewAddress({ ...newAddress, label: l })}
-                      className={`py-1.5 rounded-xl font-bold text-center border ${
-                        newAddress.label === l
-                          ? 'bg-brand-50 border-brand-300 text-brand-700'
-                          : 'border-neutral-200 text-neutral-600'
-                      }`}
-                    >
-                      {l}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-neutral-700 mb-1">Street Address</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Apartment, building, and street name"
-                  value={newAddress.street}
-                  onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
-                  className="w-full p-2.5 border border-neutral-200 rounded-xl outline-none focus:ring-1 focus:ring-brand-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block font-bold text-neutral-700 mb-1">City</label>
-                  <input
-                    type="text"
-                    required
-                    value={newAddress.city}
-                    onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                    className="w-full p-2.5 border border-neutral-200 rounded-xl outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-neutral-700 mb-1">ZIP / Pincode</label>
-                  <input
-                    type="text"
-                    required
-                    value={newAddress.pincode}
-                    onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
-                    className="w-full p-2.5 border border-neutral-200 rounded-xl outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-neutral-700 mb-1">Landmark (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Near Central Park East Entrance"
-                  value={newAddress.landmark}
-                  onChange={(e) => setNewAddress({ ...newAddress, landmark: e.target.value })}
-                  className="w-full p-2.5 border border-neutral-200 rounded-xl outline-none"
-                />
-              </div>
-
-              {/* Map Pin Coordinate Selector Simulation */}
-              <div className="p-3 bg-neutral-50 rounded-2xl border border-neutral-200 space-y-1.5">
-                <div className="flex items-center justify-between text-[11px] font-bold text-neutral-700">
-                  <span className="flex items-center gap-1">
-                    <Navigation className="h-3.5 w-3.5 text-brand-500" />
-                    GPS Location Pin
-                  </span>
-                  <span className="font-mono text-neutral-500 text-[10px]">
-                    [{newAddress.coordinates[0].toFixed(4)}, {newAddress.coordinates[1].toFixed(4)}]
-                  </span>
-                </div>
-                <p className="text-[10px] text-neutral-400">
-                  Drag/click on map simulation to set high-precision rider dispatch coordinates.
-                </p>
-                <div className="h-20 w-full bg-gradient-to-r from-emerald-100 via-brand-50 to-amber-100 rounded-xl flex items-center justify-center border border-dashed border-neutral-300 cursor-pointer">
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 bg-white px-3 py-1 rounded-full shadow-xs">
-                    <MapPin className="h-3.5 w-3.5" />
-                    Pin Set (Chirgaon, Jhansi, UP)
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-md transition-colors"
-              >
-                Save & Select Address
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Live Google Maps & GPS Auto-Detect Location Picker Modal */}
+      <LocationPickerModal
+        isOpen={showAddAddressModal}
+        onClose={() => setShowAddAddressModal(false)}
+        onSaveAddress={handleAddNewAddressSubmit}
+        userPhone={user?.phone || ''}
+      />
     </div>
   );
 }

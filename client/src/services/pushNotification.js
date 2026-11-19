@@ -77,7 +77,7 @@ export const showClientPushNotification = async ({ title, body, data = {} }) => 
     badge: '/icons/pwa-192x192.png',
     data,
     vibrate: [200, 100, 200],
-    tag: 'crave-order-update',
+    tag: `crave-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
   };
 
   try {
@@ -92,6 +92,52 @@ export const showClientPushNotification = async ({ title, body, data = {} }) => 
     new Notification(title, notificationOptions);
   } catch (err) {
     console.warn('[PUSH DISPLAY WARNING]', err);
+  }
+};
+
+let wakeLockSentinel = null;
+
+/**
+ * Requests background running & screen lock permissions
+ * Keeps screen awake and prevents OS from suspending GPS / live telemetry
+ */
+export const requestBackgroundRunning = async () => {
+  const status = { wakeLock: false, persistentStorage: false };
+
+  // 1. Screen Wake Lock API (keeps screen active during live rider tracking)
+  if (typeof navigator !== 'undefined' && 'wakeLock' in navigator) {
+    try {
+      wakeLockSentinel = await navigator.wakeLock.request('screen');
+      status.wakeLock = true;
+      wakeLockSentinel.addEventListener('release', () => {
+        console.log('[WAKE LOCK] Screen Wake Lock was released');
+      });
+    } catch (err) {
+      console.warn('[WAKE LOCK] Wake lock request error:', err);
+    }
+  }
+
+  // 2. Persistent Storage (protects live route cache and offline tracking data)
+  if (typeof navigator !== 'undefined' && navigator.storage?.persist) {
+    try {
+      status.persistentStorage = await navigator.storage.persist();
+    } catch (err) {
+      console.warn('[STORAGE PERSIST] Error:', err);
+    }
+  }
+
+  return status;
+};
+
+/**
+ * Releases background screen wake lock
+ */
+export const releaseBackgroundRunning = async () => {
+  if (wakeLockSentinel) {
+    try {
+      await wakeLockSentinel.release();
+      wakeLockSentinel = null;
+    } catch {}
   }
 };
 

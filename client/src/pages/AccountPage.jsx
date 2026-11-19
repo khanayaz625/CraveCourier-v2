@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import { useAuthStore } from '../store/useAuthStore';
 import { useWishlistStore } from '../store/useWishlistStore';
 import { useCartStore } from '../store/useCartStore';
 import { useThemeStore } from '../store/useThemeStore';
 import { useNotificationStore } from '../store/useNotificationStore';
+import LocationPickerModal from '../components/location/LocationPickerModal';
 import {
   User,
   Package,
@@ -26,6 +28,9 @@ import {
   Mail,
   CheckCircle2,
   Bell,
+  Trash2,
+  Plus,
+  Navigation,
 } from 'lucide-react';
 import UserAvatar from '../components/UserAvatar';
 
@@ -38,6 +43,33 @@ export default function AccountPage() {
   const navigate = useNavigate();
 
   const [loggingOut, setLoggingOut] = useState(false);
+  const [addresses, setAddresses] = useState([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setLoadingAddresses(true);
+      api.get('/users/addresses')
+        .then((res) => setAddresses(res.data || []))
+        .catch((err) => console.warn('Failed to load addresses:', err))
+        .finally(() => setLoadingAddresses(false));
+    }
+  }, [isAuthenticated]);
+
+  const handleSaveAddress = async (addressData) => {
+    const res = await api.post('/users/addresses', addressData);
+    setAddresses(res.data || []);
+  };
+
+  const handleDeleteAddress = async (id) => {
+    try {
+      const res = await api.delete(`/users/addresses/${id}`);
+      setAddresses(res.data || []);
+    } catch (err) {
+      alert(err.message || 'Failed to delete address');
+    }
+  };
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -205,6 +237,100 @@ export default function AccountPage() {
               </Link>
             )}
           </div>
+
+          {/* Saved Delivery Addresses Section with Live GPS & Google Maps */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800 shadow-soft p-4 sm:p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="p-2 rounded-xl bg-brand-50 dark:bg-brand-950/60 text-brand-500">
+                  <MapPin className="h-4 w-4" />
+                </span>
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-neutral-900 dark:text-slate-100 font-heading">
+                    Saved Delivery Addresses
+                  </h3>
+                  <p className="text-[11px] text-neutral-400">
+                    GPS coordinates &amp; doorstep delivery locations
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowAddressModal(true)}
+                className="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1 active:scale-95"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Add Address</span>
+              </button>
+            </div>
+
+            {loadingAddresses ? (
+              <div className="py-4 text-center text-xs text-neutral-400">Loading your addresses...</div>
+            ) : addresses.length === 0 ? (
+              <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-slate-800/50 border border-neutral-200/60 dark:border-slate-700/60 text-center space-y-2">
+                <p className="text-xs font-bold text-neutral-700 dark:text-slate-300">
+                  No delivery address saved yet
+                </p>
+                <p className="text-[11px] text-neutral-400 max-w-xs mx-auto">
+                  Auto-detect your location with live GPS and Google Maps to enable 1-tap checkout.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowAddressModal(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-500 text-white rounded-xl text-xs font-bold shadow-sm hover:bg-brand-600"
+                >
+                  <Navigation className="h-3.5 w-3.5" />
+                  <span>Auto-Detect My Current Location</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {addresses.map((addr) => (
+                  <div
+                    key={addr._id}
+                    className="p-3.5 rounded-2xl border border-neutral-200 dark:border-slate-800 bg-neutral-50/50 dark:bg-slate-800/40 flex items-start justify-between gap-2"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-xs text-neutral-900 dark:text-slate-100">
+                          {addr.label}
+                        </span>
+                        {addr.isDefault && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                            Default
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-neutral-600 dark:text-slate-300 font-medium mt-0.5 line-clamp-1">
+                        {addr.street}
+                      </p>
+                      <p className="text-[11px] text-neutral-400">
+                        {addr.city}, {addr.state} - {addr.pincode}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAddress(addr._id)}
+                      className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+                      title="Delete address"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Location Picker Modal */}
+          <LocationPickerModal
+            isOpen={showAddressModal}
+            onClose={() => setShowAddressModal(false)}
+            onSaveAddress={handleSaveAddress}
+            userPhone={user?.phone || ''}
+          />
         </>
       ) : (
         /* Guest Unauthenticated Welcome Card */

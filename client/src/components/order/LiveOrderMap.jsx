@@ -9,10 +9,15 @@ import {
   CheckCircle2,
   ShieldCheck,
   Radio,
+  Smartphone,
+  ExternalLink,
+  Activity,
 } from 'lucide-react';
 import { emitRiderLocation } from '../../services/socket';
+import { useNotificationStore } from '../../store/useNotificationStore';
 
 export default function LiveOrderMap({ order, liveLocation }) {
+  const { isBgTrackingActive, toggleBackgroundTracking } = useNotificationStore();
   // Store Hub coordinates (Pizza 65 & Crave Hub)
   const hubCoords = [78.8228, 25.5746]; // [lng, lat]
 
@@ -297,6 +302,44 @@ export default function LiveOrderMap({ order, liveLocation }) {
           </span>
           <span>Battery: 88%</span>
         </div>
+      </div>
+
+      {/* Background Running Permission & Google Maps Nav Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-1">
+        <button
+          type="button"
+          onClick={() => toggleBackgroundTracking()}
+          className={`flex-1 flex items-center justify-between px-3.5 py-2.5 rounded-2xl border transition text-xs font-bold ${
+            isBgTrackingActive
+              ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700/60 text-emerald-700 dark:text-emerald-300'
+              : 'bg-neutral-100 dark:bg-slate-800/80 border-neutral-200 dark:border-slate-700 text-neutral-700 dark:text-slate-300 hover:bg-neutral-200/70'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Smartphone className={`h-4 w-4 ${isBgTrackingActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-neutral-500'}`} />
+            <div className="text-left">
+              <div>{isBgTrackingActive ? 'Background Wake Lock: Active' : 'Keep Screen & GPS Tracking Active'}</div>
+              <div className="text-[10px] font-normal opacity-80">
+                {isBgTrackingActive ? 'Prevents sleep while courier is moving' : 'Request wake lock & persistent tracking'}
+              </div>
+            </div>
+          </div>
+          <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
+            isBgTrackingActive ? 'bg-emerald-600 text-white' : 'bg-neutral-300 dark:bg-slate-700 text-neutral-800 dark:text-slate-200'
+          }`}>
+            {isBgTrackingActive ? 'ON' : 'ENABLE'}
+          </span>
+        </button>
+
+        <a
+          href={`https://www.google.com/maps/dir/?api=1&origin=${hubCoords[1]},${hubCoords[0]}&destination=${customerCoords[1]},${customerCoords[0]}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/40 dark:hover:bg-brand-900/40 border border-brand-200 dark:border-brand-800/60 text-brand-700 dark:text-brand-300 text-xs font-bold transition"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          <span>Open in Google Maps</span>
+        </a>
       </div>
     </div>
   );
