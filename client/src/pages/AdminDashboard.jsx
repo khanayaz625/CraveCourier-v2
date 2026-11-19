@@ -65,8 +65,9 @@ export default function AdminDashboard() {
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(
-    typeof window !== 'undefined' ? window.innerWidth >= 768 : true
+    typeof window !== 'undefined' ? window.innerWidth >= 1024 : true
   );
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
@@ -692,10 +693,20 @@ export default function AdminDashboard() {
       <header className="bg-neutral-900 border-b border-neutral-800 text-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
+            {/* Mobile Drawer Toggle */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 transition-colors"
+              title="Toggle Mobile Menu"
+            >
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+
+            {/* Desktop Sidebar Toggle */}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 transition-colors"
-              title="Toggle Navigation Menu"
+              className="hidden md:inline-flex p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 transition-colors"
+              title="Toggle Desktop Sidebar"
             >
               {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -736,13 +747,118 @@ export default function AdminDashboard() {
         </div>
       </header>
 
+      {/* Mobile Horizontal Quick Navigation Strip */}
+      <div className="md:hidden bg-white border-b border-neutral-200 px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth shadow-xs">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                isActive
+                  ? 'bg-neutral-900 text-white shadow-xs'
+                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+              }`}
+            >
+              <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-brand-400' : 'text-neutral-500'}`} />
+              <span>{item.label.split(' ')[0]}</span>
+              {item.badge && (
+                <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-rose-500 text-white">
+                  {item.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Mobile Off-Canvas Drawer Backdrop */}
+      {isMobileMenuOpen && (
+        <div
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs md:hidden"
+        />
+      )}
+
+      {/* Mobile Off-Canvas Navigation Drawer */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl p-4 flex flex-col justify-between transform transition-transform duration-300 ease-in-out md:hidden ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="space-y-3">
+          <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
+            <div className="flex items-center space-x-2">
+              <span className="h-8 w-8 rounded-xl bg-gradient-to-tr from-brand-500 to-amber-500 flex items-center justify-center font-black text-white text-base shadow-sm">
+                <Shield className="h-4 w-4" />
+              </span>
+              <div>
+                <span className="font-black text-sm tracking-tight text-neutral-900 font-heading block">
+                  Craved Admin
+                </span>
+                <span className="text-[10px] text-neutral-400 font-bold uppercase">
+                  Operations Center
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-1.5 rounded-xl hover:bg-neutral-100 text-neutral-500"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 px-2 pt-1">
+            Navigation Menu
+          </div>
+
+          <div className="space-y-1 max-h-[70vh] overflow-y-auto">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-bold transition-all ${
+                    isActive
+                      ? 'bg-neutral-900 text-white shadow-sm'
+                      : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Icon className={`h-4 w-4 ${isActive ? 'text-brand-400' : 'text-neutral-500'}`} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-neutral-100 text-[11px] text-neutral-400 text-center">
+          Crave Operations v1.0.0
+        </div>
+      </aside>
+
       {/* Main Admin Body */}
-      <div className="flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row">
-        {/* Collapsible Sidebar */}
+      <div className="flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row min-w-0">
+        {/* Desktop Collapsible Sidebar */}
         <aside
-          className={`${
-            isSidebarOpen ? 'w-full md:w-64' : 'w-full md:w-20'
-          } bg-white border-r border-neutral-200 p-4 transition-all duration-200 flex-shrink-0 flex flex-col justify-between`}
+          className={`hidden md:flex ${
+            isSidebarOpen ? 'w-64' : 'w-20'
+          } bg-white border-r border-neutral-200 p-4 transition-all duration-200 flex-shrink-0 flex-col justify-between`}
         >
           <div className="space-y-1">
             <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 px-3 py-2">
@@ -754,12 +870,7 @@ export default function AdminDashboard() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-                      setIsSidebarOpen(false);
-                    }
-                  }}
+                  onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-bold transition-all ${
                     isActive
                       ? 'bg-neutral-900 text-white shadow-sm'
@@ -789,7 +900,7 @@ export default function AdminDashboard() {
         </aside>
 
         {/* Dynamic Workspace Container */}
-        <main className="flex-1 p-4 sm:p-6 overflow-x-hidden">
+        <main className="flex-1 p-3 sm:p-6 overflow-x-hidden min-w-0">
           {/* ============================================================== */}
           {/* 1. OVERVIEW & RECHARTS ANALYTICS TAB                           */}
           {/* ============================================================== */}
@@ -1065,8 +1176,8 @@ export default function AdminDashboard() {
               </div>
 
               {/* Filters Bar */}
-              <div className="bg-white p-4 rounded-2xl border border-neutral-200 shadow-xs flex flex-wrap items-center gap-3">
-                <div className="relative flex-1 min-w-[200px]">
+              <div className="bg-white p-3 sm:p-4 rounded-2xl border border-neutral-200 shadow-xs flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3">
+                <div className="relative flex-1 min-w-0 sm:min-w-[200px]">
                   <Search className="h-3.5 w-3.5 absolute left-3 top-3 text-neutral-400" />
                   <input
                     type="text"
@@ -1077,38 +1188,41 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <select
-                  value={orderFilter.status}
-                  onChange={(e) => setOrderFilter({ ...orderFilter, status: e.target.value, page: 1 })}
-                  className="px-3 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 font-bold text-neutral-700 focus:outline-none"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="placed">Placed</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="preparing">Preparing</option>
-                  <option value="ready">Ready for Pickup</option>
-                  <option value="picked_up">Picked Up</option>
-                  <option value="out_for_delivery">Out for Delivery</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="refunded">Refunded</option>
-                </select>
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+                  <select
+                    value={orderFilter.status}
+                    onChange={(e) => setOrderFilter({ ...orderFilter, status: e.target.value, page: 1 })}
+                    className="w-full sm:w-auto px-3 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 font-bold text-neutral-700 focus:outline-none"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="placed">Placed</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="preparing">Preparing</option>
+                    <option value="ready">Ready for Pickup</option>
+                    <option value="picked_up">Picked Up</option>
+                    <option value="out_for_delivery">Out for Delivery</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="refunded">Refunded</option>
+                  </select>
 
-                <select
-                  value={orderFilter.paymentStatus}
-                  onChange={(e) => setOrderFilter({ ...orderFilter, paymentStatus: e.target.value, page: 1 })}
-                  className="px-3 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 font-bold text-neutral-700 focus:outline-none"
-                >
-                  <option value="all">All Payments</option>
-                  <option value="paid">Paid</option>
-                  <option value="pending">Pending</option>
-                  <option value="refunded">Refunded</option>
-                </select>
+                  <select
+                    value={orderFilter.paymentStatus}
+                    onChange={(e) => setOrderFilter({ ...orderFilter, paymentStatus: e.target.value, page: 1 })}
+                    className="w-full sm:w-auto px-3 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 font-bold text-neutral-700 focus:outline-none"
+                  >
+                    <option value="all">All Payments</option>
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending</option>
+                    <option value="refunded">Refunded</option>
+                  </select>
+                </div>
               </div>
 
-              {/* Orders Data Table */}
+              {/* Orders Data Container */}
               <div className="bg-white rounded-3xl border border-neutral-200 shadow-xs overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Desktop View Table */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-neutral-50 border-b border-neutral-200 text-neutral-500 font-black uppercase text-[10px] tracking-wider">
                       <tr>
@@ -1218,26 +1332,142 @@ export default function AdminDashboard() {
                   </table>
                 </div>
 
+                {/* Mobile View Cards */}
+                <div className="md:hidden divide-y divide-neutral-100">
+                  {ordersData.orders.length > 0 ? (
+                    ordersData.orders.map((o) => (
+                      <div key={o._id} className="p-4 space-y-3 bg-white">
+                        {/* Top: Order # & Grand Total */}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="font-mono font-black text-sm text-neutral-900">#{o.orderNumber}</span>
+                            <span className="text-[10px] text-neutral-400 block">
+                              {new Date(o.createdAt).toLocaleDateString()} &bull; {new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-base font-black text-neutral-900 block font-heading">
+                              ₹{o.totals?.grandTotal ? (o.totals.grandTotal % 1 === 0 ? o.totals.grandTotal : o.totals.grandTotal.toFixed(2)) : '0'}
+                            </span>
+                            <span
+                              className={`inline-block px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${
+                                o.paymentStatus === 'paid'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : o.paymentStatus === 'refunded'
+                                  ? 'bg-purple-100 text-purple-800'
+                                  : 'bg-amber-100 text-amber-800'
+                              }`}
+                            >
+                              {o.paymentStatus}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Customer & Contact */}
+                        <div className="flex items-center justify-between bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/60 text-xs">
+                          <div>
+                            <div className="font-bold text-neutral-800">{o.customer?.name || 'Customer'}</div>
+                            <div className="text-[10px] text-neutral-400">{o.deliveryAddress?.street || o.deliveryAddress?.city || 'Address details in order'}</div>
+                          </div>
+                          {o.customer?.phone && (
+                            <a
+                              href={`tel:${o.customer.phone}`}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold flex items-center gap-1 active:scale-95"
+                            >
+                              <span>Call</span>
+                            </a>
+                          )}
+                        </div>
+
+                        {/* Items summary */}
+                        <div className="text-xs text-neutral-600">
+                          <span className="font-bold text-neutral-800">{o.items?.length || 0} item{o.items?.length === 1 ? '' : 's'}: </span>
+                          {o.items?.map((it) => `${it.quantity}x ${it.name}`).join(', ') || 'No item details'}
+                        </div>
+
+                        {/* Status & Courier Controls */}
+                        <div className="flex flex-col gap-2 pt-2 border-t border-neutral-100">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-[10px] font-bold text-neutral-400 uppercase">Status:</span>
+                            <select
+                              value={o.status}
+                              onChange={(e) => handleUpdateOrderStatus(o._id, e.target.value)}
+                              className="flex-1 text-xs font-bold bg-neutral-100 border border-neutral-300 rounded-lg px-2 py-1.5 focus:outline-none"
+                            >
+                              <option value="placed">placed</option>
+                              <option value="confirmed">confirmed</option>
+                              <option value="preparing">preparing</option>
+                              <option value="ready">ready</option>
+                              <option value="picked_up">picked_up</option>
+                              <option value="out_for_delivery">out_for_delivery</option>
+                              <option value="delivered">delivered</option>
+                              <option value="cancelled">cancelled</option>
+                              <option value="refunded">refunded</option>
+                            </select>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-2 pt-1">
+                            <div>
+                              {o.deliveryPartner ? (
+                                <span className="font-bold text-xs text-neutral-800 flex items-center gap-1 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg">
+                                  <Bike className="h-3 w-3 text-amber-600" />
+                                  <span className="truncate max-w-[130px]">{o.deliveryPartner.name}</span>
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() =>
+                                    setAssignPartnerModal({
+                                      isOpen: true,
+                                      order: o,
+                                      partnerId: partnersData.partners[0]?.user?._id || '',
+                                    })
+                                  }
+                                  className="px-2.5 py-1 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 text-[11px] font-bold border border-brand-200"
+                                >
+                                  + Assign Rider
+                                </button>
+                              )}
+                            </div>
+
+                            {o.paymentStatus === 'paid' && o.status !== 'refunded' && (
+                              <button
+                                onClick={() => handleTriggerRefund(o)}
+                                className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold border border-rose-200"
+                              >
+                                Refund
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center text-xs text-neutral-400">
+                      No orders found matching this filter criteria.
+                    </div>
+                  )}
+                </div>
+
                 {/* Pagination */}
-                <div className="p-4 border-t border-neutral-200 flex items-center justify-between text-xs text-neutral-500">
-                  <span>
+                <div className="p-3 sm:p-4 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-500">
+                  <span className="text-center sm:text-left">
                     Showing {ordersData.orders.length} of {ordersData.total} orders
                   </span>
                   <div className="flex items-center space-x-2">
                     <button
                       disabled={orderFilter.page <= 1}
                       onClick={() => setOrderFilter({ ...orderFilter, page: orderFilter.page - 1 })}
-                      className="p-1.5 rounded-lg border border-neutral-200 disabled:opacity-30"
+                      className="p-1.5 rounded-lg border border-neutral-200 disabled:opacity-30 hover:bg-neutral-50"
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <span className="font-bold text-neutral-800">
+                    <span className="font-bold text-neutral-800 px-1">
                       Page {orderFilter.page} / {ordersData.totalPages}
                     </span>
                     <button
                       disabled={orderFilter.page >= ordersData.totalPages}
                       onClick={() => setOrderFilter({ ...orderFilter, page: orderFilter.page + 1 })}
-                      className="p-1.5 rounded-lg border border-neutral-200 disabled:opacity-30"
+                      className="p-1.5 rounded-lg border border-neutral-200 disabled:opacity-30 hover:bg-neutral-50"
                     >
                       <ChevronRight className="h-4 w-4" />
                     </button>
@@ -1269,8 +1499,8 @@ export default function AdminDashboard() {
               </div>
 
               {/* Search & Filters */}
-              <div className="bg-white p-4 rounded-2xl border border-neutral-200 shadow-xs flex flex-wrap items-center gap-3">
-                <div className="relative flex-1 min-w-[200px]">
+              <div className="bg-white p-3 sm:p-4 rounded-2xl border border-neutral-200 shadow-xs flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3">
+                <div className="relative flex-1 min-w-0 sm:min-w-[200px]">
                   <Search className="h-3.5 w-3.5 absolute left-3 top-3 text-neutral-400" />
                   <input
                     type="text"
@@ -1281,32 +1511,35 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <select
-                  value={userFilter.role}
-                  onChange={(e) => setUserFilter({ ...userFilter, role: e.target.value, page: 1 })}
-                  className="px-3 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 font-bold text-neutral-700"
-                >
-                  <option value="all">All Roles</option>
-                  <option value="customer">Customer</option>
-                  <option value="delivery">Delivery Partner</option>
-                  <option value="vendor">Vendor</option>
-                  <option value="admin">Admin</option>
-                </select>
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+                  <select
+                    value={userFilter.role}
+                    onChange={(e) => setUserFilter({ ...userFilter, role: e.target.value, page: 1 })}
+                    className="w-full sm:w-auto px-3 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 font-bold text-neutral-700"
+                  >
+                    <option value="all">All Roles</option>
+                    <option value="customer">Customer</option>
+                    <option value="delivery">Delivery Partner</option>
+                    <option value="vendor">Vendor</option>
+                    <option value="admin">Admin</option>
+                  </select>
 
-                <select
-                  value={userFilter.status}
-                  onChange={(e) => setUserFilter({ ...userFilter, status: e.target.value, page: 1 })}
-                  className="px-3 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 font-bold text-neutral-700"
-                >
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="blocked">Blocked</option>
-                </select>
+                  <select
+                    value={userFilter.status}
+                    onChange={(e) => setUserFilter({ ...userFilter, status: e.target.value, page: 1 })}
+                    className="w-full sm:w-auto px-3 py-2 text-xs rounded-xl bg-neutral-50 border border-neutral-200 font-bold text-neutral-700"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="blocked">Blocked</option>
+                  </select>
+                </div>
               </div>
 
-              {/* Users Table */}
+              {/* Users Data Container */}
               <div className="bg-white rounded-3xl border border-neutral-200 shadow-xs overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-neutral-50 border-b border-neutral-200 text-neutral-500 font-black uppercase text-[10px] tracking-wider">
                       <tr>
@@ -1321,11 +1554,9 @@ export default function AdminDashboard() {
                       {usersData.users.map((u) => (
                         <tr key={u._id} className="hover:bg-neutral-50">
                           <td className="py-3 px-4 flex items-center space-x-3">
-                            <img
-                              src={u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                              alt={u.name}
-                              className="h-8 w-8 rounded-full object-cover"
-                            />
+                            <div className="h-8 w-8 rounded-full bg-brand-100 text-brand-700 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                              {u.name?.[0]?.toUpperCase() || 'U'}
+                            </div>
                             <div>
                               <span className="font-bold text-neutral-900 block">{u.name}</span>
                               <span className="text-[10px] text-neutral-400 font-mono">{u.email}</span>
@@ -1378,26 +1609,88 @@ export default function AdminDashboard() {
                   </table>
                 </div>
 
+                {/* Mobile Cards View */}
+                <div className="md:hidden divide-y divide-neutral-100">
+                  {usersData.users.length > 0 ? (
+                    usersData.users.map((u) => (
+                      <div key={u._id} className="p-4 space-y-3 bg-white">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3 min-w-0">
+                            <div className="h-10 w-10 rounded-full bg-brand-100 text-brand-700 font-black text-sm flex items-center justify-center flex-shrink-0">
+                              {u.name?.[0]?.toUpperCase() || 'U'}
+                            </div>
+                            <div className="min-w-0">
+                              <span className="font-bold text-neutral-900 text-xs block truncate">{u.name}</span>
+                              <span className="text-[10px] text-neutral-400 font-mono truncate block">{u.email}</span>
+                            </div>
+                          </div>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex-shrink-0 ${
+                              u.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                            }`}
+                          >
+                            {u.isActive ? 'Active' : 'Blocked'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-100 text-xs">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-neutral-400 uppercase">Role:</span>
+                            <select
+                              value={u.role}
+                              disabled={u.email === 'admin@crave.com'}
+                              onChange={(e) => handleChangeUserRole(u._id, e.target.value)}
+                              className="text-xs font-bold bg-neutral-100 border border-neutral-300 rounded-lg px-2 py-1"
+                            >
+                              <option value="customer">customer</option>
+                              <option value="delivery">delivery</option>
+                              <option value="vendor">vendor</option>
+                              <option value="admin">admin</option>
+                            </select>
+                          </div>
+
+                          {u.email !== 'admin@crave.com' && (
+                            <button
+                              onClick={() => handleToggleUserStatus(u)}
+                              className={`px-3 py-1 rounded-xl text-xs font-bold border transition ${
+                                u.isActive
+                                  ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200'
+                                  : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
+                              }`}
+                            >
+                              {u.isActive ? 'Block User' : 'Activate User'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center text-xs text-neutral-400">
+                      No users found matching this filter criteria.
+                    </div>
+                  )}
+                </div>
+
                 {/* Pagination */}
-                <div className="p-4 border-t border-neutral-200 flex items-center justify-between text-xs text-neutral-500">
-                  <span>
+                <div className="p-3 sm:p-4 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-500">
+                  <span className="text-center sm:text-left">
                     Showing {usersData.users.length} of {usersData.total} users
                   </span>
                   <div className="flex items-center space-x-2">
                     <button
                       disabled={userFilter.page <= 1}
                       onClick={() => setUserFilter({ ...userFilter, page: userFilter.page - 1 })}
-                      className="p-1.5 rounded-lg border border-neutral-200 disabled:opacity-30"
+                      className="p-1.5 rounded-lg border border-neutral-200 disabled:opacity-30 hover:bg-neutral-50"
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <span className="font-bold text-neutral-800">
+                    <span className="font-bold text-neutral-800 px-1">
                       Page {userFilter.page} / {usersData.totalPages}
                     </span>
                     <button
                       disabled={userFilter.page >= usersData.totalPages}
                       onClick={() => setUserFilter({ ...userFilter, page: userFilter.page + 1 })}
-                      className="p-1.5 rounded-lg border border-neutral-200 disabled:opacity-30"
+                      className="p-1.5 rounded-lg border border-neutral-200 disabled:opacity-30 hover:bg-neutral-50"
                     >
                       <ChevronRight className="h-4 w-4" />
                     </button>
@@ -1428,9 +1721,10 @@ export default function AdminDashboard() {
                 </button>
               </div>
 
-              {/* Partners Table */}
+              {/* Partners Data Container */}
               <div className="bg-white rounded-3xl border border-neutral-200 shadow-xs overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-neutral-50 border-b border-neutral-200 text-neutral-500 font-black uppercase text-[10px] tracking-wider">
                       <tr>
@@ -1447,11 +1741,9 @@ export default function AdminDashboard() {
                       {partnersData.partners.map((p) => (
                         <tr key={p._id} className="hover:bg-neutral-50">
                           <td className="py-3 px-4 flex items-center space-x-3">
-                            <img
-                              src={p.user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                              alt={p.user?.name}
-                              className="h-8 w-8 rounded-full object-cover"
-                            />
+                            <div className="h-8 w-8 rounded-full bg-amber-100 text-amber-700 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                              {p.user?.name?.[0]?.toUpperCase() || 'R'}
+                            </div>
                             <div>
                               <span className="font-bold text-neutral-900 block">{p.user?.name || 'Rider'}</span>
                               <span className="text-[10px] text-neutral-400 font-mono">{p.user?.email}</span>
@@ -1514,6 +1806,82 @@ export default function AdminDashboard() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Mobile Cards View */}
+                <div className="md:hidden divide-y divide-neutral-100">
+                  {partnersData.partners.length > 0 ? (
+                    partnersData.partners.map((p) => (
+                      <div key={p._id} className="p-4 space-y-3 bg-white">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3 min-w-0">
+                            <div className="h-10 w-10 rounded-full bg-amber-100 text-amber-700 font-black text-sm flex items-center justify-center flex-shrink-0">
+                              {p.user?.name?.[0]?.toUpperCase() || 'R'}
+                            </div>
+                            <div className="min-w-0">
+                              <span className="font-bold text-neutral-900 text-xs block truncate">{p.user?.name || 'Rider'}</span>
+                              <span className="text-[10px] text-neutral-400 font-mono truncate block">{p.user?.email}</span>
+                            </div>
+                          </div>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                              p.isOnline ? 'bg-emerald-100 text-emerald-800' : 'bg-neutral-200 text-neutral-700'
+                            }`}
+                          >
+                            {p.isOnline ? 'Online' : 'Offline'}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-xs bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/60">
+                          <div>
+                            <span className="text-[10px] text-neutral-400 block font-bold uppercase">Vehicle:</span>
+                            <span className="font-bold capitalize text-neutral-800">{p.vehicle?.type} &bull; {p.vehicle?.plateNumber || 'No plate'}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-neutral-400 block font-bold uppercase">Deliveries:</span>
+                            <span className="font-bold text-neutral-800">{p.earnings?.deliveriesCompleted || 0} completed (★ {p.rating?.average?.toFixed(1) || '5.0'})</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-100 text-xs">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                              p.documents?.status === 'approved'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : p.documents?.status === 'rejected'
+                                ? 'bg-rose-100 text-rose-800'
+                                : 'bg-amber-100 text-amber-800'
+                            }`}
+                          >
+                            KYC: {p.documents?.status || 'pending'}
+                          </span>
+
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => setPartnerKycModal({ isOpen: true, partner: p, reason: '' })}
+                              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-neutral-900 text-white hover:bg-neutral-800 shadow-xs"
+                            >
+                              Inspect KYC
+                            </button>
+                            <button
+                              onClick={() => handleToggleUserStatus(p.user)}
+                              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border ${
+                                p.user?.isActive
+                                  ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                  : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              }`}
+                            >
+                              {p.user?.isActive ? 'Block' : 'Unblock'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center text-xs text-neutral-400">
+                      No delivery partners registered in fleet.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -1530,14 +1898,14 @@ export default function AdminDashboard() {
                     Add new food & grocery items, adjust real-time stock levels, and set discounts.
                   </p>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                   <a
                     href="http://localhost:5000/api/products/export/csv"
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-bold bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300 transition-colors"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300 transition-colors"
                   >
-                    <Download className="h-4 w-4 text-emerald-600" />
+                    <Download className="h-3.5 w-3.5 text-neutral-600" />
                     <span>Export CSV</span>
                   </a>
                   <button
@@ -1554,10 +1922,10 @@ export default function AdminDashboard() {
                           price: '',
                           mrp: '',
                           discountPrice: '',
-                          unit: '1 kg',
+                          unit: '1 serving',
                           stock: 100,
                           category: categories[0]?._id || '',
-                          type: 'grocery',
+                          type: 'food',
                           isVeg: true,
                           isFeatured: false,
                           isBestseller: false,
@@ -1567,17 +1935,18 @@ export default function AdminDashboard() {
                         },
                       })
                     }
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-bold bg-brand-500 hover:bg-brand-600 text-white shadow-md shadow-brand-500/20 transition-all"
                   >
                     <Plus className="h-4 w-4" />
-                    <span>Add New Product</span>
+                    <span>Add Product</span>
                   </button>
                 </div>
               </div>
 
-              {/* Products Table */}
+              {/* Products Data Container */}
               <div className="bg-white rounded-3xl border border-neutral-200 shadow-xs overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-neutral-50 border-b border-neutral-200 text-neutral-500 font-black uppercase text-[10px] tracking-wider">
                       <tr>
@@ -1679,6 +2048,99 @@ export default function AdminDashboard() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Mobile Cards View */}
+                <div className="md:hidden divide-y divide-neutral-100">
+                  {productsData.products.length > 0 ? (
+                    productsData.products.map((prod) => (
+                      <div key={prod._id} className="p-4 space-y-3 bg-white">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center space-x-3 min-w-0">
+                            <img
+                              src={prod.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'}
+                              alt={prod.name}
+                              className="h-14 w-14 rounded-2xl object-cover flex-shrink-0 border border-neutral-200"
+                            />
+                            <div className="min-w-0">
+                              <span className="font-extrabold text-neutral-900 text-xs block leading-snug">{prod.name}</span>
+                              <span className="text-[10px] text-neutral-400 block">{prod.category?.name || 'Unassigned'} &bull; {prod.unit}</span>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="font-black text-sm text-neutral-900 font-heading">
+                                  ₹{prod.price % 1 === 0 ? prod.price : prod.price?.toFixed(2)}
+                                </span>
+                                {prod.discountPrice > 0 && (
+                                  <span className="text-[10px] text-rose-500 font-bold">
+                                    Deal: ₹{prod.discountPrice % 1 === 0 ? prod.discountPrice : prod.discountPrice?.toFixed(2)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-100 text-xs">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`font-black text-xs px-2 py-0.5 rounded-md ${
+                                prod.stock < 10 ? 'bg-rose-100 text-rose-700' : 'bg-neutral-100 text-neutral-800'
+                              }`}
+                            >
+                              {prod.stock} units
+                            </span>
+                            <span className="font-bold text-amber-600 text-xs">
+                              ★ {prod.rating?.average?.toFixed(1) || '0.0'}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center space-x-1.5">
+                            <button
+                              onClick={() =>
+                                setProductModal({
+                                  isOpen: true,
+                                  isEdit: true,
+                                  data: {
+                                    _id: prod._id,
+                                    productId: prod.productId || '',
+                                    name: prod.name,
+                                    brand: prod.brand || '',
+                                    subcategory: prod.subcategory || '',
+                                    price: prod.price,
+                                    mrp: prod.mrp || prod.price,
+                                    discountPrice: prod.discountPrice || '',
+                                    unit: prod.unit,
+                                    stock: prod.stock,
+                                    category: prod.category?._id || categories[0]?._id,
+                                    type: prod.type,
+                                    isVeg: prod.isVeg,
+                                    isFeatured: Boolean(prod.isFeatured),
+                                    isBestseller: Boolean(prod.isBestseller),
+                                    images: prod.images,
+                                    description: prod.description || '',
+                                    variants: prod.variants || [],
+                                  },
+                                })
+                              }
+                              className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 flex items-center gap-1 text-xs font-bold"
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(prod)}
+                              className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center text-xs text-neutral-400">
+                      No products found.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1917,7 +2379,8 @@ export default function AdminDashboard() {
               </div>
 
               <div className="bg-white rounded-3xl border border-neutral-200 shadow-xs overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Desktop Audit Table */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-neutral-50 border-b border-neutral-200 text-neutral-500 font-black uppercase text-[10px] tracking-wider">
                       <tr>
@@ -1949,6 +2412,34 @@ export default function AdminDashboard() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Mobile Audit Cards View */}
+                <div className="md:hidden divide-y divide-neutral-100">
+                  {auditLogsData.logs.length > 0 ? (
+                    auditLogsData.logs.map((log) => (
+                      <div key={log._id} className="p-3.5 space-y-1.5 bg-white text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-800">
+                            {log.action}
+                          </span>
+                          <span className="text-[10px] text-neutral-400 font-mono">
+                            {new Date(log.createdAt).toLocaleDateString()} {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <div className="font-bold text-neutral-800">
+                          {log.admin?.name || 'Root Admin'} &bull; <span className="text-neutral-500 font-normal">{log.entity}</span>
+                        </div>
+                        <div className="text-[10px] text-neutral-400 font-mono">
+                          IP: {log.ipAddress || '127.0.0.1'}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center text-xs text-neutral-400">
+                      No audit logs found.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -2052,8 +2543,8 @@ export default function AdminDashboard() {
       {/* MODAL 1: CONFIRMATION DIALOG (CLEARANCE / DESTRUCTIVE ACTIONS) */}
       {/* ============================================================== */}
       {confirmDialog.isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full rounded-3xl p-6 shadow-2xl space-y-4 animate-scaleUp">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white max-w-md w-full rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 my-auto max-h-[90vh] overflow-y-auto animate-scaleUp">
             <div className="flex items-center space-x-3">
               <span
                 className={`h-10 w-10 rounded-2xl flex items-center justify-center ${
@@ -2092,8 +2583,8 @@ export default function AdminDashboard() {
       {/* MODAL 2: INSPECT & VERIFY PARTNER KYC                          */}
       {/* ============================================================== */}
       {partnerKycModal.isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white max-w-lg w-full rounded-3xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white max-w-lg w-full rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-black text-neutral-900">Courier KYC Verification</h3>
               <button
@@ -2111,7 +2602,7 @@ export default function AdminDashboard() {
                 <div className="text-neutral-500">Phone: {partnerKycModal.partner?.user?.phone || 'Not provided'}</div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="p-3 rounded-2xl bg-neutral-50">
                   <span className="text-[10px] font-bold uppercase text-neutral-400">Vehicle Type</span>
                   <div className="font-bold capitalize">{partnerKycModal.partner?.vehicle?.type}</div>
@@ -2168,8 +2659,8 @@ export default function AdminDashboard() {
       {/* MODAL 3: MANUAL COURIER ASSIGNMENT                             */}
       {/* ============================================================== */}
       {assignPartnerModal.isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full rounded-3xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white max-w-md w-full rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <h3 className="text-base font-black text-neutral-900">
               Assign Courier to Order #{assignPartnerModal.order?.orderNumber}
             </h3>
@@ -2215,8 +2706,8 @@ export default function AdminDashboard() {
       {/* MODAL 4: CREATE / EDIT PRODUCT                                 */}
       {/* ============================================================== */}
       {productModal.isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white max-w-lg w-full rounded-3xl p-6 shadow-2xl space-y-4 my-8">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white max-w-lg w-full rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-black text-neutral-900">
                 {productModal.isEdit ? 'Edit Product' : 'Add New Product'}
@@ -2229,8 +2720,8 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveProduct} className="space-y-3 text-xs max-h-[75vh] overflow-y-auto pr-1">
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleSaveProduct} className="space-y-3 text-xs pr-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-neutral-700 mb-1">Product Title</label>
                   <input
@@ -2263,7 +2754,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-neutral-700 mb-1">Brand Name</label>
                   <input
@@ -2296,7 +2787,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <div>
                   <label className="block font-bold text-neutral-700 mb-1">MRP (₹)</label>
                   <input
@@ -2346,13 +2837,13 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-neutral-700 mb-1">Default Unit / Size</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. 1kg, 500g"
+                    placeholder="e.g. 1 serving, Large"
                     value={productModal.data.unit}
                     onChange={(e) =>
                       setProductModal({
@@ -2380,7 +2871,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-neutral-700 mb-1">Category</label>
                   <select
@@ -2412,8 +2903,8 @@ export default function AdminDashboard() {
                     }
                     className="w-full px-3 py-2 rounded-xl bg-neutral-50 border border-neutral-200 font-bold"
                   >
-                    <option value="grocery">Kirana Grocery Mart</option>
-                    <option value="food">Prepared Hot Food</option>
+                    <option value="food">Restaurant Food</option>
+                    <option value="grocery">Quick Mart Grocery</option>
                   </select>
                 </div>
               </div>
@@ -2485,18 +2976,18 @@ export default function AdminDashboard() {
                     {productModal.data.variants.map((v, vIdx) => (
                       <div
                         key={vIdx}
-                        className="flex items-center gap-1.5 p-1.5 rounded-xl bg-white border border-neutral-200 text-[11px]"
+                        className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 p-2 rounded-xl bg-white border border-neutral-200 text-[11px]"
                       >
                         <input
                           type="text"
-                          placeholder="Size (500g)"
+                          placeholder="Size (e.g. Regular)"
                           value={v.size}
                           onChange={(e) => {
                             const vars = [...productModal.data.variants];
                             vars[vIdx].size = e.target.value;
                             setProductModal({ ...productModal, data: { ...productModal.data, variants: vars } });
                           }}
-                          className="w-16 px-1.5 py-1 border rounded"
+                          className="flex-1 sm:w-20 px-2 py-1 border rounded-lg"
                         />
                         <input
                           type="number"
@@ -2507,7 +2998,7 @@ export default function AdminDashboard() {
                             vars[vIdx].mrp = parseFloat(e.target.value) || 0;
                             setProductModal({ ...productModal, data: { ...productModal.data, variants: vars } });
                           }}
-                          className="w-16 px-1.5 py-1 border rounded"
+                          className="w-16 px-2 py-1 border rounded-lg"
                         />
                         <input
                           type="number"
@@ -2518,7 +3009,7 @@ export default function AdminDashboard() {
                             vars[vIdx].sellingPrice = parseFloat(e.target.value) || 0;
                             setProductModal({ ...productModal, data: { ...productModal.data, variants: vars } });
                           }}
-                          className="w-16 px-1.5 py-1 border rounded"
+                          className="w-16 px-2 py-1 border rounded-lg"
                         />
                         <input
                           type="number"
@@ -2529,7 +3020,7 @@ export default function AdminDashboard() {
                             vars[vIdx].stock = parseInt(e.target.value, 10) || 0;
                             setProductModal({ ...productModal, data: { ...productModal.data, variants: vars } });
                           }}
-                          className="w-14 px-1.5 py-1 border rounded"
+                          className="w-16 px-2 py-1 border rounded-lg"
                         />
                         <button
                           type="button"
@@ -2537,9 +3028,9 @@ export default function AdminDashboard() {
                             const vars = productModal.data.variants.filter((_, idx) => idx !== vIdx);
                             setProductModal({ ...productModal, data: { ...productModal.data, variants: vars } });
                           }}
-                          className="p-1 text-rose-500 hover:bg-rose-50 rounded"
+                          className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg ml-auto"
                         >
-                          <X className="h-3 w-3" />
+                          <X className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     ))}
@@ -2607,8 +3098,8 @@ export default function AdminDashboard() {
       {/* MODAL 5: CREATE / EDIT CATEGORY                                */}
       {/* ============================================================== */}
       {categoryModal.isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full rounded-3xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white max-w-md w-full rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <h3 className="text-base font-black text-neutral-900">
               {categoryModal.isEdit ? 'Edit Category' : 'Create Category'}
             </h3>
@@ -2668,8 +3159,8 @@ export default function AdminDashboard() {
       {/* MODAL 6: CREATE COUPON                                         */}
       {/* ============================================================== */}
       {couponModal.isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full rounded-3xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white max-w-md w-full rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <h3 className="text-base font-black text-neutral-900">Create New Coupon Promo</h3>
             <form onSubmit={handleSaveCoupon} className="space-y-3 text-xs">
               <div>
@@ -2689,7 +3180,7 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-neutral-700 mb-1">Discount Type</label>
                   <select
@@ -2724,7 +3215,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-neutral-700 mb-1">Min Order (₹)</label>
                   <input
@@ -2767,7 +3258,7 @@ export default function AdminDashboard() {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-purple-600 hover:bg-purple-700"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-500 hover:bg-brand-600"
                 >
                   Create Promo
                 </button>
@@ -2781,8 +3272,8 @@ export default function AdminDashboard() {
       {/* MODAL 7: CREATE HERO BANNER                                    */}
       {/* ============================================================== */}
       {bannerModal.isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full rounded-3xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white max-w-md w-full rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <h3 className="text-base font-black text-neutral-900">New Storefront Banner</h3>
             <form onSubmit={handleSaveBanner} className="space-y-3 text-xs">
               <div>
