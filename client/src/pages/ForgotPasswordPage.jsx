@@ -9,7 +9,6 @@ export default function ForgotPasswordPage() {
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [devOtp, setDevOtp] = useState('');
   const [localError, setLocalError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -22,8 +21,7 @@ export default function ForgotPasswordPage() {
     clearError();
 
     try {
-      const data = await forgotPassword(email);
-      if (data?.devOtp) setDevOtp(data.devOtp);
+      await forgotPassword(email);
       setSuccessMsg('A 6-digit reset code has been sent to your email.');
       setStep(2);
     } catch (err) {
@@ -79,15 +77,6 @@ export default function ForgotPasswordPage() {
             <div className="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-start space-x-2">
               <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0 mt-0.5" />
               <p className="text-xs text-emerald-700 font-medium">{successMsg}</p>
-            </div>
-          )}
-
-          {devOtp && (
-            <div className="mb-4 p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-center">
-              <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider block">
-                Development Auto-Detected OTP
-              </span>
-              <span className="font-mono text-base font-bold text-amber-900">{devOtp}</span>
             </div>
           )}
 

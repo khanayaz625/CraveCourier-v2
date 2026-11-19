@@ -180,7 +180,7 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const res = await api.post('/auth/register', userData);
-      const { user, accessToken, devOtp } = res.data;
+      const { user, accessToken } = res.data;
 
       if (accessToken) {
         setAccessToken(accessToken);
@@ -196,7 +196,7 @@ export const useAuthStore = create((set, get) => ({
         isAuthInitialized: true,
         isLoading: false,
       });
-      return { user, devOtp };
+      return { user };
     } catch (err) {
       set({ error: err.message, isLoading: false });
       throw err;

@@ -110,7 +110,6 @@ export const register = asyncHandler(async (req, res) => {
           avatar: user.avatar,
         },
         accessToken,
-        ...(ENV.NODE_ENV === 'development' && { devOtp: verificationOtp }),
       },
       'Registration successful. Please verify your email with the 6-digit OTP code.'
     )
@@ -369,7 +368,7 @@ export const resendOtp = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      { ...(ENV.NODE_ENV === 'development' && { devOtp: newOtp }) },
+      {},
       'A new 6-digit verification code has been dispatched.'
     )
   );
@@ -414,7 +413,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      { ...(ENV.NODE_ENV === 'development' && { devOtp: resetOtp }) },
+      {},
       'If an account exists with that email, a password reset code has been sent.'
     )
   );

@@ -36,7 +36,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const { user, devOtp } = await register({
+      const { user } = await register({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -46,7 +46,7 @@ export default function RegisterPage() {
 
       // Redirect to Email OTP Verification
       navigate('/verify-email', {
-        state: { email: formData.email, devOtp, role: user.role },
+        state: { email: formData.email, role: user.role },
       });
     } catch (err) {
       setLocalError(err.message || 'Registration failed');
