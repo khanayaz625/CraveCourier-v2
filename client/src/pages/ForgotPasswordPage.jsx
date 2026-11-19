@@ -117,7 +117,15 @@ export default function ForgotPasswordPage() {
               </button>
             </form>
           ) : (
-            <form onSubmit={handleResetPassword} className="space-y-3.5">
+            <>
+              <div className="mb-4 rounded-xl bg-amber-50/90 border border-amber-200/90 p-3 text-xs text-amber-900 flex items-start gap-2.5">
+                <span className="text-base leading-none mt-0.5">📩</span>
+                <p className="text-[11px] text-amber-800 leading-relaxed">
+                  Sent by <strong>Crave Courier</strong>. Please check your <strong>Spam</strong> or <strong>Promotions</strong> folder if not in your primary inbox.
+                </p>
+              </div>
+
+              <form onSubmit={handleResetPassword} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-neutral-700 mb-1">
                   6-Digit Reset Code
@@ -187,7 +195,8 @@ export default function ForgotPasswordPage() {
                 )}
               </button>
             </form>
-          )}
+          </>
+        )}
 
           <div className="mt-5 text-center">
             <Link

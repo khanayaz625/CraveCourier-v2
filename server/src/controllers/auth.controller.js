@@ -89,12 +89,18 @@ export const register = asyncHandler(async (req, res) => {
   console.info(`[AUTH] Verification OTP for ${email}: ${verificationOtp}`);
 
   // Dispatch live transactional email via Brevo
-  sendVerificationOtpEmail({
+  const emailDispatch = await sendVerificationOtpEmail({
     toEmail: user.email,
     toName: user.name,
     otp: verificationOtp,
     expiryMinutes: 15,
-  }).catch((err) => console.error('[AUTH] Failed to send verification email:', err));
+  });
+
+  if (!emailDispatch?.success) {
+    console.error(`[AUTH] Failed to send verification email to ${user.email}:`, emailDispatch?.error);
+  } else {
+    console.info(`[AUTH] Verification email dispatched to ${user.email}, messageId: ${emailDispatch?.messageId}`);
+  }
 
   return res.status(201).json(
     new ApiResponse(
@@ -358,12 +364,18 @@ export const resendOtp = asyncHandler(async (req, res) => {
   console.info(`[AUTH] Resent Verification OTP for ${email}: ${newOtp}`);
 
   // Dispatch live transactional email via Brevo
-  sendVerificationOtpEmail({
+  const emailDispatch = await sendVerificationOtpEmail({
     toEmail: user.email,
     toName: user.name,
     otp: newOtp,
     expiryMinutes: 15,
-  }).catch((err) => console.error('[AUTH] Failed to resend verification email:', err));
+  });
+
+  if (!emailDispatch?.success) {
+    console.error(`[AUTH] Failed to resend verification email to ${user.email}:`, emailDispatch?.error);
+  } else {
+    console.info(`[AUTH] Resent verification email to ${user.email}, messageId: ${emailDispatch?.messageId}`);
+  }
 
   return res.status(200).json(
     new ApiResponse(
@@ -403,12 +415,18 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   console.info(`[AUTH] Password Reset OTP for ${email}: ${resetOtp}`);
 
   // Dispatch live password reset email via Brevo
-  sendPasswordResetOtpEmail({
+  const emailDispatch = await sendPasswordResetOtpEmail({
     toEmail: user.email,
     toName: user.name,
     otp: resetOtp,
     expiryMinutes: 15,
-  }).catch((err) => console.error('[AUTH] Failed to send password reset email:', err));
+  });
+
+  if (!emailDispatch?.success) {
+    console.error(`[AUTH] Failed to send password reset email to ${user.email}:`, emailDispatch?.error);
+  } else {
+    console.info(`[AUTH] Password reset email sent to ${user.email}, messageId: ${emailDispatch?.messageId}`);
+  }
 
   return res.status(200).json(
     new ApiResponse(

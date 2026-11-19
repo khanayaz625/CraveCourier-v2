@@ -84,6 +84,16 @@ export default function VerifyEmailPage() {
             </div>
           )}
 
+          <div className="mb-5 rounded-xl bg-amber-50/90 border border-amber-200/90 p-3 text-xs text-amber-900 flex items-start gap-2.5">
+            <span className="text-base leading-none mt-0.5">📩</span>
+            <div className="space-y-0.5">
+              <p className="font-bold text-amber-950">Check your Inbox &amp; Spam / Junk folder</p>
+              <p className="text-[11px] text-amber-800 leading-relaxed">
+                The verification code is sent by <strong>Crave Courier</strong>. If you don't see it in your Inbox, please check your <strong>Spam</strong> or <strong>Promotions</strong> folder.
+              </p>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-neutral-700 mb-1.5 text-center">
