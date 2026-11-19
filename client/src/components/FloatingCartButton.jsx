@@ -8,7 +8,10 @@ export default function FloatingCartButton() {
   const { items, totals } = useCartStore();
   const { isAuthenticated } = useAuthStore();
 
-  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const validItems = Array.isArray(items)
+    ? items.filter((it) => it && it.product && typeof it.product === 'object' && it.product.name)
+    : [];
+  const totalQuantity = validItems.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
 
   // Hide before sign in, on empty cart, or on cart, checkout, admin and delivery pages
   const isHidden =

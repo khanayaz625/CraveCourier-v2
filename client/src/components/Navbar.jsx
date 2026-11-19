@@ -125,16 +125,28 @@ export default function Navbar() {
                 All Menu
               </Link>
               <Link
-                to="/products?type=food"
+                to="/products?category=pizzas"
                 className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
               >
-                Hot Food 🍕
+                Pizzas 🍕
               </Link>
               <Link
-                to="/products?type=grocery"
-                className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-grocery-600 hover:bg-grocery-50 dark:hover:bg-grocery-950/40 transition-colors"
+                to="/products?category=burgers"
+                className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors"
               >
-                Fresh Groceries 🥦
+                Burgers 🍔
+              </Link>
+              <Link
+                to="/products?category=sandwiches"
+                className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors"
+              >
+                Sandwiches 🥪
+              </Link>
+              <Link
+                to="/products?category=fries"
+                className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+              >
+                Fries 🍟
               </Link>
             </nav>
           </div>

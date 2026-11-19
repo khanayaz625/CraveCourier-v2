@@ -274,11 +274,40 @@ export const getProductBySlugOrId = asyncHandler(async (req, res) => {
   const { identifier } = req.params;
 
   const isObjectId = identifier.match(/^[0-9a-fA-F]{24}$/);
-  const product = await Product.findOne(
+  let product = await Product.findOne(
     isObjectId ? { _id: identifier } : { slug: identifier }
   )
     .populate('category', 'name slug image type')
     .populate('vendor', 'name avatar phone');
+
+  // Intelligent Fallback: Check if identifier includes a variant suffix (e.g. -large, -small, -grilled)
+  let preselectedVariantIndex = -1;
+  if (!product && !isObjectId) {
+    const variantSuffixes = [
+      { suffix: '-large', regex: /large|10 inch|l\b/i },
+      { suffix: '-small', regex: /small|7 inch|s\b/i },
+      { suffix: '-grilled', regex: /grilled/i },
+      { suffix: '-regular', regex: /regular/i },
+    ];
+
+    for (const v of variantSuffixes) {
+      if (identifier.endsWith(v.suffix)) {
+        const baseSlug = identifier.slice(0, -v.suffix.length);
+        product = await Product.findOne({ slug: baseSlug })
+          .populate('category', 'name slug image type')
+          .populate('vendor', 'name avatar phone');
+
+        if (product) {
+          if (Array.isArray(product.variants)) {
+            preselectedVariantIndex = product.variants.findIndex((item) =>
+              v.regex.test(item.size || item.unit || '')
+            );
+          }
+          break;
+        }
+      }
+    }
+  }
 
   if (!product) {
     throw new ApiError(404, `Product '${identifier}' not found`);
@@ -302,6 +331,7 @@ export const getProductBySlugOrId = asyncHandler(async (req, res) => {
       {
         product,
         relatedProducts,
+        preselectedVariantIndex,
       },
       'Product details retrieved'
     )

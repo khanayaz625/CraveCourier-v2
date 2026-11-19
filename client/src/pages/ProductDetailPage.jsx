@@ -43,15 +43,40 @@ export default function ProductDetailPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get(`/products/${identifier}`);
+        let res;
+        try {
+          res = await api.get(`/products/${identifier}`);
+        } catch (fetchErr) {
+          const baseSlug = identifier.replace(/-(large|small|regular|grilled)$/i, '');
+          if (baseSlug !== identifier) {
+            res = await api.get(`/products/${baseSlug}`);
+          } else {
+            throw fetchErr;
+          }
+        }
+
         const prod = res.data?.product || res?.product || (res?.data && !res?.data?.product ? res.data : null);
         setProduct(prod);
         setRelatedProducts(res.data?.relatedProducts || res?.relatedProducts || []);
 
-        // Pick default variant index if variants exist
+        // Pick variant: check preselected from API or deduce from URL
         if (prod?.variants && prod.variants.length > 0) {
-          const defIdx = prod.variants.findIndex((v) => v.isDefault);
-          setSelectedVariantIndex(defIdx > -1 ? defIdx : 0);
+          const apiPreIdx = res.data?.preselectedVariantIndex;
+          if (typeof apiPreIdx === 'number' && apiPreIdx >= 0) {
+            setSelectedVariantIndex(apiPreIdx);
+          } else if (/-(large|l)$/i.test(identifier)) {
+            const lIdx = prod.variants.findIndex((v) => /large|10 inch/i.test(v.size || v.unit || ''));
+            setSelectedVariantIndex(lIdx > -1 ? lIdx : 0);
+          } else if (/-(small|s)$/i.test(identifier)) {
+            const sIdx = prod.variants.findIndex((v) => /small|7 inch/i.test(v.size || v.unit || ''));
+            setSelectedVariantIndex(sIdx > -1 ? sIdx : 0);
+          } else if (/-(grilled)$/i.test(identifier)) {
+            const gIdx = prod.variants.findIndex((v) => /grilled/i.test(v.size || v.unit || ''));
+            setSelectedVariantIndex(gIdx > -1 ? gIdx : 0);
+          } else {
+            const defIdx = prod.variants.findIndex((v) => v.isDefault);
+            setSelectedVariantIndex(defIdx > -1 ? defIdx : 0);
+          }
         }
 
         // Fetch frequently bought together suggestions (from popular items)
@@ -96,16 +121,16 @@ export default function ProductDetailPage() {
   const activeVariant = hasVariants ? product.variants[selectedVariantIndex] : null;
 
   // Active pricing calculations
-  const mrp = activeVariant ? activeVariant.mrp : (product.mrp || product.price);
+  const mrp = activeVariant ? (activeVariant.mrp || 0) : (product?.mrp || product?.price || 0);
   const sellingPrice = activeVariant
-    ? activeVariant.sellingPrice
-    : (product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price);
+    ? (activeVariant.sellingPrice || 0)
+    : (product?.discountPrice && product.discountPrice > 0 ? product.discountPrice : (product?.price || 0));
 
   const hasDiscount = mrp > sellingPrice;
   const savings = hasDiscount ? mrp - sellingPrice : 0;
   const discountPercent = activeVariant
-    ? activeVariant.discountPercent
-    : (hasDiscount ? Math.round((savings / mrp) * 100) : 0);
+    ? (activeVariant.discountPercent || (mrp > 0 ? Math.round((savings / mrp) * 100) : 0))
+    : (hasDiscount && mrp > 0 ? Math.round((savings / mrp) * 100) : 0);
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {

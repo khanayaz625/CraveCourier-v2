@@ -80,29 +80,30 @@ export default function CartPage() {
     }
   };
 
+  const validItems = (items || []).filter(
+    (it) => it && it.product && typeof it.product === 'object' && it.product.name
+  );
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: { pathname: '/cart' } }} />;
   }
 
-  if (items.length === 0) {
+  if (validItems.length === 0) {
     return (
       <div className="py-12">
         <EmptyState
           type="cart"
           title="Your basket is craving something delicious!"
-          description="Explore our chef specialties and supermarket essentials ready for 20-min delivery."
-          actionText="Explore Hot Food & Groceries"
+          description="Explore our freshly baked pizzas, burgers, sandwiches & sides."
+          actionText="Explore Pizza 65 Menu"
           actionLink="/products"
         />
       </div>
     );
   }
 
-  // Free delivery threshold ($35)
-  const freeDeliveryThreshold = 35;
+  // Delivery threshold
   const itemTotalSafe = totals?.itemTotal || 0;
-  const amountNeededForFree = Math.max(0, freeDeliveryThreshold - itemTotalSafe);
-  const freeDeliveryProgress = Math.min(100, Math.round((itemTotalSafe / freeDeliveryThreshold) * 100));
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6 pb-24 md:pb-12">
@@ -112,7 +113,7 @@ export default function CartPage() {
             Your Order Basket
           </h1>
           <p className="text-xs text-neutral-500 dark:text-slate-400">
-            {items.reduce((sum, it) => sum + it.quantity, 0)} items selected
+            {validItems.reduce((sum, it) => sum + (it.quantity || 1), 0)} items selected
           </p>
         </div>
         <button
@@ -142,7 +143,7 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Left Column: Cart Items List */}
         <div className="lg:col-span-2 space-y-3.5">
-          {items.map((item) => {
+          {validItems.map((item) => {
             const product = item?.product;
             if (!product) return null;
             const price = product.discountPrice && product.discountPrice > 0 ? product.discountPrice : (product.price || 0);

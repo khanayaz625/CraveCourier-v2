@@ -6,16 +6,20 @@ const GUEST_CART_STORAGE_KEY = 'crave_guest_cart';
 
 // Guest Local Calculations
 const calculateGuestTotals = (items, coupon = null) => {
+  const safeItems = Array.isArray(items)
+    ? items.filter((it) => it && it.product && typeof it.product === 'object')
+    : [];
+
   const itemTotal = Math.round(
-    items.reduce((sum, item) => {
+    safeItems.reduce((sum, item) => {
       let price = item.selectedVariant?.sellingPrice;
       if (price === undefined || price === null) {
         price =
-          item.product.discountPrice && item.product.discountPrice > 0
+          item.product?.discountPrice && item.product.discountPrice > 0
             ? item.product.discountPrice
-            : item.product.price;
+            : (item.product?.price || 0);
       }
-      return sum + price * item.quantity;
+      return sum + (Number(price) || 0) * (Number(item.quantity) || 1);
     }, 0) * 100
   ) / 100;
 
@@ -63,9 +67,12 @@ export const useCartStore = create((set, get) => ({
       set({ isLoading: true, error: null });
       try {
         const res = await api.get('/cart');
-        const cart = res.data;
+        const cart = res?.data || res || {};
+        const safeItems = Array.isArray(cart.items)
+          ? cart.items.filter((it) => it && it.product && typeof it.product === 'object' && it.product.name)
+          : [];
         set({
-          items: cart.items || [],
+          items: safeItems,
           coupon: cart.couponApplied || null,
           totals: cart.totals || {
             itemTotal: 0,
@@ -83,7 +90,10 @@ export const useCartStore = create((set, get) => ({
       // Load guest cart from localStorage
       try {
         const saved = localStorage.getItem(GUEST_CART_STORAGE_KEY);
-        const guestItems = saved ? JSON.parse(saved) : [];
+        const parsed = saved ? JSON.parse(saved) : [];
+        const guestItems = Array.isArray(parsed)
+          ? parsed.filter((it) => it && it.product && typeof it.product === 'object' && it.product.name)
+          : [];
         const totals = calculateGuestTotals(guestItems, get().coupon);
         set({ items: guestItems, totals, isLoading: false });
       } catch {

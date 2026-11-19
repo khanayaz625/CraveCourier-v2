@@ -4,7 +4,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
-
 import { ENV } from './config/env.js';
 import {
   globalRateLimiter,

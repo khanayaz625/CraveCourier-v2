@@ -6,7 +6,6 @@ import ProductCard from '../components/ProductCard';
 import { ProductCardSkeleton, CategoryChipSkeleton } from '../components/SkeletonLoader';
 import EmptyState from '../components/EmptyState';
 import { useAuthStore } from '../store/useAuthStore';
-import { useCatalogStore } from '../store/useCatalogStore';
 import {
   Zap,
   ArrowRight,
@@ -21,16 +20,10 @@ import {
 
 export default function HomePage() {
   const { isAuthenticated } = useAuthStore();
-  const {
-    categories,
-    banners,
-    featuredSections: sections,
-    prefetchHomeCatalog,
-    categoriesLoading,
-    featuredLoading,
-  } = useCatalogStore();
-
-  const loading = (categories.length === 0 && categoriesLoading) || (sections.popular.length === 0 && featuredLoading);
+  const [categories, setCategories] = useState([]);
+  const [banners, setBanners] = useState([]);
+  const [sections, setSections] = useState({ deals: [], popular: [], groceries: [] });
+  const [loading, setLoading] = useState(true);
   const [hasPriorOrders, setHasPriorOrders] = useState(false);
 
   useEffect(() => {
@@ -40,13 +33,30 @@ export default function HomePage() {
           const count = res.data?.pagination?.total ?? (res.data?.orders?.length || 0);
           if (count > 0) setHasPriorOrders(true);
         })
-        .catch(() => {});
+        .catch(() => { });
     }
   }, [isAuthenticated]);
 
   useEffect(() => {
-    prefetchHomeCatalog();
-  }, [prefetchHomeCatalog]);
+    const fetchHomeData = async () => {
+      try {
+        const [catRes, featRes, bannerRes] = await Promise.all([
+          api.get('/categories'),
+          api.get('/products/sections/featured'),
+          api.get('/banners').catch(() => ({ data: [] })),
+        ]);
+        setCategories(catRes.data || []);
+        setSections(featRes.data || { deals: [], popular: [], groceries: [] });
+        setBanners(bannerRes.data || []);
+      } catch (err) {
+        console.error('Failed to load home catalog:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHomeData();
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto px-3.5 sm:px-4 py-6 space-y-10 sm:space-y-12 pb-24 md:pb-12 overflow-x-hidden">
@@ -59,15 +69,15 @@ export default function HomePage() {
           </div>
 
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight font-heading">
-            Delicious dishes & fresh mart essentials.
+            Pizza 65 &bull; Pizzas, Burgers, Sandwiches & Fries.
           </h1>
 
           <p className="text-xs sm:text-sm text-brand-100 max-w-md font-medium leading-relaxed">
-            Curated artisan kitchen recipes and certified organic groceries delivered fresh to your door.
+            Freshly baked hand-tossed crusts, trending kulhad pizzas, crispy burgers & loaded fries delivered hot to your door.
           </p>
 
           <div className="pt-1 sm:pt-2 max-w-md">
-            <SearchBar placeholder="Search dishes, groceries, daily essentials..." />
+            <SearchBar placeholder="Search pizzas, burgers, sandwiches, fries..." />
           </div>
 
           {/* Quick Platform Guarantees */}
@@ -151,16 +161,13 @@ export default function HomePage() {
           </Link>
 
           {loading ? (
-            Array.from({ length: 6 }).map((_, i) => <CategoryChipSkeleton key={i} />)
+            Array.from({ length: 4 }).map((_, i) => <CategoryChipSkeleton key={i} />)
           ) : (
             (categories.length > 0 ? categories : [
-              { slug: 'dal-pulses', name: 'Dal & Pulses', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=100' },
-              { slug: 'atta-flour', name: 'Atta & Flour', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100' },
-              { slug: 'cooking-oil', name: 'Cooking Oil', image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=100' },
-              { slug: 'masala-spices', name: 'Masala & Spices', image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=100' },
-              { slug: 'dry-fruits', name: 'Dry Fruits & Nuts', image: 'https://images.unsplash.com/photo-1536591375315-1b83689e4726?w=100' },
-              { slug: 'snacks-namkeen', name: 'Snacks & Namkeen', image: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=100' },
-              { slug: 'dairy', name: 'Dairy & Milk', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=100' },
+              { slug: 'pizzas', name: 'Pizzas 🍕', image: '/images/products/margherita-pizza.jpg' },
+              { slug: 'burgers', name: 'Burgers 🍔', image: '/images/products/veg-aloo-tikki-cheese-burger.jpg' },
+              { slug: 'sandwiches', name: 'Sandwiches 🥪', image: '/images/products/cheese-corn-grilled-paneer-sandwich.jpg' },
+              { slug: 'fries', name: 'Fries & Sides 🍟', image: '/images/products/peri-peri-fries.jpg' },
             ]).map((cat) => (
               <Link
                 key={cat.slug || cat._id}
@@ -173,7 +180,7 @@ export default function HomePage() {
                   loading="lazy"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100';
+                    e.currentTarget.src = '/images/products/margherita-pizza.jpg';
                   }}
                   className="h-6 w-6 rounded-full object-cover ring-1 ring-neutral-200 dark:ring-slate-700"
                 />
@@ -241,42 +248,44 @@ export default function HomePage() {
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : sections.popular.map((product) => (
-                <ProductCard key={product._id} product={product} />
-              ))}
+              <ProductCard key={product._id} product={product} />
+            ))}
         </div>
       </section>
 
-      {/* 6. "Fresh Farm Groceries" Section (Leafy Teal Green Theme Accent) */}
-      <section aria-labelledby="groceries-heading" className="space-y-4">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
-            <span className="p-2 sm:p-2.5 rounded-2xl bg-grocery-100 dark:bg-grocery-950/60 text-grocery-600 dark:text-grocery-400 shadow-soft flex-shrink-0">
-              <Carrot className="h-5 w-5 sm:h-6 sm:w-6" />
-            </span>
-            <div className="min-w-0">
-              <h2 id="groceries-heading" className="text-base sm:text-xl font-black text-neutral-900 dark:text-slate-100 font-heading truncate">
-                Fresh Farm Groceries
-              </h2>
-              <p className="text-xs text-neutral-500 dark:text-slate-400 hidden xs:block">Organic produce, farm dairy & pantry staples</p>
+      {/* 6. "Fresh Farm Groceries" Section (Only if groceries exist in catalog) */}
+      {sections.groceries && sections.groceries.length > 0 && (
+        <section aria-labelledby="groceries-heading" className="space-y-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+              <span className="p-2 sm:p-2.5 rounded-2xl bg-grocery-100 dark:bg-grocery-950/60 text-grocery-600 dark:text-grocery-400 shadow-soft flex-shrink-0">
+                <Carrot className="h-5 w-5 sm:h-6 sm:w-6" />
+              </span>
+              <div className="min-w-0">
+                <h2 id="groceries-heading" className="text-base sm:text-xl font-black text-neutral-900 dark:text-slate-100 font-heading truncate">
+                  Fresh Farm Groceries
+                </h2>
+                <p className="text-xs text-neutral-500 dark:text-slate-400 hidden xs:block">Organic produce, farm dairy & pantry staples</p>
+              </div>
             </div>
+            <Link
+              to="/products?type=grocery"
+              className="whitespace-nowrap flex-shrink-0 text-xs font-bold text-grocery-600 hover:text-grocery-700 dark:text-grocery-400 flex items-center gap-1 group py-1"
+            >
+              <span>Explore Mart</span>
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
           </div>
-          <Link
-            to="/products?type=grocery"
-            className="whitespace-nowrap flex-shrink-0 text-xs font-bold text-grocery-600 hover:text-grocery-700 dark:text-grocery-400 flex items-center gap-1 group py-1"
-          >
-            <span>Explore Mart</span>
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 w-full">
-          {loading
-            ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
-            : sections.groceries.map((product) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 w-full">
+            {loading
+              ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
+              : sections.groceries.map((product) => (
                 <ProductCard key={product._id} product={product} />
               ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* 7. Bottom Coupon CTA Card (First Order Only) */}
       {!hasPriorOrders && (

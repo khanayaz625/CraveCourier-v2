@@ -6,7 +6,6 @@ import FilterDrawer from '../components/FilterDrawer';
 import SearchBar from '../components/SearchBar';
 import EmptyState from '../components/EmptyState';
 import { ProductCardSkeleton } from '../components/SkeletonLoader';
-import { useCatalogStore } from '../store/useCatalogStore';
 import {
   Filter,
   ArrowUpDown,
@@ -23,7 +22,7 @@ export default function ProductListingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [products, setProducts] = useState([]);
-  const { categories, fetchCategories } = useCatalogStore();
+  const [categories, setCategories] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -43,27 +42,30 @@ export default function ProductListingPage() {
   const sort = searchParams.get('sort') || 'popular';
   const page = parseInt(searchParams.get('page') || '1', 10);
 
-  // Fetch Categories for Filter Options (cached in memory)
+  // Fetch Categories for Filter Options
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await api.get('/categories');
+        setCategories(res.data || []);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+      }
+    };
     fetchCategories();
-  }, [fetchCategories]);
+  }, []);
 
-  // Fetch Products on Param Changes with Request Cancellation (AbortController)
+  // Fetch Products on Param Changes
   useEffect(() => {
-    const controller = new AbortController();
-
     const fetchProducts = async () => {
       setLoading(true);
       try {
         const queryParams = new URLSearchParams(searchParams);
         queryParams.set('limit', '16');
-        const res = await api.get(`/products?${queryParams.toString()}`, {
-          signal: controller.signal,
-        });
+        const res = await api.get(`/products?${queryParams.toString()}`);
         setProducts(res.data?.products || []);
         setPagination(res.data?.pagination || { page: 1, pages: 1, total: 0 });
       } catch (err) {
-        if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') return;
         console.error('Error fetching products:', err);
       } finally {
         setLoading(false);
@@ -71,7 +73,6 @@ export default function ProductListingPage() {
     };
 
     fetchProducts();
-    return () => controller.abort();
   }, [searchParams]);
 
   // Update query params helper
@@ -139,11 +140,10 @@ export default function ProductListingPage() {
             <button
               type="button"
               onClick={() => handleFilterChange('isBestseller', isBestseller === 'true' ? '' : 'true')}
-              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
-                isBestseller === 'true'
-                  ? 'bg-amber-500 text-white shadow-xs'
-                  : 'bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 text-neutral-700 dark:text-slate-300 hover:border-amber-300'
-              }`}
+              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${isBestseller === 'true'
+                ? 'bg-amber-500 text-white shadow-xs'
+                : 'bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 text-neutral-700 dark:text-slate-300 hover:border-amber-300'
+                }`}
             >
               <Flame className="h-3.5 w-3.5" />
               Bestsellers
@@ -151,11 +151,10 @@ export default function ProductListingPage() {
             <button
               type="button"
               onClick={() => handleFilterChange('hasDiscount', hasDiscount === 'true' ? '' : 'true')}
-              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
-                hasDiscount === 'true'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 text-neutral-700 dark:text-slate-300 hover:border-emerald-300'
-              }`}
+              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${hasDiscount === 'true'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 text-neutral-700 dark:text-slate-300 hover:border-emerald-300'
+                }`}
             >
               <Sparkles className="h-3.5 w-3.5" />
               Special Deals
@@ -189,11 +188,10 @@ export default function ProductListingPage() {
           <button
             type="button"
             onClick={() => handleFilterChange('category', 'all')}
-            className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl text-[11px] sm:text-xs font-bold transition-all ${
-              category === 'all'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                : 'bg-white dark:bg-slate-900 text-neutral-700 dark:text-slate-300 border border-neutral-200 dark:border-slate-800 hover:border-emerald-300'
-            }`}
+            className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl text-[11px] sm:text-xs font-bold transition-all ${category === 'all'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'bg-white dark:bg-slate-900 text-neutral-700 dark:text-slate-300 border border-neutral-200 dark:border-slate-800 hover:border-emerald-300'
+              }`}
           >
             All Items
           </button>
@@ -202,11 +200,10 @@ export default function ProductListingPage() {
               key={c.slug}
               type="button"
               onClick={() => handleFilterChange('category', c.slug)}
-              className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl text-[11px] sm:text-xs font-bold transition-all ${
-                category === c.slug
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                  : 'bg-white dark:bg-slate-900 text-neutral-700 dark:text-slate-300 border border-neutral-200 dark:border-slate-800 hover:border-emerald-300'
-              }`}
+              className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl text-[11px] sm:text-xs font-bold transition-all ${category === c.slug
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                : 'bg-white dark:bg-slate-900 text-neutral-700 dark:text-slate-300 border border-neutral-200 dark:border-slate-800 hover:border-emerald-300'
+                }`}
             >
               {c.name}
             </button>
@@ -270,7 +267,7 @@ export default function ProductListingPage() {
         <div className="hidden lg:block w-64 flex-shrink-0">
           <FilterDrawer
             isOpen={true}
-            onClose={() => {}}
+            onClose={() => { }}
             categories={categories}
             filters={{ category, type, isVeg, hasDiscount, minPrice, maxPrice, rating }}
             onFilterChange={handleFilterChange}

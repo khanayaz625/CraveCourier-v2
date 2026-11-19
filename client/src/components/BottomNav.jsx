@@ -10,7 +10,11 @@ export default function BottomNav() {
   const { isAuthenticated } = useAuthStore();
   const { unreadCount } = useNotificationStore();
 
-  const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const cartCount = Array.isArray(items)
+    ? items
+        .filter((it) => it && it.product && typeof it.product === 'object')
+        .reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)
+    : 0;
 
   // Streamlined, shorter navigation tabs
   // "Orders" and "Cart" are strictly hidden before login

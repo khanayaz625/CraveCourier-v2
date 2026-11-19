@@ -7,9 +7,11 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "seed": "node src/seed/seed.js",
-    "seed:catalogue": "node src/seed/seedGroceryCatalogue.js",
-    "seed:all": "node src/seed/seed.js && node src/seed/seedGroceryCatalogue.js",
+    "seed": "node src/seed/seedPizza65Menu.js",
+    "seed:pizza65": "node src/seed/seedPizza65Menu.js",
+    "seed:catalogue": "node src/seed/seedPizza65Menu.js",
+    "seed:all": "node src/seed/seedPizza65Menu.js",
+    "clear:products": "node src/seed/clearProducts.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --detectOpenHandles --forceExit",
     "lint": "eslint src/",
     "format": "prettier --write \"src/**/*.{js,json}\""

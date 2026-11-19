@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { User, Bike, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowRight, Shield } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
@@ -29,7 +29,7 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, user, navigate, from]);
 
-  // While session is being verified on boot, avoid flashing the login form
+  // While session is being checked on initial boot, prevent flash of login form
   if (!isAuthInitialized) {
     return (
       <div className="min-h-[calc(100vh-60px)] flex items-center justify-center bg-neutral-50 dark:bg-slate-950">
@@ -41,13 +41,6 @@ export default function LoginPage() {
         </div>
       </div>
     );
-  }
-
-  // If already authenticated, redirect away
-  if (isAuthenticated && user) {
-    if (user.role === 'delivery') return <Navigate to="/partner" replace />;
-    if (user.role === 'admin') return <Navigate to="/admin" replace />;
-    return <Navigate to={from} replace />;
   }
 
   const handleSubmit = async (e) => {
@@ -93,11 +86,10 @@ export default function LoginPage() {
               setRole('customer');
               clearError();
             }}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${
-              role === 'customer'
-                ? 'bg-white text-brand-600 shadow-sm'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${role === 'customer'
+              ? 'bg-white text-brand-600 shadow-sm'
+              : 'text-neutral-600 hover:text-neutral-900'
+              }`}
           >
             <User className="h-4 w-4" />
             Customer
@@ -108,11 +100,10 @@ export default function LoginPage() {
               setRole('delivery');
               clearError();
             }}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${
-              role === 'delivery'
-                ? 'bg-white text-amber-600 shadow-sm'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${role === 'delivery'
+              ? 'bg-white text-amber-600 shadow-sm'
+              : 'text-neutral-600 hover:text-neutral-900'
+              }`}
           >
             <Bike className="h-4 w-4" />
             Delivery Partner
@@ -188,11 +179,10 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white shadow-md transition-all disabled:opacity-50 ${
-                role === 'delivery'
-                  ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20'
-                  : 'bg-brand-500 hover:bg-brand-600 shadow-brand-500/20'
-              }`}
+              className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white shadow-md transition-all disabled:opacity-50 ${role === 'delivery'
+                ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20'
+                : 'bg-brand-500 hover:bg-brand-600 shadow-brand-500/20'
+                }`}
             >
               {isLoading ? (
                 <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

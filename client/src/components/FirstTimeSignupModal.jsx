@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { X, Sparkles, ShoppingBag, ArrowRight, ShieldCheck } from 'lucide-react';
 
@@ -7,20 +7,29 @@ export default function FirstTimeSignupModal() {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isAuthOrRestrictedRoute =
+    location.pathname === '/login' ||
+    location.pathname === '/register' ||
+    location.pathname === '/cart' ||
+    location.pathname === '/checkout' ||
+    location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/partner');
 
   useEffect(() => {
-    // Only show if user is NOT authenticated and hasn't dismissed it in this browser
+    // Only show if user is NOT authenticated, on customer browsing routes, and hasn't dismissed it
     const hasSeenModal = localStorage.getItem('crave_welcome_signup_seen');
-    if (!isAuthenticated && !hasSeenModal) {
+    if (!isAuthenticated && !hasSeenModal && !isAuthOrRestrictedRoute) {
       // Small 1.2s delay for pleasant first-load experience
       const timer = setTimeout(() => {
         setIsOpen(true);
       }, 1200);
       return () => clearTimeout(timer);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isAuthOrRestrictedRoute]);
 
-  if (!isOpen || isAuthenticated) {
+  if (!isOpen || isAuthenticated || isAuthOrRestrictedRoute) {
     return null;
   }
 
