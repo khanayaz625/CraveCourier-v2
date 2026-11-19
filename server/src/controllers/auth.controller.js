@@ -5,6 +5,10 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { User } from '../models/User.model.js';
 import { DeliveryPartnerProfile } from '../models/DeliveryPartnerProfile.model.js';
 import { ENV } from '../config/env.js';
+import {
+  sendVerificationOtpEmail,
+  sendPasswordResetOtpEmail,
+} from '../services/email.service.js';
 
 // Helper to generate access and refresh tokens
 const generateTokens = async (userId) => {
@@ -83,6 +87,14 @@ export const register = asyncHandler(async (req, res) => {
   res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
 
   console.info(`[AUTH] Verification OTP for ${email}: ${verificationOtp}`);
+
+  // Dispatch live transactional email via Brevo
+  sendVerificationOtpEmail({
+    toEmail: user.email,
+    toName: user.name,
+    otp: verificationOtp,
+    expiryMinutes: 15,
+  }).catch((err) => console.error('[AUTH] Failed to send verification email:', err));
 
   return res.status(201).json(
     new ApiResponse(
@@ -346,6 +358,14 @@ export const resendOtp = asyncHandler(async (req, res) => {
 
   console.info(`[AUTH] Resent Verification OTP for ${email}: ${newOtp}`);
 
+  // Dispatch live transactional email via Brevo
+  sendVerificationOtpEmail({
+    toEmail: user.email,
+    toName: user.name,
+    otp: newOtp,
+    expiryMinutes: 15,
+  }).catch((err) => console.error('[AUTH] Failed to resend verification email:', err));
+
   return res.status(200).json(
     new ApiResponse(
       200,
@@ -382,6 +402,14 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   await user.save({ validateBeforeSave: false });
 
   console.info(`[AUTH] Password Reset OTP for ${email}: ${resetOtp}`);
+
+  // Dispatch live password reset email via Brevo
+  sendPasswordResetOtpEmail({
+    toEmail: user.email,
+    toName: user.name,
+    otp: resetOtp,
+    expiryMinutes: 15,
+  }).catch((err) => console.error('[AUTH] Failed to send password reset email:', err));
 
   return res.status(200).json(
     new ApiResponse(

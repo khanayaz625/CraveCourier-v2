@@ -32,7 +32,7 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps / TWAs / curl / server-to-server)
     if (!origin) return callback(null, true);
 
-    const isExplicitlyAllowed = ENV.ALLOWED_ORIGINS.some(allowed => 
+    const isExplicitlyAllowed = ENV.ALLOWED_ORIGINS.some(allowed =>
       origin === allowed || origin.startsWith(allowed)
     );
     const isDevelopment = ENV.NODE_ENV === 'development';
