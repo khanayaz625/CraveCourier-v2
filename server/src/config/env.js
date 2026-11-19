@@ -82,5 +82,5 @@ export const ENV = {
   RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || 'gAxJ8oYQzJH9ee2z74hGIuOZ',
   BREVO_API_KEY: process.env.BREVO_API_KEY || '',
   BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL || '',
-  BREVO_SENDER_NAME: process.env.BREVO_SENDER_NAME || 'Pizza 65 & Crave',
+  BREVO_SENDER_NAME: process.env.BREVO_SENDER_NAME || 'Crave Courier',
 };

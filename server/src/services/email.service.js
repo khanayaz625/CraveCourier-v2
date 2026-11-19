@@ -19,7 +19,7 @@ export function generateOtpEmailHtml({
   otp = '000000',
   type = 'verification',
   expiryMinutes = 15,
-  brandName = 'Pizza 65 & Crave',
+  brandName = 'Crave Courier',
   supportEmail = 'ayaz56465@gmail.com',
 }) {
   const isReset = type === 'reset';
@@ -204,8 +204,8 @@ export function generateOtpEmailHtml({
       <!-- Header Banner -->
       <tr>
         <td class="header-banner">
-          <h1 class="brand-title">🍕 ${brandName}</h1>
-          <div class="brand-subtitle">Hyperlocal Fast Delivery & Artisan Kitchen</div>
+          <h1 class="brand-title">🛍️ ${brandName}</h1>
+          <div class="brand-subtitle">Hyperlocal Express Food & Order Delivery</div>
         </td>
       </tr>
 
@@ -227,7 +227,7 @@ export function generateOtpEmailHtml({
 
           <!-- Security Tip -->
           <div class="security-notice">
-            🔒 <strong>Security Tip:</strong> Never share this code with anyone, including staff or delivery partners. Our team will never ask for your verification code.
+            🔒 <strong>Security Tip:</strong> Never share this code with anyone, including staff or delivery partners. Crave Courier will never ask for your verification code.
           </div>
 
           <p class="description" style="font-size: 12px; margin-bottom: 0;">
@@ -241,7 +241,7 @@ export function generateOtpEmailHtml({
         <td class="footer">
           <div>Need assistance? Contact our support desk at <a href="mailto:${supportEmail}">${supportEmail}</a></div>
           <div class="footer-address">
-            📍 <strong>Pizza 65</strong> &bull; Imli Ke Pass, Main Road, Chirgaon, Jhansi, UP
+            📍 <strong>Crave Courier</strong> &bull; Imli Ke Pass, Main Road, Chirgaon, Jhansi, UP
           </div>
           <div style="margin-top: 10px; font-size: 10px;">
             &copy; ${new Date().getFullYear()} ${brandName}. All rights reserved.
@@ -268,7 +268,7 @@ export function generateOtpEmailHtml({
 export async function sendBrevoEmail({ toEmail, toName, subject, htmlContent, textContent }) {
   const apiKey = (ENV.BREVO_API_KEY || '').trim();
   const senderEmail = (ENV.BREVO_SENDER_EMAIL || '').trim();
-  const senderName = (ENV.BREVO_SENDER_NAME || 'Pizza 65 & Crave').trim();
+  const senderName = (ENV.BREVO_SENDER_NAME || 'Crave Courier').trim();
 
   if (!apiKey || !senderEmail) {
     console.warn(
@@ -331,16 +331,16 @@ export async function sendVerificationOtpEmail({ toEmail, toName, otp, expiryMin
     otp,
     type: 'verification',
     expiryMinutes,
-    brandName: 'Pizza 65 & Crave',
+    brandName: 'Crave Courier',
     supportEmail: ENV.BREVO_SENDER_EMAIL || 'ayaz56465@gmail.com',
   });
 
   return await sendBrevoEmail({
     toEmail,
     toName,
-    subject: `Your Verification Code: ${otp} - Pizza 65 & Crave`,
+    subject: `Your Verification Code: ${otp} - Crave Courier`,
     htmlContent,
-    textContent: `Hi ${toName || 'there'},\n\nYour 6-digit verification code for Pizza 65 & Crave is: ${otp}\n\nThis code is valid for ${expiryMinutes} minutes. Please do not share it with anyone.`,
+    textContent: `Hi ${toName || 'there'},\n\nYour 6-digit verification code for Crave Courier is: ${otp}\n\nThis code is valid for ${expiryMinutes} minutes. Please do not share it with anyone.`,
   });
 }
 
@@ -353,15 +353,15 @@ export async function sendPasswordResetOtpEmail({ toEmail, toName, otp, expiryMi
     otp,
     type: 'reset',
     expiryMinutes,
-    brandName: 'Pizza 65 & Crave',
+    brandName: 'Crave Courier',
     supportEmail: ENV.BREVO_SENDER_EMAIL || 'ayaz56465@gmail.com',
   });
 
   return await sendBrevoEmail({
     toEmail,
     toName,
-    subject: `Password Reset Code: ${otp} - Pizza 65 & Crave`,
+    subject: `Password Reset Code: ${otp} - Crave Courier`,
     htmlContent,
-    textContent: `Hi ${toName || 'there'},\n\nWe received a request to reset your password for Pizza 65 & Crave. Your reset code is: ${otp}\n\nThis code is valid for ${expiryMinutes} minutes. If you did not make this request, you can ignore this email.`,
+    textContent: `Hi ${toName || 'there'},\n\nWe received a request to reset your password for Crave Courier. Your reset code is: ${otp}\n\nThis code is valid for ${expiryMinutes} minutes. If you did not make this request, you can ignore this email.`,
   });
 }
