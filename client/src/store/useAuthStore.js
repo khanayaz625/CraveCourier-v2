@@ -26,6 +26,7 @@ export const useAuthStore = create((set, get) => ({
   user: initialAuth.user,
   accessToken: initialAuth.accessToken,
   isAuthenticated: initialAuth.isAuthenticated,
+  isAuthInitialized: initialAuth.isAuthenticated, // true if restored immediately from localStorage
   isLoading: false,
   error: null,
   authModalOpen: false,
@@ -34,6 +35,24 @@ export const useAuthStore = create((set, get) => ({
   closeAuthModal: () => set({ authModalOpen: false }),
 
   clearError: () => set({ error: null }),
+
+  /**
+   * Local state reset for logout or token expiry
+   */
+  logoutLocally: () => {
+    setAccessToken(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('crave_auth_token');
+      localStorage.removeItem('crave_auth_user');
+    }
+    set({
+      user: null,
+      accessToken: null,
+      isAuthenticated: false,
+      isAuthInitialized: true,
+      error: null,
+    });
+  },
 
   /**
    * Boot-up session check: retains persisted session on refresh and validates in background
@@ -53,24 +72,17 @@ export const useAuthStore = create((set, get) => ({
           if (typeof window !== 'undefined') {
             localStorage.setItem('crave_auth_user', JSON.stringify(user));
           }
-          set({ user, isAuthenticated: true, isLoading: false });
+          set({ user, isAuthenticated: true, isAuthInitialized: true, isLoading: false });
         }
         useCartStore.getState().syncGuestCart();
         useCartStore.getState().fetchCart();
       } catch (err) {
         // Only clear session if token is truly invalid/expired (401)
         if (err.statusCode === 401 || err.response?.status === 401) {
-          setAccessToken(null);
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('crave_auth_token');
-            localStorage.removeItem('crave_auth_user');
-          }
-          set({
-            user: null,
-            accessToken: null,
-            isAuthenticated: false,
-            isLoading: false,
-          });
+          get().logoutLocally();
+        } else {
+          // On transient network error, keep offline session
+          set({ isAuthInitialized: true, isLoading: false });
         }
       }
       return;
@@ -91,22 +103,13 @@ export const useAuthStore = create((set, get) => ({
         user,
         accessToken: token,
         isAuthenticated: true,
+        isAuthInitialized: true,
         isLoading: false,
       });
       useCartStore.getState().syncGuestCart();
       useCartStore.getState().fetchCart();
     } catch {
-      setAccessToken(null);
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('crave_auth_token');
-        localStorage.removeItem('crave_auth_user');
-      }
-      set({
-        user: null,
-        accessToken: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
+      get().logoutLocally();
     }
   },
 
@@ -128,6 +131,7 @@ export const useAuthStore = create((set, get) => ({
         user,
         accessToken,
         isAuthenticated: true,
+        isAuthInitialized: true,
         isLoading: false,
       });
       useCartStore.getState().syncGuestCart();
@@ -157,6 +161,7 @@ export const useAuthStore = create((set, get) => ({
         user,
         accessToken,
         isAuthenticated: true,
+        isAuthInitialized: true,
         isLoading: false,
       });
       useCartStore.getState().syncGuestCart();
@@ -188,6 +193,7 @@ export const useAuthStore = create((set, get) => ({
         user,
         accessToken,
         isAuthenticated: !!accessToken,
+        isAuthInitialized: true,
         isLoading: false,
       });
       return { user, devOtp };
@@ -206,17 +212,7 @@ export const useAuthStore = create((set, get) => ({
     } catch {
       // Proceed with local logout regardless of network error
     } finally {
-      setAccessToken(null);
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('crave_auth_token');
-        localStorage.removeItem('crave_auth_user');
-      }
-      set({
-        user: null,
-        accessToken: null,
-        isAuthenticated: false,
-        error: null,
-      });
+      get().logoutLocally();
     }
   },
 

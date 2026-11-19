@@ -26,7 +26,7 @@ export const globalRateLimiter = rateLimit({
  */
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isProduction ? 15 : 1000,
+  max: isProduction ? 60 : 1000,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   message: {
@@ -43,7 +43,7 @@ export const authRateLimiter = rateLimit({
  */
 export const orderRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isProduction ? 30 : 1000,
+  max: isProduction ? 60 : 1000,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   message: {

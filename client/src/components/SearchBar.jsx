@@ -11,29 +11,49 @@ export default function SearchBar({ placeholder = 'Search burgers, pizzas, fresh
 
   const navigate = useNavigate();
   const containerRef = useRef(null);
+  const cacheRef = useRef(new Map());
 
-  // Debounced autocomplete query
+  // Debounced autocomplete query with AbortController and local caching
   useEffect(() => {
-    if (!query.trim() || query.length < 2) {
+    const trimmed = query.trim();
+    if (!trimmed || trimmed.length < 2) {
       setSuggestions({ products: [], categories: [] });
       setIsOpen(false);
       return;
     }
 
+    // Check local search cache first
+    const cacheKey = trimmed.toLowerCase();
+    if (cacheRef.current.has(cacheKey)) {
+      setSuggestions(cacheRef.current.get(cacheKey));
+      setIsOpen(true);
+      return;
+    }
+
+    const controller = new AbortController();
+
     const timer = setTimeout(async () => {
       setIsLoading(true);
       try {
-        const res = await api.get(`/products/autocomplete?q=${encodeURIComponent(query)}`);
-        setSuggestions(res.data || { products: [], categories: [] });
+        const res = await api.get(`/products/autocomplete?q=${encodeURIComponent(trimmed)}`, {
+          signal: controller.signal,
+        });
+        const data = res.data || { products: [], categories: [] };
+        cacheRef.current.set(cacheKey, data);
+        setSuggestions(data);
         setIsOpen(true);
-      } catch {
-        // Silently fail autocomplete
+      } catch (err) {
+        if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') return;
+        // Silently fail autocomplete on network error
       } finally {
         setIsLoading(false);
       }
-    }, 250);
+    }, 350);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [query]);
 
   // Click outside listener

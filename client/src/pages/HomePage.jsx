@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCard';
 import { ProductCardSkeleton, CategoryChipSkeleton } from '../components/SkeletonLoader';
 import EmptyState from '../components/EmptyState';
 import { useAuthStore } from '../store/useAuthStore';
+import { useCatalogStore } from '../store/useCatalogStore';
 import {
   Zap,
   ArrowRight,
@@ -20,10 +21,16 @@ import {
 
 export default function HomePage() {
   const { isAuthenticated } = useAuthStore();
-  const [categories, setCategories] = useState([]);
-  const [banners, setBanners] = useState([]);
-  const [sections, setSections] = useState({ deals: [], popular: [], groceries: [] });
-  const [loading, setLoading] = useState(true);
+  const {
+    categories,
+    banners,
+    featuredSections: sections,
+    prefetchHomeCatalog,
+    categoriesLoading,
+    featuredLoading,
+  } = useCatalogStore();
+
+  const loading = (categories.length === 0 && categoriesLoading) || (sections.popular.length === 0 && featuredLoading);
   const [hasPriorOrders, setHasPriorOrders] = useState(false);
 
   useEffect(() => {
@@ -38,25 +45,8 @@ export default function HomePage() {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    const fetchHomeData = async () => {
-      try {
-        const [catRes, featRes, bannerRes] = await Promise.all([
-          api.get('/categories'),
-          api.get('/products/sections/featured'),
-          api.get('/banners').catch(() => ({ data: [] })),
-        ]);
-        setCategories(catRes.data || []);
-        setSections(featRes.data || { deals: [], popular: [], groceries: [] });
-        setBanners(bannerRes.data || []);
-      } catch (err) {
-        console.error('Failed to load home catalog:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHomeData();
-  }, []);
+    prefetchHomeCatalog();
+  }, [prefetchHomeCatalog]);
 
   return (
     <div className="max-w-6xl mx-auto px-3.5 sm:px-4 py-6 space-y-10 sm:space-y-12 pb-24 md:pb-12 overflow-x-hidden">

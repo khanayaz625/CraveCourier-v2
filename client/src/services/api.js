@@ -98,6 +98,8 @@ api.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url?.includes('/auth/login') &&
+      !originalRequest.url?.includes('/auth/admin-login') &&
+      !originalRequest.url?.includes('/auth/register') &&
       !originalRequest.url?.includes('/auth/refresh-token')
     ) {
       if (isRefreshing) {
@@ -140,10 +142,27 @@ api.interceptors.response.use(
       }
     }
 
+    // Handle 429 Rate Limit / Quota Exceeded with Exponential Backoff Retry (Max 3 attempts)
+    if (error.response?.status === 429 && originalRequest) {
+      originalRequest._retry429Count = (originalRequest._retry429Count || 0) + 1;
+      if (originalRequest._retry429Count <= 3) {
+        const delayMs = Math.min(
+          1000 * Math.pow(2, originalRequest._retry429Count - 1) + Math.random() * 300,
+          6000
+        );
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        return api(originalRequest);
+      }
+    }
+
+    const isRateLimited = error.response?.status === 429;
     const formattedError = {
-      message: error.response?.data?.message || error.message || 'An unexpected error occurred',
+      message: isRateLimited
+        ? 'Server is experiencing high traffic. Please wait a moment and try again.'
+        : error.response?.data?.message || error.message || 'An unexpected error occurred',
       statusCode: error.response?.status || 500,
       errors: error.response?.data?.errors || [],
+      isRateLimited,
     };
     return Promise.reject(formattedError);
   }

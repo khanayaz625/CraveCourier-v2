@@ -17,6 +17,9 @@ import apiRouter from './routes/api.routes.js';
 
 const app = express();
 
+// Trust reverse proxy (Render, Vercel, Cloudflare) for accurate client IP rate limiting
+app.set('trust proxy', 1);
+
 // 1. Security HTTP headers with Helmet
 app.use(
   helmet({

@@ -6,6 +6,7 @@ import FilterDrawer from '../components/FilterDrawer';
 import SearchBar from '../components/SearchBar';
 import EmptyState from '../components/EmptyState';
 import { ProductCardSkeleton } from '../components/SkeletonLoader';
+import { useCatalogStore } from '../store/useCatalogStore';
 import {
   Filter,
   ArrowUpDown,
@@ -22,7 +23,7 @@ export default function ProductListingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const { categories, fetchCategories } = useCatalogStore();
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -42,30 +43,27 @@ export default function ProductListingPage() {
   const sort = searchParams.get('sort') || 'popular';
   const page = parseInt(searchParams.get('page') || '1', 10);
 
-  // Fetch Categories for Filter Options
+  // Fetch Categories for Filter Options (cached in memory)
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await api.get('/categories');
-        setCategories(res.data || []);
-      } catch (err) {
-        console.error('Error fetching categories:', err);
-      }
-    };
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
-  // Fetch Products on Param Changes
+  // Fetch Products on Param Changes with Request Cancellation (AbortController)
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchProducts = async () => {
       setLoading(true);
       try {
         const queryParams = new URLSearchParams(searchParams);
         queryParams.set('limit', '16');
-        const res = await api.get(`/products?${queryParams.toString()}`);
+        const res = await api.get(`/products?${queryParams.toString()}`, {
+          signal: controller.signal,
+        });
         setProducts(res.data?.products || []);
         setPagination(res.data?.pagination || { page: 1, pages: 1, total: 0 });
       } catch (err) {
+        if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') return;
         console.error('Error fetching products:', err);
       } finally {
         setLoading(false);
@@ -73,6 +71,7 @@ export default function ProductListingPage() {
     };
 
     fetchProducts();
+    return () => controller.abort();
   }, [searchParams]);
 
   // Update query params helper

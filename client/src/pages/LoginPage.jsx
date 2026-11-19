@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { User, Bike, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowRight, Shield } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState('');
 
-  const { login, isLoading, error: storeError, clearError, isAuthenticated, user } = useAuthStore();
+  const { login, isLoading, error: storeError, clearError, isAuthenticated, user, isAuthInitialized } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,6 +28,27 @@ export default function LoginPage() {
       }
     }
   }, [isAuthenticated, user, navigate, from]);
+
+  // While session is being verified on boot, avoid flashing the login form
+  if (!isAuthInitialized) {
+    return (
+      <div className="min-h-[calc(100vh-60px)] flex items-center justify-center bg-neutral-50 dark:bg-slate-950">
+        <div className="flex flex-col items-center space-y-3">
+          <div className="h-8 w-8 border-3 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-bold text-neutral-400 dark:text-slate-500 font-heading tracking-wider uppercase">
+            Verifying session...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // If already authenticated, redirect away
+  if (isAuthenticated && user) {
+    if (user.role === 'delivery') return <Navigate to="/partner" replace />;
+    if (user.role === 'admin') return <Navigate to="/admin" replace />;
+    return <Navigate to={from} replace />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

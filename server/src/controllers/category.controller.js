@@ -12,20 +12,36 @@ const slugify = (text) =>
     .trim()
     .replace(/[\s\W-]+/g, '-');
 
+// In-memory cache for public category listings (5 min TTL)
+const categoryCache = new Map();
+const CATEGORY_CACHE_TTL_MS = 5 * 60 * 1000;
+
+export const clearCategoryCache = () => categoryCache.clear();
+
 /**
  * @desc   Get all active categories
  * @route  GET /api/categories
  * @access Public
  */
 export const getAllCategories = asyncHandler(async (req, res) => {
-  const { type } = req.query;
+  const { type = 'all' } = req.query;
+  const cacheKey = `categories_${type}`;
+  const cached = categoryCache.get(cacheKey);
+
+  if (cached && Date.now() - cached.timestamp < CATEGORY_CACHE_TTL_MS) {
+    return res.status(200).json(
+      new ApiResponse(200, cached.data, `Retrieved ${cached.data.length} categories (cached)`)
+    );
+  }
 
   const filter = { isActive: true };
   if (type && type !== 'all') {
     filter.$or = [{ type }, { type: 'both' }];
   }
 
-  const categories = await Category.find(filter).sort({ displayOrder: 1, name: 1 });
+  const categories = await Category.find(filter).sort({ displayOrder: 1, name: 1 }).lean();
+
+  categoryCache.set(cacheKey, { timestamp: Date.now(), data: categories });
 
   return res.status(200).json(
     new ApiResponse(200, categories, `Retrieved ${categories.length} categories`)
@@ -76,6 +92,8 @@ export const createCategory = asyncHandler(async (req, res) => {
     isActive: isActive !== undefined ? isActive : true,
   });
 
+  clearCategoryCache();
+
   return res.status(201).json(new ApiResponse(201, category, 'Category created successfully'));
 });
 
@@ -99,6 +117,8 @@ export const updateCategory = asyncHandler(async (req, res) => {
   if (!category) {
     throw new ApiError(404, 'Category not found to update');
   }
+
+  clearCategoryCache();
 
   return res.status(200).json(new ApiResponse(200, category, 'Category updated successfully'));
 });
@@ -124,6 +144,8 @@ export const deleteCategory = asyncHandler(async (req, res) => {
   if (!category) {
     throw new ApiError(404, 'Category not found to delete');
   }
+
+  clearCategoryCache();
 
   return res.status(200).json(new ApiResponse(200, {}, 'Category deleted successfully'));
 });
