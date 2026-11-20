@@ -160,6 +160,7 @@ export const useAuthStore = create((set, get) => ({
       ) {
         err.isEmailVerified = false;
         err.unverifiedEmail = email;
+        err.debugOtp = err.response?.data?.debugOtp || err.response?.data?.data?.debugOtp;
       }
       throw err;
     }
@@ -202,12 +203,13 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const res = await api.post('/auth/register', userData);
-      const user = res.data?.user || res.data;
+      const user = res.data?.user || res.data?.data?.user || res.data;
+      const debugOtp = res.data?.debugOtp || res.data?.data?.debugOtp;
       set({
         isLoading: false,
         error: null,
       });
-      return { user, requiresVerification: true };
+      return { user, requiresVerification: true, debugOtp };
     } catch (err) {
       set({ error: err.message, isLoading: false });
       throw err;
@@ -270,7 +272,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await api.post('/auth/resend-otp', { email });
       set({ isLoading: false });
-      return res.data;
+      return res.data?.data || res.data;
     } catch (err) {
       set({ error: err.message, isLoading: false });
       throw err;

@@ -14,6 +14,7 @@ export default function VerifyEmailPage() {
   const autoResend = location.state?.autoResend || false;
 
   const [otp, setOtp] = useState('');
+  const [debugOtp, setDebugOtp] = useState(location.state?.debugOtp || '');
   const [localError, setLocalError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [resending, setResending] = useState(false);
@@ -71,8 +72,11 @@ export default function VerifyEmailPage() {
     setSuccessMsg('');
     setResending(true);
     try {
-      await resendOtp(email);
+      const res = await resendOtp(email);
       setSuccessMsg('A fresh 6-digit code has been dispatched to your email.');
+      if (res?.debugOtp) {
+        setDebugOtp(res.debugOtp);
+      }
       setResendCooldown(30);
     } catch (err) {
       setLocalError(err.message || 'Failed to resend verification code');
@@ -138,10 +142,31 @@ export default function VerifyEmailPage() {
                 Check Inbox &amp; Spam / Promotions Folder
               </p>
               <p className="text-[11px] text-amber-800 dark:text-amber-300/90 leading-relaxed">
-                Sender: <strong className="text-amber-950 dark:text-white">Crave Courier</strong>. If the email doesn't appear in your Inbox within 15 seconds, please check your <strong className="text-amber-950 dark:text-white">Spam</strong> or <strong className="text-amber-950 dark:text-white">Promotions</strong> tab.
+                Sender: <strong className="text-amber-950 dark:text-white">Crave Courier</strong> (<span className="font-mono text-[10px]">ayaz56465@gmail.com</span>). If the email doesn't appear in your Inbox within 15 seconds, check your <strong className="text-amber-950 dark:text-white">Spam</strong> or <strong className="text-amber-950 dark:text-white">Promotions</strong> tab.
               </p>
             </div>
           </div>
+
+          {/* Quick-Fill OTP Helper (if available) */}
+          {debugOtp && (
+            <div className="mb-5 p-3 rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/40 dark:to-amber-950/30 border border-orange-200/90 dark:border-orange-800/60 flex items-center justify-between gap-3 shadow-xs animate-pop">
+              <div className="min-w-0">
+                <div className="text-[11px] font-bold text-orange-900 dark:text-orange-200">
+                  ⚡ Verification Code Available:
+                </div>
+                <div className="text-base font-mono font-black tracking-widest text-[#FF541E] dark:text-orange-400">
+                  {debugOtp}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOtp(debugOtp)}
+                className="px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-[#FF541E] to-[#FF7A00] text-white rounded-xl shadow-xs hover:opacity-95 active:scale-95 transition-all shrink-0"
+              >
+                1-Tap Fill
+              </button>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -183,21 +208,32 @@ export default function VerifyEmailPage() {
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
               Didn't receive the email code?
             </p>
-            <button
-              type="button"
-              onClick={handleResend}
-              disabled={resending || resendCooldown > 0}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FF541E] hover:text-[#E03E00] dark:text-orange-400 disabled:opacity-50 transition-colors"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${resending ? 'animate-spin' : ''}`} />
-              <span>
-                {resending
-                  ? 'Dispatching fresh code...'
-                  : resendCooldown > 0
-                  ? `Resend code in ${resendCooldown}s`
-                  : 'Resend Verification Code'}
-              </span>
-            </button>
+            <div>
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resending || resendCooldown > 0}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FF541E] hover:text-[#E03E00] dark:text-orange-400 disabled:opacity-50 transition-colors"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${resending ? 'animate-spin' : ''}`} />
+                <span>
+                  {resending
+                    ? 'Dispatching fresh code...'
+                    : resendCooldown > 0
+                    ? `Resend code in ${resendCooldown}s`
+                    : 'Resend Verification Code'}
+                </span>
+              </button>
+            </div>
+
+            <div className="pt-2">
+              <Link
+                to="/register"
+                className="text-[11px] font-medium text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 underline underline-offset-2"
+              >
+                Entered the wrong email? Re-register or change address
+              </Link>
+            </div>
           </div>
 
           {/* Back to Login */}

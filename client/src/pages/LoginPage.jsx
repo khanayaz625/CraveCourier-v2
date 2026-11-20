@@ -99,10 +99,11 @@ export default function LoginPage() {
       handleLoginSuccess(res);
     } catch (err) {
       // Check if blocked due to unverified email
-      if (err.isEmailVerified === false || err.statusCode === 403 && (err.message?.toLowerCase().includes('verif') || err.message?.toLowerCase().includes('otp'))) {
+      if (err.isEmailVerified === false || (err.statusCode === 403 && (err.message?.toLowerCase().includes('verif') || err.message?.toLowerCase().includes('otp')))) {
         setUnverifiedState({
           email: err.unverifiedEmail || email,
           role,
+          debugOtp: err.debugOtp,
           message: err.message || 'Email verification is required before signing in. A fresh 6-digit code has been dispatched to your email.',
         });
       } else {
@@ -129,7 +130,13 @@ export default function LoginPage() {
         setMobileDebugOtp(res.debugOtp);
       }
     } catch (err) {
-      setLocalError(err.message || 'Failed to dispatch mobile OTP. Please try again.');
+      if (err.message?.includes('Route not found') || err.message?.includes('404')) {
+        setLocalError(
+          'Mobile OTP service is synchronizing with the cloud backend. Please use the Password login tab or email verification in the meantime.'
+        );
+      } else {
+        setLocalError(err.message || 'Failed to dispatch mobile OTP. Please try again.');
+      }
     } finally {
       setMobileSending(false);
     }
@@ -259,7 +266,11 @@ export default function LoginPage() {
                       type="button"
                       onClick={() =>
                         navigate('/verify-email', {
-                          state: { email: unverifiedState.email, role: unverifiedState.role },
+                          state: {
+                            email: unverifiedState.email,
+                            role: unverifiedState.role,
+                            debugOtp: unverifiedState.debugOtp,
+                          },
                         })
                       }
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl text-white bg-gradient-to-r from-[#FF541E] to-[#FF7A00] shadow-sm hover:opacity-95 transition-all"

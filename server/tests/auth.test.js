@@ -52,6 +52,21 @@ describe('Auth API Hardening & Access Control', () => {
     expect(res.body.message).toMatch(/verification/i);
   });
 
+  test('POST /api/auth/register - Re-registering an unverified account succeeds with fresh OTP instead of 409', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({
+        ...testUser,
+        name: 'Updated Name',
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.requiresVerification).toBe(true);
+    expect(res.body.data.debugOtp).toBeDefined();
+    expect(res.body.data.debugOtp.length).toBe(6);
+  });
+
   test('POST /api/auth/verify-email - Verifies email with OTP and issues tokens & secure cookie', async () => {
     const dbUser = await User.findOne({ email: testUser.email }).select('+verificationOtp');
     expect(dbUser.verificationOtp).toBeDefined();

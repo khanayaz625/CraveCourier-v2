@@ -53,7 +53,50 @@ export const register = asyncHandler(async (req, res) => {
   // 1. Check if user already exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw new ApiError(409, 'An account with this email address already exists');
+    if (existingUser.isEmailVerified) {
+      throw new ApiError(409, 'An account with this email address already exists. Please log in.');
+    }
+
+    // Existing unverified account: update credentials, refresh OTP and allow re-verification!
+    existingUser.name = name || existingUser.name;
+    existingUser.password = password; // mongoose pre-save hook will hash this password
+    if (phone) existingUser.phone = phone;
+    if (role) existingUser.role = role;
+
+    const verificationOtp = generateOTP();
+    existingUser.verificationOtp = verificationOtp;
+    existingUser.verificationOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await existingUser.save();
+
+    console.info(`[AUTH] Refreshed OTP for unverified account ${email}: ${verificationOtp}`);
+
+    // Dispatch fresh transactional verification email
+    sendVerificationOtpEmail({
+      toEmail: existingUser.email,
+      toName: existingUser.name,
+      otp: verificationOtp,
+      expiryMinutes: 15,
+    }).catch((err) => console.error('[AUTH] Failed to send verification email on account refresh:', err));
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          user: {
+            _id: existingUser._id,
+            name: existingUser.name,
+            email: existingUser.email,
+            role: existingUser.role,
+            phone: existingUser.phone,
+            isEmailVerified: false,
+            avatar: existingUser.avatar,
+          },
+          requiresVerification: true,
+          debugOtp: verificationOtp,
+        },
+        'A fresh 6-digit verification code has been dispatched to your email.'
+      )
+    );
   }
 
   // 2. Generate Email Verification OTP (valid for 15 minutes)
@@ -117,6 +160,7 @@ export const register = asyncHandler(async (req, res) => {
           avatar: user.avatar,
         },
         requiresVerification: true,
+        debugOtp: verificationOtp,
       },
       'Registration successful. Please verify your email with the 6-digit OTP code.'
     )
@@ -170,6 +214,7 @@ export const login = asyncHandler(async (req, res) => {
       isEmailVerified: false,
       email: user.email,
       role: user.role,
+      debugOtp: verificationOtp,
       message: 'Email verification required. We have dispatched a fresh 6-digit code to your email. Please verify to sign in.',
     });
   }
@@ -469,7 +514,7 @@ export const resendOtp = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      {},
+      { debugOtp: newOtp },
       'A new 6-digit verification code has been dispatched.'
     )
   );
