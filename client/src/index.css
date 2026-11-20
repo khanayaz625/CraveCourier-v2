@@ -27,27 +27,18 @@
     justify-content: center;
   }
 
-  /* Safe Area Padding for mobile screens */
-  .safe-bottom {
-    padding-bottom: max(env(safe-area-inset-bottom, 16px), 16px);
-  }
-
-  /* Cross-browser scrollbar hiding utilities */
-  .no-scrollbar::-webkit-scrollbar,
-  .scrollbar-none::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    background: transparent !important;
-  }
-  .no-scrollbar,
-  .scrollbar-none {
-    -ms-overflow-style: none !important; /* IE and Edge */
-    scrollbar-width: none !important; /* Firefox */
-  }
-
+  /* Safe Area Padding for modern mobile screens (Notches, Status Bar, Bottom Pill) */
   .safe-top {
-    padding-top: env(safe-area-inset-top, 0px);
+    padding-top: max(env(safe-area-inset-top, 0px), 0px);
+  }
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
+  }
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top, 0px), 0px);
+  }
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
   }
 
   /* Shimmer gradient for skeleton loaders */

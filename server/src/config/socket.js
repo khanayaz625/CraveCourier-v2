@@ -8,7 +8,23 @@ let io = null;
 export const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: [ENV.CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+      origin: (origin, callback) => {
+        // Mobile apps, Capacitor native webview, and curl often send no origin or localhost
+        if (!origin) return callback(null, true);
+        const isAllowed =
+          origin.includes('localhost') ||
+          origin.includes('127.0.0.1') ||
+          origin.includes('cravecourier') ||
+          origin.includes('crave-delivery') ||
+          origin.startsWith('capacitor://') ||
+          origin.startsWith('http://localhost') ||
+          origin.startsWith('https://localhost') ||
+          origin.endsWith('.vercel.app') ||
+          origin.endsWith('.netlify.app') ||
+          ENV.ALLOWED_ORIGINS.some((allowed) => origin === allowed || origin.startsWith(allowed));
+        if (isAllowed) return callback(null, true);
+        return callback(null, false);
+      },
       credentials: true,
       methods: ['GET', 'POST'],
     },

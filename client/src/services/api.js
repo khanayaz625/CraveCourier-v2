@@ -1,11 +1,31 @@
 import axios from 'axios';
 
+// Canonical production Render cloud backend
+export const LIVE_BACKEND_URL = 'https://cravecourier-v2-1.onrender.com';
+export const LIVE_API_URL = `${LIVE_BACKEND_URL}/api`;
+
 const getBaseUrl = () => {
+  // 1. If running inside native Android/iOS Capacitor app, ALWAYS target the live cloud backend
+  if (
+    typeof window !== 'undefined' &&
+    (window.Capacitor?.isNativePlatform() ||
+      window.location.protocol === 'capacitor:' ||
+      window.location.protocol === 'ionic:' ||
+      (window.location.hostname === 'localhost' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '')))
+  ) {
+    return LIVE_API_URL;
+  }
+
   let url = (import.meta.env.VITE_API_BASE_URL || '').trim();
 
-  // If pointing to the outdated 'cravecourier-api' host, redirect to the live Render deployment
+  // If pointing to obsolete hosts, migrate
   if (url.includes('cravecourier-api.onrender.com')) {
-    url = 'https://cravecourier-v2-1.onrender.com/api';
+    return LIVE_API_URL;
+  }
+
+  // In production builds, prevent accidental localhost fallback
+  if (import.meta.env.PROD && (url.includes('localhost') || url.includes('127.0.0.1'))) {
+    return LIVE_API_URL;
   }
 
   if (url) {
@@ -22,10 +42,11 @@ const getBaseUrl = () => {
     !window.location.hostname.includes('localhost') &&
     !window.location.hostname.includes('127.0.0.1')
   ) {
-    return 'https://cravecourier-v2-1.onrender.com/api';
+    return LIVE_API_URL;
   }
 
-  return 'http://localhost:5000/api';
+  // Safe default ensures Android APK and web client always access the live cloud database
+  return LIVE_API_URL;
 };
 
 export const BASE_URL = getBaseUrl();

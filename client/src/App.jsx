@@ -60,6 +60,14 @@ function AppLayout() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isPartnerRoute = location.pathname.startsWith('/partner');
+  const isCheckoutRoute = location.pathname.startsWith('/checkout');
+  const isAuthRoute =
+    location.pathname.startsWith('/login') ||
+    location.pathname.startsWith('/register') ||
+    location.pathname.startsWith('/verify-email') ||
+    location.pathname.startsWith('/forgot-password');
+
+  const hideBottomPadding = isAdminRoute || isPartnerRoute || isCheckoutRoute || isAuthRoute;
 
   return (
     <div
@@ -67,14 +75,14 @@ function AppLayout() {
         isAdminRoute
           ? 'bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100'
           : 'bg-neutral-50 dark:bg-slate-950 text-neutral-900 dark:text-slate-100'
-      } flex flex-col justify-between font-sans transition-colors duration-200`}
+      } flex flex-col justify-between font-sans transition-colors duration-200 overflow-x-hidden`}
     >
       <Navbar />
       <ToastContainer />
       <NotificationDrawer />
       <AuthRequiredModal />
 
-      <main className={`flex-1 ${isAdminRoute || isPartnerRoute ? 'pb-0 flex flex-col' : 'pb-24 md:pb-8'}`}>
+      <main className={`flex-1 ${hideBottomPadding ? 'pb-4 flex flex-col' : 'pb-28 md:pb-8'}`}>
         <ErrorBoundary>
           <Suspense fallback={<RouteLoader />}>
             <Routes>

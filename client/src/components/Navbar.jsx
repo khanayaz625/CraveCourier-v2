@@ -39,14 +39,19 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-neutral-200/80 dark:border-slate-800 px-3 sm:px-4 py-2 sm:py-2.5 shadow-soft transition-colors duration-200">
+    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-neutral-200/80 dark:border-slate-800 px-3 sm:px-4 py-2 sm:py-2.5 safe-top shadow-soft transition-colors duration-200">
       <div className="max-w-6xl mx-auto">
         {/* ============================================================== */}
-        {/* MOBILE HEADER LAYOUT (3-Column Grid: Never Overlaps)            */}
+        {/* MOBILE HEADER LAYOUT (Flex Justify-Between: Zero Overlap)       */}
         {/* ============================================================== */}
-        <div className="grid grid-cols-3 items-center w-full sm:hidden">
-          {/* Mobile Col 1 (Left): Theme Toggle Button */}
-          <div className="flex items-center justify-start">
+        <div className="flex items-center justify-between w-full sm:hidden gap-2">
+          {/* Mobile Left: Full CraveCourier Brand Logo */}
+          <Link to="/" className="flex items-center group min-w-0 flex-shrink">
+            <BrandLogo size="sm" />
+          </Link>
+
+          {/* Mobile Right: Theme Toggle & User Actions */}
+          <div className="flex items-center space-x-1 flex-shrink-0">
             <button
               type="button"
               onClick={toggleTheme}
@@ -55,22 +60,12 @@ export default function Navbar() {
               aria-label="Toggle Dark Mode"
             >
               {theme === 'dark' ? (
-                <Sun className="h-4.5 w-4.5 text-amber-400 animate-pop" />
+                <Sun className="h-4 w-4 text-amber-400 animate-pop" />
               ) : (
-                <Moon className="h-4.5 w-4.5 text-slate-600 animate-pop" />
+                <Moon className="h-4 w-4 text-slate-600 animate-pop" />
               )}
             </button>
-          </div>
 
-          {/* Mobile Col 2 (Center): Strictly Centered Brand Logo */}
-          <div className="flex items-center justify-center">
-            <Link to="/" className="flex items-center justify-center group">
-              <BrandLogo size="sm" />
-            </Link>
-          </div>
-
-          {/* Mobile Col 3 (Right): Notification Bell & User Controls */}
-          <div className="flex items-center justify-end space-x-1">
             {isAuthenticated ? (
               <>
                 <NotificationBell />
@@ -96,7 +91,7 @@ export default function Navbar() {
             ) : (
               <Link
                 to="/login"
-                className="text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 px-3 py-1.5 rounded-xl shadow-xs transition-colors"
+                className="text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 px-3 py-1.5 rounded-xl shadow-xs transition-colors whitespace-nowrap"
               >
                 Sign In
               </Link>

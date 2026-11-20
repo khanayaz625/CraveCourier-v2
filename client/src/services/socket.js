@@ -1,6 +1,19 @@
 import { io } from 'socket.io-client';
 
+export const LIVE_BACKEND_URL = 'https://cravecourier-v2-1.onrender.com';
+
 const getSocketUrl = () => {
+  // 1. If running inside native Android/iOS Capacitor app, connect to the live cloud backend
+  if (
+    typeof window !== 'undefined' &&
+    (window.Capacitor?.isNativePlatform() ||
+      window.location.protocol === 'capacitor:' ||
+      window.location.protocol === 'ionic:' ||
+      (window.location.hostname === 'localhost' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '')))
+  ) {
+    return LIVE_BACKEND_URL;
+  }
+
   let url = (
     import.meta.env.VITE_SOCKET_URL ||
     import.meta.env.VITE_API_BASE_URL ||
@@ -8,23 +21,20 @@ const getSocketUrl = () => {
     ''
   ).trim();
 
-  // If pointing to the outdated 'cravecourier-api' host, redirect to the live Render deployment
+  // If pointing to outdated host, redirect to live Render deployment
   if (url.includes('cravecourier-api.onrender.com')) {
-    url = 'https://cravecourier-v2-1.onrender.com';
+    return LIVE_BACKEND_URL;
+  }
+
+  if (import.meta.env.PROD && (url.includes('localhost') || url.includes('127.0.0.1'))) {
+    return LIVE_BACKEND_URL;
   }
 
   if (url) {
     return url.replace(/\/api\/?$/, '').replace(/\/+$/, '');
   }
 
-  if (
-    typeof window !== 'undefined' &&
-    !window.location.hostname.includes('localhost') &&
-    !window.location.hostname.includes('127.0.0.1')
-  ) {
-    return 'https://cravecourier-v2-1.onrender.com';
-  }
-  return 'http://localhost:5000';
+  return LIVE_BACKEND_URL;
 };
 
 const SOCKET_URL = getSocketUrl();

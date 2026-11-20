@@ -99,7 +99,7 @@ export default function ProductCard({ product }) {
   return (
     <div
       onClick={handleCardClick}
-      className="group relative bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/70 dark:border-slate-800 p-3 sm:p-4 flex flex-col justify-between shadow-soft hover:shadow-xl hover:shadow-neutral-200/60 dark:hover:shadow-black/40 hover:-translate-y-1 transition-all duration-300 w-full text-left overflow-hidden cursor-pointer"
+      className="group relative bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/70 dark:border-slate-800 p-2.5 sm:p-4 flex flex-col justify-between shadow-soft hover:shadow-xl hover:shadow-neutral-200/60 dark:hover:shadow-black/40 hover:-translate-y-1 transition-all duration-300 w-full text-left overflow-hidden cursor-pointer"
     >
       <div>
         {/* Top Badges & Food Image Container */}
@@ -171,20 +171,20 @@ export default function ProductCard({ product }) {
 
           {/* Product Title (Clean English, No Hindi Words) */}
           <Link to={`/products/${product.slug || product._id}`} className="w-full text-left">
-            <h3 className="font-extrabold text-xs sm:text-sm text-neutral-900 dark:text-slate-100 font-heading line-clamp-1 group-hover:text-brand-500 dark:group-hover:text-brand-400 transition-colors leading-snug">
+            <h3 className="font-extrabold text-xs sm:text-sm text-neutral-900 dark:text-slate-100 font-heading line-clamp-2 min-h-[32px] group-hover:text-brand-500 dark:group-hover:text-brand-400 transition-colors leading-snug">
               {cleanName}
             </h3>
           </Link>
 
           {/* Size / Variant Selector Pills */}
           {hasVariants ? (
-            <div className="mt-2 flex flex-wrap gap-1 justify-start w-full">
+            <div className="mt-1.5 flex flex-wrap gap-1 justify-start w-full">
               {product.variants.map((v, idx) => (
                 <button
                   key={v.size}
                   type="button"
                   onClick={() => setSelectedVariantIndex(idx)}
-                  className={`whitespace-nowrap px-2 py-0.5 rounded-lg text-[10px] font-bold border transition-colors ${
+                  className={`whitespace-nowrap px-1.5 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-bold border transition-colors ${
                     selectedVariantIndex === idx
                       ? 'bg-brand-50 dark:bg-brand-950/50 border-brand-500 text-brand-600 dark:text-brand-300 shadow-xs'
                       : 'bg-neutral-50 dark:bg-slate-800/80 border-neutral-200 dark:border-slate-700 text-neutral-600 dark:text-slate-300 hover:border-neutral-300'
@@ -203,14 +203,14 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Price & Add to Cart / Counter Stepper */}
-      <div className="mt-3 pt-2.5 border-t border-neutral-100 dark:border-slate-800/80 flex items-center justify-between gap-2 w-full">
-        <div className="flex flex-col items-start min-w-0">
+      <div className="mt-2.5 pt-2 border-t border-neutral-100 dark:border-slate-800/80 flex items-center justify-between gap-1 w-full min-w-0">
+        <div className="flex flex-col items-start min-w-0 flex-shrink">
           <div className="flex items-baseline space-x-1">
-            <span className="text-sm sm:text-base font-black text-neutral-900 dark:text-slate-100 font-heading">
+            <span className="text-xs sm:text-base font-black text-neutral-900 dark:text-slate-100 font-heading">
               ₹{sellingPrice % 1 === 0 ? sellingPrice : sellingPrice.toFixed(2)}
             </span>
             {hasDiscount && (
-              <span className="text-[10px] sm:text-xs text-neutral-400 dark:text-slate-500 line-through truncate">
+              <span className="text-[9px] sm:text-[10px] text-neutral-400 dark:text-slate-500 line-through truncate">
                 ₹{mrp % 1 === 0 ? mrp : mrp.toFixed(2)}
               </span>
             )}
@@ -219,16 +219,16 @@ export default function ProductCard({ product }) {
 
         {/* Dynamic Action: Add Button directly converts into Stepper Counter */}
         {cartQuantity > 0 ? (
-          <div className="flex items-center bg-brand-500 text-white rounded-2xl p-0.5 shadow-md shadow-brand-500/20 flex-shrink-0 animate-pop">
+          <div className="flex items-center bg-brand-500 text-white rounded-xl p-0.5 shadow-sm shadow-brand-500/20 flex-shrink-0 animate-pop">
             <button
               type="button"
               onClick={handleDecrement}
-              className="p-1 sm:p-1.5 hover:bg-black/15 active:scale-85 rounded-xl transition-all"
+              className="p-1 sm:p-1.5 hover:bg-black/15 active:scale-85 rounded-lg transition-all"
               aria-label="Decrease quantity"
             >
-              <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+              <Minus className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
             </button>
-            <span className="px-2 text-xs sm:text-sm font-black min-w-[20px] text-center select-none">
+            <span className="px-1.5 text-[11px] sm:text-xs font-black min-w-[16px] text-center select-none">
               {cartQuantity}
             </span>
             <button
@@ -237,17 +237,17 @@ export default function ProductCard({ product }) {
               className="p-1 sm:p-1.5 hover:bg-black/15 active:scale-85 rounded-xl transition-all"
               aria-label="Increase quantity"
             >
-              <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+              <Plus className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
             </button>
           </div>
         ) : (
           <button
             type="button"
             onClick={handleQuickAdd}
-            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl text-[11px] sm:text-xs font-black transition-all duration-200 shadow-sm shadow-brand-500/20 flex-shrink-0 flex items-center justify-center gap-1 active:scale-95 bg-brand-500 hover:bg-brand-600 text-white"
+            className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-black transition-all duration-200 shadow-sm shadow-brand-500/20 flex-shrink-0 flex items-center justify-center gap-1 active:scale-95 bg-brand-500 hover:bg-brand-600 text-white"
             aria-label={`Add ${cleanName} to cart`}
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-3 w-3" />
             <span>Add</span>
           </button>
         )}

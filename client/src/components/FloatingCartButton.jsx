@@ -27,7 +27,7 @@ export default function FloatingCartButton() {
   return (
     <aside
       aria-label="Floating Cart Summary"
-      className="fixed z-40 bottom-20 md:bottom-8 right-3 md:right-8 transition-transform duration-300 animate-pop"
+      className="fixed z-30 bottom-22 md:bottom-8 right-3.5 md:right-8 transition-transform duration-300 animate-pop"
     >
       <Link
         to="/cart"

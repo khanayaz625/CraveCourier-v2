@@ -35,8 +35,18 @@ export default function BottomNav() {
         { to: '/products', label: 'Explore', icon: Compass },
       ];
 
-  // Separate app experience: Hide mobile bottom nav inside Craved Admin and Courier portal
-  if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/partner')) {
+  // Separate app experience: Hide mobile bottom nav on Admin, Courier, Checkout, and Auth screens to prevent overlaps
+  const hideBottomNavPaths = [
+    '/admin',
+    '/partner',
+    '/checkout',
+    '/login',
+    '/register',
+    '/verify-email',
+    '/forgot-password',
+  ];
+
+  if (hideBottomNavPaths.some((p) => location.pathname.startsWith(p))) {
     return null;
   }
 
