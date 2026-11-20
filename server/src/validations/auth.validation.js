@@ -93,3 +93,46 @@ export const resendOtpSchema = z.object({
     .email('Please enter a valid email address'),
 });
 
+// 2-Factor Authentication Schemas
+export const verify2FASchema = z.object({
+  twoFactorTempToken: z
+    .string({ required_error: 'Two-factor session token is required' })
+    .min(10, 'Invalid two-factor session token'),
+  otp: z
+    .string({ required_error: '6-digit mobile OTP code is required' })
+    .trim()
+    .length(6, 'Security code must be exactly 6 digits'),
+});
+
+export const resend2FASchema = z.object({
+  twoFactorTempToken: z
+    .string({ required_error: 'Two-factor session token is required' })
+    .min(10, 'Invalid two-factor session token'),
+});
+
+export const sendMobileOtpSchema = z.object({
+  phone: z
+    .string({ required_error: 'Mobile phone number is required' })
+    .trim()
+    .regex(/^[+0-9\s-]{10,15}$/, 'Please enter a valid 10-digit mobile number'),
+  role: z.enum(['customer', 'delivery']).optional().default('customer'),
+});
+
+export const verifyMobileOtpSchema = z.object({
+  phone: z
+    .string({ required_error: 'Mobile phone number is required' })
+    .trim()
+    .regex(/^[+0-9\s-]{10,15}$/, 'Please enter a valid 10-digit mobile number'),
+  otp: z
+    .string({ required_error: '6-digit OTP code is required' })
+    .trim()
+    .length(6, 'OTP must be exactly 6 digits'),
+  name: z.string().trim().optional(),
+  role: z.enum(['customer', 'delivery']).optional().default('customer'),
+});
+
+export const toggle2FASchema = z.object({
+  enabled: z.boolean({ required_error: 'Enabled boolean state is required' }),
+  phone: z.string().trim().regex(/^[+0-9\s-]{10,15}$/, 'Please enter a valid phone number').optional(),
+});
+

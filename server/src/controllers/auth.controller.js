@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
@@ -9,6 +10,11 @@ import {
   sendVerificationOtpEmail,
   sendPasswordResetOtpEmail,
 } from '../services/email.service.js';
+import {
+  sendSmsOtp,
+  maskPhoneNumber,
+  formatPhoneNumber,
+} from '../services/sms.service.js';
 
 // Helper to generate access and refresh tokens
 const generateTokens = async (userId) => {
@@ -179,6 +185,47 @@ export const login = asyncHandler(async (req, res) => {
   // 5. Prevent admin from logging in via standard customer portal
   if (user.role === 'admin' && !role) {
     throw new ApiError(403, 'Administrators must log in via the dedicated /admin/login portal.');
+  }
+
+  // 5.5. Two-Factor Mobile Authentication Check
+  if (user.twoFactorEnabled && user.phone) {
+    const twoFactorOtp = generateOTP();
+    const twoFactorTempToken = crypto.randomBytes(32).toString('hex');
+    user.twoFactorOtp = twoFactorOtp;
+    user.twoFactorOtpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    user.twoFactorTempToken = twoFactorTempToken;
+    await user.save({ validateBeforeSave: false });
+
+    // Send SMS OTP
+    await sendSmsOtp({
+      phone: user.phone,
+      otp: twoFactorOtp,
+      purpose: '2-Factor Security',
+    });
+
+    // Send backup copy to user email
+    sendVerificationOtpEmail({
+      toEmail: user.email,
+      toName: user.name,
+      otp: twoFactorOtp,
+      expiryMinutes: 10,
+    }).catch(() => {});
+
+    const maskedPhone = maskPhoneNumber(user.phone);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          requires2FA: true,
+          twoFactorTempToken,
+          maskedPhone,
+          phone: user.phone,
+          debugOtp: ENV.NODE_ENV !== 'production' ? twoFactorOtp : undefined,
+        },
+        `2-Factor Authentication Required: A 6-digit security code has been sent to ${maskedPhone}.`
+      )
+    );
   }
 
   // 6. Generate tokens
@@ -535,6 +582,272 @@ export const getMe = asyncHandler(async (req, res) => {
         ...(deliveryProfile && { deliveryProfile }),
       },
       'User profile retrieved successfully'
+    )
+  );
+});
+
+/**
+ * @desc   Verify 2-Factor Authentication OTP
+ * @route  POST /api/auth/verify-2fa
+ */
+export const verify2FA = asyncHandler(async (req, res) => {
+  const { twoFactorTempToken, otp } = req.body;
+
+  const user = await User.findOne({ twoFactorTempToken })
+    .select('+twoFactorOtp +twoFactorOtpExpires +twoFactorTempToken');
+
+  if (!user) {
+    throw new ApiError(400, 'Invalid or expired two-factor authentication session. Please sign in again.');
+  }
+
+  if (!user.twoFactorOtp || user.twoFactorOtp !== otp) {
+    throw new ApiError(400, 'Invalid 6-digit security code. Please check your SMS and try again.');
+  }
+
+  if (new Date() > user.twoFactorOtpExpires) {
+    throw new ApiError(400, 'Security code has expired. Please request a fresh code.');
+  }
+
+  // Clear temporary 2FA token credentials
+  user.twoFactorOtp = undefined;
+  user.twoFactorOtpExpires = undefined;
+  user.twoFactorTempToken = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  // Generate session tokens
+  const { accessToken, refreshToken } = await generateTokens(user._id);
+  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          twoFactorEnabled: user.twoFactorEnabled,
+          isEmailVerified: user.isEmailVerified,
+          avatar: user.avatar,
+        },
+        accessToken,
+      },
+      'Two-Factor Authentication verified successfully'
+    )
+  );
+});
+
+/**
+ * @desc   Resend 2-Factor Authentication SMS OTP
+ * @route  POST /api/auth/resend-2fa
+ */
+export const resend2FA = asyncHandler(async (req, res) => {
+  const { twoFactorTempToken } = req.body;
+
+  const user = await User.findOne({ twoFactorTempToken })
+    .select('+twoFactorOtp +twoFactorOtpExpires +twoFactorTempToken');
+
+  if (!user) {
+    throw new ApiError(400, 'Invalid or expired two-factor session. Please log in again.');
+  }
+
+  const newOtp = generateOTP();
+  user.twoFactorOtp = newOtp;
+  user.twoFactorOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
+  await user.save({ validateBeforeSave: false });
+
+  await sendSmsOtp({
+    phone: user.phone,
+    otp: newOtp,
+    purpose: '2-Factor Security',
+  });
+
+  sendVerificationOtpEmail({
+    toEmail: user.email,
+    toName: user.name,
+    otp: newOtp,
+    expiryMinutes: 10,
+  }).catch(() => {});
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        debugOtp: ENV.NODE_ENV !== 'production' ? newOtp : undefined,
+      },
+      `A fresh 6-digit security code has been sent to your phone.`
+    )
+  );
+});
+
+/**
+ * @desc   Fast 1-Tap Mobile OTP Login - Send SMS
+ * @route  POST /api/auth/mobile/send-otp
+ */
+export const sendMobileOtp = asyncHandler(async (req, res) => {
+  const { phone, role = 'customer' } = req.body;
+  const cleanPhone = formatPhoneNumber(phone);
+  if (!cleanPhone || cleanPhone.length < 10) {
+    throw new ApiError(400, 'Please provide a valid 10-digit mobile number');
+  }
+
+  const otp = generateOTP();
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+  // Find existing user or create/update candidate
+  let user = await User.findOne({ phone: cleanPhone });
+  if (user) {
+    user.phoneOtp = otp;
+    user.phoneOtpExpires = otpExpires;
+    await user.save({ validateBeforeSave: false });
+  } else {
+    const rawDigits = phone.replace(/[^\d]/g, '').slice(-10);
+    user = await User.findOne({ phone: { $regex: rawDigits } });
+    if (user) {
+      user.phone = cleanPhone;
+      user.phoneOtp = otp;
+      user.phoneOtpExpires = otpExpires;
+      await user.save({ validateBeforeSave: false });
+    } else {
+      // Auto-register new user with mobile number
+      const tempEmail = `phone_${rawDigits}_${Date.now()}@cravecourier.app`;
+      user = await User.create({
+        name: 'Crave Foodie',
+        email: tempEmail,
+        password: crypto.randomBytes(16).toString('hex'),
+        phone: cleanPhone,
+        role: role || 'customer',
+        phoneOtp: otp,
+        phoneOtpExpires: otpExpires,
+        isEmailVerified: true,
+        isPhoneVerified: false,
+      });
+
+      if (user.role === 'delivery') {
+        await DeliveryPartnerProfile.create({
+          user: user._id,
+          vehicle: { type: 'bike' },
+          isOnline: false,
+          isAvailable: false,
+          currentLocation: { type: 'Point', coordinates: [0, 0] },
+        });
+      }
+    }
+  }
+
+  await sendSmsOtp({
+    phone: cleanPhone,
+    otp,
+    purpose: 'Mobile Login',
+  });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        phone: maskPhoneNumber(cleanPhone),
+        debugOtp: ENV.NODE_ENV !== 'production' ? otp : undefined,
+      },
+      `6-digit OTP code sent to ${maskPhoneNumber(cleanPhone)}`
+    )
+  );
+});
+
+/**
+ * @desc   Fast 1-Tap Mobile OTP Login - Verify Code & Authenticate
+ * @route  POST /api/auth/mobile/verify-otp
+ */
+export const verifyMobileOtp = asyncHandler(async (req, res) => {
+  const { phone, otp, name, role = 'customer' } = req.body;
+  const cleanPhone = formatPhoneNumber(phone);
+  const rawDigits = phone.replace(/[^\d]/g, '').slice(-10);
+
+  const user = await User.findOne({
+    $or: [{ phone: cleanPhone }, { phone: { $regex: rawDigits } }],
+  }).select('+phoneOtp +phoneOtpExpires');
+
+  if (!user) {
+    throw new ApiError(404, 'No account found for this mobile number. Please request a new OTP.');
+  }
+
+  if (!user.phoneOtp || user.phoneOtp !== otp) {
+    throw new ApiError(400, 'Invalid OTP code. Please enter the 6-digit code received via SMS.');
+  }
+
+  if (new Date() > user.phoneOtpExpires) {
+    throw new ApiError(400, 'OTP code has expired. Please request a new OTP.');
+  }
+
+  // Mark phone as verified and clear temporary OTP
+  user.isPhoneVerified = true;
+  user.phoneOtp = undefined;
+  user.phoneOtpExpires = undefined;
+  if (name && name.trim()) {
+    user.name = name.trim();
+  }
+  await user.save({ validateBeforeSave: false });
+
+  const { accessToken, refreshToken } = await generateTokens(user._id);
+  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          twoFactorEnabled: user.twoFactorEnabled,
+          isPhoneVerified: user.isPhoneVerified,
+          avatar: user.avatar,
+        },
+        accessToken,
+      },
+      'Logged in successfully via mobile OTP'
+    )
+  );
+});
+
+/**
+ * @desc   Toggle Two-Factor Mobile Authentication on user profile
+ * @route  POST /api/auth/toggle-2fa
+ */
+export const toggle2FA = asyncHandler(async (req, res) => {
+  const { enabled, phone } = req.body;
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    throw new ApiError(404, 'User account not found');
+  }
+
+  if (enabled) {
+    const targetPhone = phone || user.phone;
+    if (!targetPhone) {
+      throw new ApiError(400, 'A valid mobile phone number is required to enable Two-Factor Authentication.');
+    }
+    user.phone = formatPhoneNumber(targetPhone);
+    user.twoFactorEnabled = true;
+    user.isPhoneVerified = true;
+  } else {
+    user.twoFactorEnabled = false;
+  }
+
+  await user.save({ validateBeforeSave: false });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        twoFactorEnabled: user.twoFactorEnabled,
+        phone: user.phone,
+      },
+      user.twoFactorEnabled
+        ? `Two-Factor Mobile Authentication is now ACTIVE. Every sign in will require an SMS code sent to ${maskPhoneNumber(user.phone)}.`
+        : 'Two-Factor Mobile Authentication has been deactivated.'
     )
   );
 });

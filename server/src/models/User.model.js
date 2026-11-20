@@ -89,6 +89,39 @@ const userSchema = new mongoose.Schema(
       default: false,
       index: true,
     },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    twoFactorPhone: {
+      type: String,
+      trim: true,
+    },
+    twoFactorOtp: {
+      type: String,
+      select: false,
+    },
+    twoFactorOtpExpires: {
+      type: Date,
+      select: false,
+    },
+    twoFactorTempToken: {
+      type: String,
+      select: false,
+    },
+    phoneOtp: {
+      type: String,
+      select: false,
+    },
+    phoneOtpExpires: {
+      type: Date,
+      select: false,
+    },
+    isPhoneVerified: {
+      type: Boolean,
+      default: false,
+    },
     verificationOtp: {
       type: String,
       select: false,
