@@ -230,12 +230,22 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
-   * Email Verification (Authenticates user upon entering correct OTP)
+   * Account Verification via Email or Mobile SMS OTP
    */
-  verifyEmail: async (email, otp) => {
+  verifyEmail: async (identifier, otp, optionalPhone) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await api.post('/auth/verify-email', { email, otp });
+      let payload = { otp };
+      if (typeof identifier === 'object' && identifier !== null) {
+        payload = { ...identifier };
+      } else if (typeof identifier === 'string' && identifier.includes('@')) {
+        payload.email = identifier;
+        if (optionalPhone) payload.phone = optionalPhone;
+      } else if (typeof identifier === 'string') {
+        payload.phone = identifier;
+      }
+
+      const res = await api.post('/auth/verify-email', payload);
       const { user, accessToken } = res.data || {};
 
       if (accessToken && user) {
@@ -265,12 +275,22 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
-   * Resend Verification OTP
+   * Resend Verification OTP (dispatches to SMS and Email)
    */
-  resendOtp: async (email) => {
+  resendOtp: async (identifier, optionalPhone) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await api.post('/auth/resend-otp', { email });
+      let payload = {};
+      if (typeof identifier === 'object' && identifier !== null) {
+        payload = { ...identifier };
+      } else if (typeof identifier === 'string' && identifier.includes('@')) {
+        payload.email = identifier;
+        if (optionalPhone) payload.phone = optionalPhone;
+      } else if (typeof identifier === 'string') {
+        payload.phone = identifier;
+      }
+
+      const res = await api.post('/auth/resend-otp', payload);
       set({ isLoading: false });
       return res.data?.data || res.data;
     } catch (err) {

@@ -44,10 +44,11 @@ export default function RegisterPage() {
         role,
       });
 
-      // Redirect to Email OTP Verification with warm notice and debugOtp
+      // Redirect to Email & Mobile SMS OTP Verification
       navigate('/verify-email', {
         state: {
           email: formData.email,
+          phone: formData.phone,
           role: regResult?.user?.role || role,
           debugOtp: regResult?.debugOtp,
         },
@@ -173,7 +174,7 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-200 mb-1">
-                Phone Number (Optional)
+                Mobile Number (for Instant SMS OTP)
               </label>
               <div className="relative rounded-2xl shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400 dark:text-neutral-500">
@@ -184,10 +185,13 @@ export default function RegisterPage() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+91 98765 43210"
+                  placeholder="9876543210"
                   className="block w-full pl-10 pr-3.5 py-2.5 text-xs sm:text-sm border border-neutral-200 dark:border-slate-700 rounded-2xl bg-neutral-50/70 dark:bg-slate-800/60 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#FF541E] focus:border-transparent transition-all"
                 />
               </div>
+              <p className="mt-1 text-[11px] text-orange-600 dark:text-orange-400 font-medium">
+                📱 6-digit OTP code will be sent to this number via SMS &amp; email
+              </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

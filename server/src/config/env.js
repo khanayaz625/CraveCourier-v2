@@ -83,4 +83,6 @@ export const ENV = {
   BREVO_API_KEY: process.env.BREVO_API_KEY || '',
   BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL || '',
   BREVO_SENDER_NAME: process.env.BREVO_SENDER_NAME || 'Crave Courier',
+  TWOFACTOR_API_KEY: (process.env.TWOFACTOR_API_KEY || process.env['2FACTOR_API_KEY'] || '').trim(),
+  TWOFACTOR_TEMPLATE_NAME: (process.env.TWOFACTOR_TEMPLATE_NAME || '').trim(),
 };

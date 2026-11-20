@@ -73,25 +73,27 @@ export const resetPasswordSchema = z.object({
     .min(6, 'Password must be at least 6 characters'),
 });
 
-export const verifyEmailSchema = z.object({
-  email: z
-    .string({ required_error: 'Email is required' })
-    .trim()
-    .toLowerCase()
-    .email('Please enter a valid email address'),
-  otp: z
-    .string({ required_error: '6-digit OTP code is required' })
-    .trim()
-    .length(6, 'OTP must be exactly 6 digits'),
-});
+export const verifyEmailSchema = z
+  .object({
+    email: z.string().trim().toLowerCase().email('Please enter a valid email address').optional(),
+    phone: z.string().trim().optional(),
+    otp: z
+      .string({ required_error: '6-digit OTP code is required' })
+      .trim()
+      .length(6, 'OTP must be exactly 6 digits'),
+  })
+  .refine((data) => Boolean(data.email || data.phone), {
+    message: 'Either email or mobile phone number is required',
+  });
 
-export const resendOtpSchema = z.object({
-  email: z
-    .string({ required_error: 'Email is required' })
-    .trim()
-    .toLowerCase()
-    .email('Please enter a valid email address'),
-});
+export const resendOtpSchema = z
+  .object({
+    email: z.string().trim().toLowerCase().email('Please enter a valid email address').optional(),
+    phone: z.string().trim().optional(),
+  })
+  .refine((data) => Boolean(data.email || data.phone), {
+    message: 'Either email or mobile phone number is required',
+  });
 
 // 2-Factor Authentication Schemas
 export const verify2FASchema = z.object({

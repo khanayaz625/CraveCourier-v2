@@ -53,7 +53,9 @@ export function maskPhoneNumber(phone = '') {
  */
 export async function sendSmsOtp({ phone, otp, purpose = '2-Factor Authentication' }) {
   const formattedPhone = formatPhoneNumber(phone);
-  const messageText = `[CraveCourier] Your ${purpose} code is ${otp}. Valid for 10 minutes. Do not share this OTP with anyone.`;
+  const cleanPhone = formattedPhone.replace('+91', '').replace('+', '').trim();
+  const twoFactorKey = (process.env.TWOFACTOR_API_KEY || process.env['2FACTOR_API_KEY'] || '').trim();
+  const templateName = (process.env.TWOFACTOR_TEMPLATE_NAME || '').trim();
 
   // Always log visually in server terminal for clear real-time monitoring
   console.info(`
@@ -67,9 +69,37 @@ export async function sendSmsOtp({ phone, otp, purpose = '2-Factor Authenticatio
 ╚══════════════════════════════════════════════════════════════════╝
   `);
 
-  // Optional: If FAST2SMS or BREVO SMS credentials exist in environment
-  try {
-    if (process.env.FAST2SMS_API_KEY) {
+  // 1. Primary: 2Factor.in SMS Gateway API (High Priority Indian Transactional OTP)
+  if (twoFactorKey) {
+    try {
+      const endpoint = templateName
+        ? `https://2factor.in/API/V1/${twoFactorKey}/SMS/${cleanPhone}/${otp}/${encodeURIComponent(templateName)}`
+        : `https://2factor.in/API/V1/${twoFactorKey}/SMS/${cleanPhone}/${otp}`;
+
+      console.info(`[2FACTOR.IN] Dispatching SMS OTP to +91${cleanPhone}...`);
+      const response = await fetch(endpoint, { method: 'GET' });
+      const data = await response.json();
+      console.info('[2FACTOR.IN RESPONSE]', data);
+
+      if (data?.Status === 'Success') {
+        return {
+          success: true,
+          messageId: data.Details || `2factor_${Date.now()}`,
+          phone: formattedPhone,
+          debugOtp: otp,
+          gateway: '2factor.in',
+        };
+      } else {
+        console.warn('[2FACTOR.IN WARNING] Gateway replied with:', data);
+      }
+    } catch (twoFactorError) {
+      console.error('[2FACTOR.IN ERROR] Failed to dispatch via 2factor.in:', twoFactorError.message);
+    }
+  }
+
+  // 2. Secondary Fallback: Fast2SMS API
+  if (process.env.FAST2SMS_API_KEY) {
+    try {
       const pureDigits = formattedPhone.replace('+91', '');
       await fetch('https://www.fast2sms.com/dev/bulkV2', {
         method: 'POST',
@@ -83,9 +113,9 @@ export async function sendSmsOtp({ phone, otp, purpose = '2-Factor Authenticatio
           numbers: pureDigits,
         }),
       });
+    } catch (smsGatewayError) {
+      console.warn('[FAST2SMS WARNING] Delivery issue:', smsGatewayError.message);
     }
-  } catch (smsGatewayError) {
-    console.warn('[SMS GATEWAY WARNING] Live SMS gateway delivery had an issue:', smsGatewayError.message);
   }
 
   return {

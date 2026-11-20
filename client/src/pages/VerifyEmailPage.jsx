@@ -10,6 +10,7 @@ export default function VerifyEmailPage() {
   const { verifyEmail, resendOtp, user, isLoading, error: storeError, clearError } = useAuthStore();
 
   const email = location.state?.email || user?.email || '';
+  const phone = location.state?.phone || user?.phone || '';
   const role = location.state?.role || user?.role || 'customer';
   const autoResend = location.state?.autoResend || false;
 
@@ -31,7 +32,7 @@ export default function VerifyEmailPage() {
 
   // Handle auto-resend trigger if navigated from Login
   useEffect(() => {
-    if (autoResend && email) {
+    if (autoResend && (email || phone)) {
       handleResend();
     }
   }, [autoResend]);
@@ -48,14 +49,14 @@ export default function VerifyEmailPage() {
       return;
     }
 
-    if (!email) {
-      setLocalError('No email associated with this session. Please return to login.');
+    if (!email && !phone) {
+      setLocalError('No email or phone number associated with this session. Please return to login.');
       return;
     }
 
     try {
-      await verifyEmail(email, cleanOtp);
-      setSuccessMsg('🎉 Email verified successfully! Logging you in...');
+      await verifyEmail(email || phone, cleanOtp, phone);
+      setSuccessMsg('🎉 Account verified successfully! Logging you in...');
       setTimeout(() => {
         if (role === 'delivery') navigate('/partner', { replace: true });
         else if (role === 'admin') navigate('/admin', { replace: true });
@@ -72,8 +73,8 @@ export default function VerifyEmailPage() {
     setSuccessMsg('');
     setResending(true);
     try {
-      const res = await resendOtp(email);
-      setSuccessMsg('A fresh 6-digit code has been dispatched to your email.');
+      const res = await resendOtp(email || phone, phone);
+      setSuccessMsg('A fresh 6-digit code has been dispatched via SMS & email.');
       if (res?.debugOtp) {
         setDebugOtp(res.debugOtp);
       }
@@ -102,11 +103,22 @@ export default function VerifyEmailPage() {
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white tracking-tight">
-            Verify Your Email
+            Verify Your Account
           </h1>
           <p className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-300 max-w-xs mx-auto">
-            We sent a 6-digit verification code to <br />
-            <span className="font-bold text-neutral-900 dark:text-white break-all">{email || 'your email'}</span>
+            We sent a 6-digit verification code to
+            {phone && (
+              <>
+                <br />
+                <span className="font-bold text-neutral-900 dark:text-white">📱 SMS: {phone}</span>
+              </>
+            )}
+            {email && (
+              <>
+                <br />
+                <span className="font-bold text-neutral-900 dark:text-white">✉️ {email}</span>
+              </>
+            )}
           </p>
         </div>
 
@@ -134,15 +146,15 @@ export default function VerifyEmailPage() {
             </div>
           )}
 
-          {/* Deliverability & Spam Advice Banner */}
-          <div className="mb-5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200/80 dark:border-orange-800/50 p-3.5 text-xs text-amber-950 dark:text-amber-200 flex items-start gap-2.5 shadow-xs">
-            <span className="text-lg leading-none mt-0.5">📩</span>
+          {/* Deliverability & SMS / Spam Advice Banner */}
+          <div className="mb-5 rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 border border-orange-200/80 dark:border-orange-800/50 p-3.5 text-xs text-orange-950 dark:text-orange-200 flex items-start gap-2.5 shadow-xs">
+            <span className="text-lg leading-none mt-0.5">📲</span>
             <div className="space-y-1">
-              <p className="font-bold text-amber-950 dark:text-amber-100">
-                Check Inbox &amp; Spam / Promotions Folder
+              <p className="font-bold text-orange-950 dark:text-orange-100">
+                Check Mobile SMS &amp; Email Inbox
               </p>
-              <p className="text-[11px] text-amber-800 dark:text-amber-300/90 leading-relaxed">
-                Sender: <strong className="text-amber-950 dark:text-white">Crave Courier</strong> (<span className="font-mono text-[10px]">ayaz56465@gmail.com</span>). If the email doesn't appear in your Inbox within 15 seconds, check your <strong className="text-amber-950 dark:text-white">Spam</strong> or <strong className="text-amber-950 dark:text-white">Promotions</strong> tab.
+              <p className="text-[11px] text-orange-800 dark:text-orange-300/90 leading-relaxed">
+                Your 6-digit code has been dispatched via <strong>Mobile SMS</strong> and <strong>Email</strong>. If checking email, please also check your <strong>Spam / Promotions</strong> folder.
               </p>
             </div>
           </div>
@@ -206,7 +218,7 @@ export default function VerifyEmailPage() {
           {/* Resend Action */}
           <div className="mt-6 pt-4 border-t border-neutral-100 dark:border-slate-800 text-center space-y-2">
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              Didn't receive the email code?
+              Didn't receive the SMS or email code?
             </p>
             <div>
               <button
@@ -218,10 +230,10 @@ export default function VerifyEmailPage() {
                 <RefreshCw className={`h-3.5 w-3.5 ${resending ? 'animate-spin' : ''}`} />
                 <span>
                   {resending
-                    ? 'Dispatching fresh code...'
+                    ? 'Dispatching SMS & email code...'
                     : resendCooldown > 0
                     ? `Resend code in ${resendCooldown}s`
-                    : 'Resend Verification Code'}
+                    : '📱 Resend via SMS & Email'}
                 </span>
               </button>
             </div>
