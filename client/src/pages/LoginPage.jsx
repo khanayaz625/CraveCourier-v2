@@ -274,37 +274,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Quick Demo Fill Buttons (Convenience) */}
-          <div className="mt-5 pt-4 border-t border-neutral-100 dark:border-slate-800 text-center">
-            <p className="text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 mb-2">
-              Quick Test Login
-            </p>
-            <div className="flex justify-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setRole('customer');
-                  setEmail('ayaz56465@gmail.com');
-                  setPassword('Password123!');
-                }}
-                className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-orange-50 dark:bg-slate-800 text-orange-700 dark:text-orange-300 hover:bg-orange-100 transition-colors border border-orange-200/60 dark:border-slate-700"
-              >
-                Customer Demo
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setRole('delivery');
-                  setEmail('partner@crave.com');
-                  setPassword('Partner123!');
-                }}
-                className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-rose-50 dark:bg-slate-800 text-rose-700 dark:text-rose-300 hover:bg-rose-100 transition-colors border border-rose-200/60 dark:border-slate-700"
-              >
-                Rider Demo
-              </button>
-            </div>
-          </div>
-
           {/* Sign Up Link */}
           <div className="mt-5 text-center text-xs text-neutral-500 dark:text-neutral-400">
             Don't have an account?{' '}
