@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { User, Bike, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowRight, Shield, Sparkles, CheckCircle2 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
+import { useHoldToAdmin } from '../hooks/useHoldToAdmin';
 
 export default function LoginPage() {
   const [role, setRole] = useState('customer'); // 'customer' | 'delivery'
@@ -11,6 +12,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState('');
   const [unverifiedState, setUnverifiedState] = useState(null); // { email, role, message }
+
+  const { isHolding, progress, holdProps } = useHoldToAdmin({ durationMs: 1400 });
 
   const { login, isLoading, error: storeError, clearError, isAuthenticated, user, isAuthInitialized } = useAuthStore();
   const navigate = useNavigate();
@@ -103,23 +106,36 @@ export default function LoginPage() {
         </div>
 
         {/* Role Switcher Pill Container */}
-        <div className="mt-5 p-1 bg-gradient-to-r from-rose-100/70 via-orange-100/70 to-amber-100/70 dark:from-slate-800 dark:to-slate-800/80 rounded-2xl flex items-center border border-orange-200/50 dark:border-slate-700 shadow-inner">
+        <div className="mt-5 p-1 bg-gradient-to-r from-rose-100/70 via-orange-100/70 to-amber-100/70 dark:from-slate-800 dark:to-slate-800/80 rounded-2xl flex items-center border border-orange-200/50 dark:border-slate-700 shadow-inner relative">
+          {/* Secret Hold Progress Pill */}
+          {isHolding && (
+            <div className="absolute -top-7 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[9px] font-black tracking-wider uppercase shadow-lg shadow-purple-500/40 flex items-center gap-1 animate-bounce z-50 pointer-events-none">
+              <Shield className="h-3 w-3" />
+              <span>Switching to Admin {progress}%</span>
+            </div>
+          )}
+
           <button
             type="button"
-            onClick={() => {
+            {...holdProps}
+            onClick={(e) => {
+              holdProps.onClick(e);
               setRole('customer');
               setLocalError('');
               setUnverifiedState(null);
               clearError();
             }}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-xl transition-all duration-200 ${
-              role === 'customer'
+            title="Customer mode (Hold to switch to Admin)"
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-xl transition-all duration-200 touch-manipulation select-none ${
+              isHolding
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/40 scale-[1.02]'
+                : role === 'customer'
                 ? 'bg-gradient-to-r from-[#FF541E] to-[#FF7A00] text-white shadow-md shadow-orange-500/25 scale-[1.01]'
                 : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
             }`}
           >
-            <User className="h-4 w-4" />
-            <span>Customer</span>
+            {isHolding ? <Shield className="h-4 w-4 animate-pulse" /> : <User className="h-4 w-4" />}
+            <span>{isHolding ? 'Admin' : 'Customer'}</span>
           </button>
           <button
             type="button"

@@ -33,6 +33,7 @@ import {
   Navigation,
 } from 'lucide-react';
 import UserAvatar from '../components/UserAvatar';
+import { useHoldToAdmin } from '../hooks/useHoldToAdmin';
 
 export default function AccountPage() {
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -41,6 +42,9 @@ export default function AccountPage() {
   const { theme, toggleTheme } = useThemeStore();
   const { soundEnabled, toggleSound, openDrawer, unreadCount } = useNotificationStore();
   const navigate = useNavigate();
+
+  // Long-press hold gesture on Account before login to switch to Admin login
+  const { isHolding, progress, holdProps } = useHoldToAdmin({ durationMs: 1400 });
 
   const [loggingOut, setLoggingOut] = useState(false);
   const [addresses, setAddresses] = useState([]);
@@ -334,10 +338,26 @@ export default function AccountPage() {
         </>
       ) : (
         /* Guest Unauthenticated Welcome Card */
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-neutral-200/80 dark:border-slate-800 shadow-soft text-center space-y-4">
-          <div className="h-14 w-14 rounded-2xl bg-brand-500/10 text-brand-500 mx-auto flex items-center justify-center">
-            <User className="h-7 w-7" />
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-neutral-200/80 dark:border-slate-800 shadow-soft text-center space-y-4 relative overflow-hidden">
+          {/* Secret Hold-to-Admin Icon on Account */}
+          <div
+            {...holdProps}
+            title="Press and hold to switch to Admin Login"
+            className={`h-14 w-14 rounded-2xl mx-auto flex items-center justify-center transition-all cursor-pointer select-none touch-manipulation ${
+              isHolding
+                ? 'bg-purple-600 text-white ring-4 ring-purple-400 scale-110 shadow-lg shadow-purple-500/40'
+                : 'bg-brand-500/10 text-brand-500 hover:bg-brand-500/20 active:scale-95'
+            }`}
+          >
+            {isHolding ? <Shield className="h-7 w-7 animate-pulse" /> : <User className="h-7 w-7" />}
           </div>
+
+          {isHolding && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-wider animate-bounce shadow-md">
+              <Shield className="h-3 w-3" />
+              <span>Switching to Admin Login {progress}%</span>
+            </div>
+          )}
 
           <div className="space-y-1">
             <h2 className="text-lg sm:text-xl font-black text-neutral-900 dark:text-slate-100 font-heading">
