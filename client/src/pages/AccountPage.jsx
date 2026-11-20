@@ -7,6 +7,7 @@ import { useCartStore } from '../store/useCartStore';
 import { useThemeStore } from '../store/useThemeStore';
 import { useNotificationStore } from '../store/useNotificationStore';
 import LocationPickerModal from '../components/location/LocationPickerModal';
+import AppUpdateModal from '../components/AppUpdateModal';
 import {
   User,
   Package,
@@ -31,6 +32,8 @@ import {
   Trash2,
   Plus,
   Navigation,
+  Smartphone,
+  Download,
 } from 'lucide-react';
 import UserAvatar from '../components/UserAvatar';
 import { useHoldToAdmin } from '../hooks/useHoldToAdmin';
@@ -50,6 +53,7 @@ export default function AccountPage() {
   const [addresses, setAddresses] = useState([]);
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -435,6 +439,41 @@ export default function AccountPage() {
           </button>
         </div>
       </div>
+
+      {/* App Version & In-App Update Option */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800 shadow-soft p-4 sm:p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="h-10 w-10 rounded-2xl bg-brand-50 dark:bg-brand-950/60 flex items-center justify-center text-brand-500 shadow-xs flex-shrink-0">
+              <Smartphone className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-black text-neutral-900 dark:text-slate-100 block">CraveCourier App</span>
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                  v1.0.1
+                </span>
+              </div>
+              <span className="text-[11px] text-neutral-400">Cloud database &amp; official logo build ready</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowUpdateModal(true)}
+            className="px-3 py-1.5 rounded-xl text-xs font-black bg-brand-500 hover:bg-brand-600 text-white shadow-xs transition-transform active:scale-95 flex items-center gap-1 flex-shrink-0"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>Update APK</span>
+          </button>
+        </div>
+      </div>
+
+      {/* In-App Update Dialog */}
+      <AppUpdateModal
+        isOpen={showUpdateModal}
+        onClose={() => setShowUpdateModal(false)}
+      />
 
       {/* Admin Portal Shortcut link */}
       <div className="text-center pt-2">
