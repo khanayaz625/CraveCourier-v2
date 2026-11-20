@@ -37,6 +37,13 @@ client/.vite/
 Thumbs.db
 desktop.ini
 
+# Android & Binaries
+*.apk
+*.aab
+.gradle/
+**/build/
+**/local.properties
+
 # IDE / Editor
 .idea/
 .vscode/

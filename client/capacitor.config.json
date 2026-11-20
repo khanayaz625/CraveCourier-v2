@@ -1,0 +1,10 @@
+{
+  "appId": "com.cravecourier.app",
+  "appName": "CraveCourier",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false
+  }
+}

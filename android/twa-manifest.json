@@ -1,8 +1,8 @@
 {
-  "packageId": "com.crave.app",
+  "packageId": "com.cravecourier.app",
   "host": "crave-delivery.com",
-  "name": "Crave Food & Grocery Delivery",
-  "launcherName": "Crave",
+  "name": "CraveCourier",
+  "launcherName": "CraveCourier",
   "themeColor": "#FF6B35",
   "navigationColor": "#FFFFFF",
   "backgroundColor": "#FFFFFF",

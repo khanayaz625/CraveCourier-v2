@@ -65,7 +65,7 @@ export default function BrandLogo({
           }`}
         >
           <span className="text-[#FF541E]">Crave</span>
-          <span className="text-neutral-900 dark:text-slate-100 hidden sm:inline">courier</span>
+          <span className="text-neutral-900 dark:text-slate-100">Courier</span>
         </span>
       )}
     </div>

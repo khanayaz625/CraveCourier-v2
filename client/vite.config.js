@@ -19,9 +19,9 @@ export default defineConfig({
         'icons/icon.svg',
       ],
       manifest: {
-        name: 'Crave Food & Grocery Delivery',
-        short_name: 'Crave',
-        description: 'Instant 20-minute hyperlocal restaurant & fresh grocery delivery platform.',
+        name: 'CraveCourier',
+        short_name: 'CraveCourier',
+        description: 'CraveCourier - Hyperlocal food & grocery instant delivery platform.',
         theme_color: '#FF6B35',
         background_color: '#FFFFFF',
         display: 'standalone',

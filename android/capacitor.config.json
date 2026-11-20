@@ -1,6 +1,6 @@
 {
-  "appId": "com.crave.app",
-  "appName": "Crave Food & Grocery",
+  "appId": "com.cravecourier.app",
+  "appName": "CraveCourier",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
