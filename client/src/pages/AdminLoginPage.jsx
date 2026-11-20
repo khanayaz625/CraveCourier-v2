@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
-import { Shield, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Shield, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -13,7 +13,7 @@ export default function AdminLoginPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'Craved Admin | Secure Login';
+    document.title = 'Craved Admin | Management Portal';
     if (isAuthenticated && user?.role === 'admin') {
       navigate('/admin', { replace: true });
     }
@@ -22,10 +22,10 @@ export default function AdminLoginPage() {
   // While session is being verified on boot, avoid flashing the login form
   if (!isAuthInitialized) {
     return (
-      <div className="min-h-[calc(100vh-60px)] flex items-center justify-center bg-neutral-950 text-white">
+      <div className="min-h-screen min-h-[100dvh] w-full flex items-center justify-center bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-white">
         <div className="flex flex-col items-center space-y-3">
-          <div className="h-8 w-8 border-3 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xs font-bold text-neutral-400 font-heading tracking-wider uppercase">
+          <div className="h-9 w-9 border-3 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 font-heading tracking-wider uppercase">
             Verifying admin session...
           </p>
         </div>
@@ -52,25 +52,40 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-60px)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-neutral-950 text-white">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="min-h-screen min-h-[100dvh] w-full relative flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-100 via-indigo-50/50 to-slate-200 dark:from-slate-900 dark:via-indigo-950/70 dark:to-slate-900 text-slate-900 dark:text-slate-100 overflow-hidden">
+      {/* Decorative Ambient Radial Glow Orbs */}
+      <div className="pointer-events-none absolute -top-28 -left-28 w-96 h-96 rounded-full bg-gradient-to-tr from-purple-500/15 via-indigo-500/15 to-blue-500/10 blur-3xl opacity-80 animate-pulse"></div>
+      <div className="pointer-events-none absolute -bottom-28 -right-28 w-96 h-96 rounded-full bg-gradient-to-bl from-indigo-500/15 via-purple-500/15 to-violet-500/10 blur-3xl opacity-80"></div>
+
+      <div className="relative sm:mx-auto sm:w-full sm:max-w-md z-10">
+        {/* Admin Header with Shield & Badges */}
         <div className="text-center">
-          <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500/20 text-brand-400 ring-1 ring-brand-500/50 shadow-xl shadow-brand-950/40">
-            <Shield className="h-7 w-7 text-brand-400" />
-          </span>
-          <h2 className="mt-4 text-2xl font-black tracking-tight sm:text-3xl text-white font-heading">
-            Craved Admin
-          </h2>
-          <p className="mt-1 text-xs text-neutral-400">
-            Official Management Portal & Platform Operations Center
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-purple-700 text-white shadow-xl shadow-purple-600/30 mb-3 ring-4 ring-purple-200/60 dark:ring-purple-950/80 animate-float">
+            <Shield className="h-8 w-8" />
+          </div>
+
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white font-heading">
+            Craved <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">Admin</span>
+          </h1>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Official Management Portal &amp; Platform Operations Center
           </p>
+
+          <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-950/60 border border-purple-200/80 dark:border-purple-800 text-[11px] font-bold text-purple-700 dark:text-purple-300 shadow-xs">
+            <span>🔒</span>
+            <span>High-Security Enterprise Access</span>
+          </div>
         </div>
 
-        <div className="mt-6 bg-neutral-800/90 py-8 px-5 shadow-2xl rounded-2xl border border-neutral-700/80 sm:px-8 backdrop-blur-sm">
+        {/* Elevated Executive Card */}
+        <div className="mt-5 bg-white/95 dark:bg-slate-800/90 backdrop-blur-xl py-7 px-5 sm:px-8 shadow-2xl shadow-indigo-950/10 dark:shadow-black/40 rounded-3xl border border-slate-200/90 dark:border-slate-700 relative">
+          {/* Subtle Top Accent Highlight Strip */}
+          <div className="absolute top-0 inset-x-8 h-1.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-t-3xl"></div>
+
           {(localError || storeError) && (
-            <div className="mb-5 rounded-xl bg-rose-950/60 border border-rose-800/80 p-3.5 flex items-start space-x-2.5">
-              <AlertCircle className="h-5 w-5 text-rose-400 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-rose-200 font-medium leading-relaxed">
+            <div className="mb-5 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 p-3.5 flex items-start space-x-2.5">
+              <AlertCircle className="h-4 w-4 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-rose-700 dark:text-rose-300 font-medium leading-relaxed">
                 {localError || storeError}
               </p>
             </div>
@@ -78,12 +93,12 @@ export default function AdminLoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-neutral-300 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
                 Admin Email
               </label>
-              <div className="relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-neutral-500" />
+              <div className="relative rounded-2xl shadow-xs">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                  <Mail className="h-4 w-4" />
                 </div>
                 <input
                   type="email"
@@ -91,18 +106,18 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@crave.com"
-                  className="block w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-neutral-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-neutral-900/70 text-white placeholder-neutral-500"
+                  className="block w-full pl-10 pr-3.5 py-3 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-neutral-300 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
                 Admin Password
               </label>
-              <div className="relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-neutral-500" />
+              <div className="relative rounded-2xl shadow-xs">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                  <Lock className="h-4 w-4" />
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -110,12 +125,12 @@ export default function AdminLoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full pl-9 pr-10 py-2.5 text-xs sm:text-sm border border-neutral-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-neutral-900/70 text-white placeholder-neutral-500"
+                  className="block w-full pl-10 pr-11 py-3 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-white"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                   aria-label="Toggle password visibility"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -126,13 +141,13 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 shadow-lg shadow-purple-900/40 transition-all disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-700 hover:to-indigo-700 shadow-lg shadow-purple-600/30 transition-all duration-200 disabled:opacity-50 active:scale-[0.99] mt-2"
             >
               {isLoading ? (
-                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <>
-                  <span>Authenticate Admin</span>
+                  <span>Authenticate Admin Portal</span>
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}
@@ -140,18 +155,17 @@ export default function AdminLoginPage() {
           </form>
         </div>
 
-        {/* Return to store link */}
+        {/* Return to Store Link */}
         <div className="mt-6 text-center">
           <Link
             to="/login"
-            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-300 transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Back to Customer & Partner Portal</span>
+            <span>Back to Customer &amp; Delivery Portal</span>
           </Link>
         </div>
       </div>
     </div>
   );
 }
-

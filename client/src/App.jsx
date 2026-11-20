@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/useAuthStore';
 import { useNotificationStore } from './store/useNotificationStore';
 import { useThemeStore } from './store/useThemeStore';
@@ -56,6 +56,131 @@ function RouteLoader() {
   );
 }
 
+function AppLayout() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isPartnerRoute = location.pathname.startsWith('/partner');
+
+  return (
+    <div
+      className={`min-h-screen ${
+        isAdminRoute
+          ? 'bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100'
+          : 'bg-neutral-50 dark:bg-slate-950 text-neutral-900 dark:text-slate-100'
+      } flex flex-col justify-between font-sans transition-colors duration-200`}
+    >
+      <Navbar />
+      <ToastContainer />
+      <NotificationDrawer />
+      <AuthRequiredModal />
+
+      <main className={`flex-1 ${isAdminRoute || isPartnerRoute ? 'pb-0 flex flex-col' : 'pb-24 md:pb-8'}`}>
+        <ErrorBoundary>
+          <Suspense fallback={<RouteLoader />}>
+            <Routes>
+              {/* Public Auth Routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+              {/* Customer Storefront (Home) */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/account" element={<AccountPage />} />
+
+              {/* Catalog & Product Discovery */}
+              <Route path="/products" element={<ProductListingPage />} />
+              <Route path="/products/:identifier" element={<ProductDetailPage />} />
+              <Route path="/product/:identifier" element={<ProductDetailPage />} />
+              <Route path="/product" element={<ProductListingPage />} />
+              <Route path="/menu" element={<ProductListingPage />} />
+              <Route path="/wishlist" element={<WishlistPage />} />
+
+              {/* Shopping Cart & 3-Step Checkout (Protected) */}
+              <Route
+                path="/cart"
+                element={
+                  <ProtectedRoute>
+                    <CartPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/checkout"
+                element={
+                  <ProtectedRoute>
+                    <CheckoutPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Orders & Real-time Tracking */}
+              <Route
+                path="/orders"
+                element={
+                  <ProtectedRoute>
+                    <OrdersPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/orders/:id"
+                element={
+                  <ProtectedRoute>
+                    <OrderDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Delivery Partner Portal (Role: delivery or admin) */}
+              <Route
+                path="/partner"
+                element={
+                  <RoleRoute allowedRoles={['delivery', 'admin']}>
+                    <DeliveryDashboard />
+                  </RoleRoute>
+                }
+              />
+
+              {/* Admin Control Center (Role: admin) */}
+              <Route
+                path="/admin"
+                element={
+                  <RoleRoute allowedRoles={['admin']}>
+                    <AdminDashboard />
+                  </RoleRoute>
+                }
+              />
+
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
+      </main>
+
+      {/* Global Floating Cart Button */}
+      <FloatingCartButton />
+
+      {/* First-Time Visitor Signup to Order Welcome Modal */}
+      <FirstTimeSignupModal />
+
+      {/* Install PWA Prompt Banner */}
+      <InstallPwaPrompt />
+
+      {/* Mobile Sticky Bottom Navigation Bar (md:hidden) */}
+      <BottomNav />
+
+      {!isAdminRoute && !isPartnerRoute && (
+        <footer className="hidden md:block bg-white dark:bg-slate-900 border-t border-neutral-200 dark:border-slate-800 py-4 px-4 text-center text-xs text-neutral-400 dark:text-slate-500 safe-bottom transition-colors duration-200">
+          Crave Food & Grocery Delivery &bull; Modern Design System &bull; Production Architecture
+        </footer>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const { checkAuth, isAuthenticated, user } = useAuthStore();
   const { fetchNotifications, handleIncomingNotification } = useNotificationStore();
@@ -99,114 +224,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-neutral-50 dark:bg-slate-950 text-neutral-900 dark:text-slate-100 flex flex-col justify-between font-sans transition-colors duration-200">
-        <Navbar />
-        <ToastContainer />
-        <NotificationDrawer />
-        <AuthRequiredModal />
-
-        <main className="flex-1 pb-24 md:pb-8">
-          <ErrorBoundary>
-            <Suspense fallback={<RouteLoader />}>
-              <Routes>
-                {/* Public Auth Routes */}
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/admin/login" element={<AdminLoginPage />} />
-                <Route path="/verify-email" element={<VerifyEmailPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-
-                {/* Customer Storefront (Home) */}
-                <Route path="/" element={<HomePage />} />
-                <Route path="/account" element={<AccountPage />} />
-
-                {/* Catalog & Product Discovery */}
-                <Route path="/products" element={<ProductListingPage />} />
-                <Route path="/products/:identifier" element={<ProductDetailPage />} />
-                <Route path="/product/:identifier" element={<ProductDetailPage />} />
-                <Route path="/product" element={<ProductListingPage />} />
-                <Route path="/menu" element={<ProductListingPage />} />
-                <Route path="/wishlist" element={<WishlistPage />} />
-
-                {/* Shopping Cart & 3-Step Checkout (Protected) */}
-                <Route
-                  path="/cart"
-                  element={
-                    <ProtectedRoute>
-                      <CartPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/checkout"
-                  element={
-                    <ProtectedRoute>
-                      <CheckoutPage />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Orders & Real-time Tracking */}
-                <Route
-                  path="/orders"
-                  element={
-                    <ProtectedRoute>
-                      <OrdersPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/orders/:id"
-                  element={
-                    <ProtectedRoute>
-                      <OrderDetailPage />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Delivery Partner Portal (Role: delivery or admin) */}
-                <Route
-                  path="/partner"
-                  element={
-                    <RoleRoute allowedRoles={['delivery', 'admin']}>
-                      <DeliveryDashboard />
-                    </RoleRoute>
-                  }
-                />
-
-                {/* Admin Control Center (Role: admin) */}
-                <Route
-                  path="/admin"
-                  element={
-                    <RoleRoute allowedRoles={['admin']}>
-                      <AdminDashboard />
-                    </RoleRoute>
-                  }
-                />
-
-                {/* Fallback */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </ErrorBoundary>
-        </main>
-
-        {/* Global Floating Cart Button */}
-        <FloatingCartButton />
-
-        {/* First-Time Visitor Signup to Order Welcome Modal */}
-        <FirstTimeSignupModal />
-
-        {/* Install PWA Prompt Banner */}
-        <InstallPwaPrompt />
-
-        {/* Mobile Sticky Bottom Navigation Bar (md:hidden) */}
-        <BottomNav />
-
-        <footer className="hidden md:block bg-white dark:bg-slate-900 border-t border-neutral-200 dark:border-slate-800 py-4 px-4 text-center text-xs text-neutral-400 dark:text-slate-500 safe-bottom transition-colors duration-200">
-          Crave Food & Grocery Delivery &bull; Modern Design System &bull; Production Architecture
-        </footer>
-      </div>
+      <AppLayout />
     </BrowserRouter>
   );
 }
