@@ -80,12 +80,7 @@ export const register = asyncHandler(async (req, res) => {
     });
   }
 
-  // 5. Generate tokens
-  const { accessToken, refreshToken } = await generateTokens(user._id);
-
-  // Set refresh token in HTTP-only cookie
-  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
-
+  // 5. Registration created, dispatch verification email before issuing session
   console.info(`[AUTH] Verification OTP for ${email}: ${verificationOtp}`);
 
   // Dispatch live transactional email via Brevo
@@ -112,10 +107,10 @@ export const register = asyncHandler(async (req, res) => {
           email: user.email,
           role: user.role,
           phone: user.phone,
-          isEmailVerified: user.isEmailVerified,
+          isEmailVerified: false,
           avatar: user.avatar,
         },
-        accessToken,
+        requiresVerification: true,
       },
       'Registration successful. Please verify your email with the 6-digit OTP code.'
     )
@@ -144,6 +139,33 @@ export const login = asyncHandler(async (req, res) => {
   const isMatch = await user.isPasswordCorrect(password);
   if (!isMatch) {
     throw new ApiError(401, 'Invalid email or password');
+  }
+
+  // 3.5. Ensure email is verified before allowing sign in!
+  if (!user.isEmailVerified) {
+    // Generate fresh OTP and dispatch to email so user can immediately verify
+    const verificationOtp = generateOTP();
+    user.verificationOtp = verificationOtp;
+    user.verificationOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save({ validateBeforeSave: false });
+
+    console.info(`[AUTH] Dispatched new verification OTP on login attempt for ${user.email}: ${verificationOtp}`);
+
+    sendVerificationOtpEmail({
+      toEmail: user.email,
+      toName: user.name,
+      otp: verificationOtp,
+      expiryMinutes: 15,
+    }).catch((err) => console.error('[AUTH] Failed to dispatch verification email on login:', err));
+
+    return res.status(403).json({
+      statusCode: 403,
+      success: false,
+      isEmailVerified: false,
+      email: user.email,
+      role: user.role,
+      message: 'Email verification required. We have dispatched a fresh 6-digit code to your email. Please verify to sign in.',
+    });
   }
 
   // 4. Role validation if client specified a role tab
@@ -335,8 +357,28 @@ export const verifyEmail = asyncHandler(async (req, res) => {
   user.verificationOtpExpires = undefined;
   await user.save({ validateBeforeSave: false });
 
+  // Generate tokens NOW upon successful verification
+  const { accessToken, refreshToken } = await generateTokens(user._id);
+  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
+
   return res.status(200).json(
-    new ApiResponse(200, { isEmailVerified: true }, 'Email verified successfully.')
+    new ApiResponse(
+      200,
+      {
+        isEmailVerified: true,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          isEmailVerified: true,
+          avatar: user.avatar,
+        },
+        accessToken,
+      },
+      'Email verified successfully. Welcome to Crave Courier!'
+    )
   );
 });
 
@@ -475,6 +517,10 @@ export const resetPassword = asyncHandler(async (req, res) => {
  */
 export const getMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
+
+  if (!user || !user.isEmailVerified) {
+    throw new ApiError(401, 'Email verification required. Please verify your email.');
+  }
 
   let deliveryProfile = null;
   if (user.role === 'delivery') {

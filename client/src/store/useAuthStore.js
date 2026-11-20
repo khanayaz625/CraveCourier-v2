@@ -139,6 +139,16 @@ export const useAuthStore = create((set, get) => ({
       return user;
     } catch (err) {
       set({ error: err.message, isLoading: false });
+      if (
+        (err.statusCode === 403 || err.response?.status === 403) &&
+        (err.isEmailVerified === false ||
+          err.response?.data?.isEmailVerified === false ||
+          err.message?.toLowerCase().includes('verification') ||
+          err.message?.toLowerCase().includes('verify'))
+      ) {
+        err.isEmailVerified = false;
+        err.unverifiedEmail = email;
+      }
       throw err;
     }
   },
@@ -174,29 +184,18 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
-   * Register new Customer or Delivery Partner
+   * Register new Customer or Delivery Partner (Requires Email OTP verification before authenticating)
    */
   register: async (userData) => {
     set({ isLoading: true, error: null });
     try {
       const res = await api.post('/auth/register', userData);
-      const { user, accessToken } = res.data;
-
-      if (accessToken) {
-        setAccessToken(accessToken);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('crave_auth_token', accessToken);
-          localStorage.setItem('crave_auth_user', JSON.stringify(user));
-        }
-      }
+      const user = res.data?.user || res.data;
       set({
-        user,
-        accessToken,
-        isAuthenticated: !!accessToken,
-        isAuthInitialized: true,
         isLoading: false,
+        error: null,
       });
-      return { user };
+      return { user, requiresVerification: true };
     } catch (err) {
       set({ error: err.message, isLoading: false });
       throw err;
@@ -217,18 +216,34 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
-   * Email Verification
+   * Email Verification (Authenticates user upon entering correct OTP)
    */
   verifyEmail: async (email, otp) => {
     set({ isLoading: true, error: null });
     try {
       const res = await api.post('/auth/verify-email', { email, otp });
-      const currentUser = get().user;
-      if (currentUser && currentUser.email === email) {
-        set({ user: { ...currentUser, isEmailVerified: true } });
+      const { user, accessToken } = res.data || {};
+
+      if (accessToken && user) {
+        setAccessToken(accessToken);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('crave_auth_token', accessToken);
+          localStorage.setItem('crave_auth_user', JSON.stringify(user));
+        }
+        set({
+          user,
+          accessToken,
+          isAuthenticated: true,
+          isAuthInitialized: true,
+          isLoading: false,
+          error: null,
+        });
+        useCartStore.getState().syncGuestCart();
+        useCartStore.getState().fetchCart();
+      } else {
+        set({ isLoading: false });
       }
-      set({ isLoading: false });
-      return res;
+      return res.data;
     } catch (err) {
       set({ error: err.message, isLoading: false });
       throw err;

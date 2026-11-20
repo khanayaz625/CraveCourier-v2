@@ -289,9 +289,20 @@ export async function sendBrevoEmail({ toEmail, toName, subject, htmlContent, te
           name: toName || toEmail.split('@')[0],
         },
       ],
+      replyTo: {
+        name: senderName,
+        email: senderEmail,
+      },
       subject,
       htmlContent,
       ...(textContent && { textContent }),
+      tags: ['otp', 'verification', 'authentication'],
+      headers: {
+        'X-Mailin-Tag': 'otp-verification',
+        'X-Priority': '1',
+        'Priority': 'Urgent',
+        'Importance': 'high',
+      },
     };
 
     const response = await fetch(BREVO_API_URL, {
@@ -338,7 +349,7 @@ export async function sendVerificationOtpEmail({ toEmail, toName, otp, expiryMin
   return await sendBrevoEmail({
     toEmail,
     toName,
-    subject: `Your Verification Code: ${otp} - Crave Courier`,
+    subject: `${otp} is your Crave Courier verification code`,
     htmlContent,
     textContent: `Hi ${toName || 'there'},\n\nYour 6-digit verification code for Crave Courier is: ${otp}\n\nThis code is valid for ${expiryMinutes} minutes. Please do not share it with anyone.`,
   });
@@ -360,7 +371,7 @@ export async function sendPasswordResetOtpEmail({ toEmail, toName, otp, expiryMi
   return await sendBrevoEmail({
     toEmail,
     toName,
-    subject: `Password Reset Code: ${otp} - Crave Courier`,
+    subject: `${otp} is your Crave Courier password reset code`,
     htmlContent,
     textContent: `Hi ${toName || 'there'},\n\nWe received a request to reset your password for Crave Courier. Your reset code is: ${otp}\n\nThis code is valid for ${expiryMinutes} minutes. If you did not make this request, you can ignore this email.`,
   });

@@ -163,6 +163,9 @@ api.interceptors.response.use(
       statusCode: error.response?.status || 500,
       errors: error.response?.data?.errors || [],
       isRateLimited,
+      isEmailVerified: error.response?.data?.isEmailVerified,
+      email: error.response?.data?.email,
+      response: error.response,
     };
     return Promise.reject(formattedError);
   }

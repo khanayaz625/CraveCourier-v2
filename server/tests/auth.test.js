@@ -21,7 +21,7 @@ describe('Auth API Hardening & Access Control', () => {
     await User.deleteMany({ email: { $regex: /sec_test_/ } });
   });
 
-  test('POST /api/auth/register - Successfully registers user with secure cookie and tokens', async () => {
+  test('POST /api/auth/register - Successfully registers user and requires OTP verification', async () => {
     const res = await request(app)
       .post('/api/auth/register')
       .send(testUser);
@@ -29,6 +29,43 @@ describe('Auth API Hardening & Access Control', () => {
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.user.email).toBe(testUser.email);
+    expect(res.body.data.requiresVerification).toBe(true);
+    expect(res.body.data.user.isEmailVerified).toBe(false);
+
+    // Verify OTP was stored on user in database
+    const dbUser = await User.findOne({ email: testUser.email }).select('+verificationOtp');
+    expect(dbUser).toBeDefined();
+    expect(dbUser.verificationOtp).toBeDefined();
+    expect(dbUser.verificationOtp.length).toBe(6);
+  });
+
+  test('POST /api/auth/login - Blocks unverified user from logging in with 403', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({
+        email: testUser.email,
+        password: testUser.password,
+      });
+
+    expect(res.status).toBe(403);
+    expect(res.body.isEmailVerified).toBe(false);
+    expect(res.body.message).toMatch(/verification/i);
+  });
+
+  test('POST /api/auth/verify-email - Verifies email with OTP and issues tokens & secure cookie', async () => {
+    const dbUser = await User.findOne({ email: testUser.email }).select('+verificationOtp');
+    expect(dbUser.verificationOtp).toBeDefined();
+
+    const res = await request(app)
+      .post('/api/auth/verify-email')
+      .send({
+        email: testUser.email,
+        otp: dbUser.verificationOtp,
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.user.isEmailVerified).toBe(true);
     expect(res.body.data.accessToken).toBeDefined();
 
     // Verify secure HTTP-only refresh cookie
@@ -63,7 +100,7 @@ describe('Auth API Hardening & Access Control', () => {
     expect(res.body.success).toBe(false);
   });
 
-  test('POST /api/auth/login - Successfully logs in registered user', async () => {
+  test('POST /api/auth/login - Successfully logs in verified user', async () => {
     const res = await request(app)
       .post('/api/auth/login')
       .send({
@@ -117,4 +154,3 @@ describe('Auth API Hardening & Access Control', () => {
     expect(res.body.success).toBe(false);
   });
 });
-
