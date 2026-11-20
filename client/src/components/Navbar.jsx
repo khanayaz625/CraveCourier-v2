@@ -25,8 +25,14 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Keep Craved Admin portal completely separated with its own dedicated header
-  if (location.pathname.startsWith('/admin')) {
+  const isAuthRoute =
+    location.pathname.startsWith('/login') ||
+    location.pathname.startsWith('/register') ||
+    location.pathname.startsWith('/verify-email') ||
+    location.pathname.startsWith('/forgot-password');
+
+  // Keep Craved Admin portal and unauthenticated/auth screens completely clean
+  if (location.pathname.startsWith('/admin') || isAuthRoute || !isAuthenticated) {
     return null;
   }
 

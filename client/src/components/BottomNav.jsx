@@ -1,9 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, ShoppingBag, Package, User, Shield } from 'lucide-react';
+import { Home, Compass, ShoppingBag, Package, User } from 'lucide-react';
 import { useCartStore } from '../store/useCartStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useNotificationStore } from '../store/useNotificationStore';
-import { useHoldToAdmin } from '../hooks/useHoldToAdmin';
 
 export default function BottomNav() {
   const location = useLocation();
@@ -11,29 +10,16 @@ export default function BottomNav() {
   const { isAuthenticated } = useAuthStore();
   const { unreadCount } = useNotificationStore();
 
-  // Long-press hold gesture on Account button before login to switch to Craved Admin
-  const { isHolding, progress, holdProps } = useHoldToAdmin({ durationMs: 1400 });
-
   const cartCount = Array.isArray(items)
     ? items
         .filter((it) => it && it.product && typeof it.product === 'object')
         .reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)
     : 0;
 
-  // Account is prominently centered in the bottom navigation bar
-  const navLinks = isAuthenticated
-    ? [
-        { to: '/', label: 'Home', icon: Home, exact: true },
-        { to: '/products', label: 'Explore', icon: Compass },
-        { to: '/account', label: 'Account', icon: User, badge: unreadCount, isCenter: true },
-        { to: '/orders', label: 'Orders', icon: Package },
-        { to: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount },
-      ]
-    : [
-        { to: '/', label: 'Home', icon: Home, exact: true },
-        { to: '/account', label: 'Account', icon: User, badge: unreadCount, isCenter: true },
-        { to: '/products', label: 'Explore', icon: Compass },
-      ];
+  // Bottom navigation only visible to authenticated users
+  if (!isAuthenticated) {
+    return null;
+  }
 
   // Separate app experience: Hide mobile bottom nav on Admin, Courier, Checkout, and Auth screens to prevent overlaps
   const hideBottomNavPaths = [
@@ -50,12 +36,20 @@ export default function BottomNav() {
     return null;
   }
 
+  const navLinks = [
+    { to: '/', label: 'Home', icon: Home, exact: true },
+    { to: '/products', label: 'Explore', icon: Compass },
+    { to: '/account', label: 'Account', icon: User, badge: unreadCount, isCenter: true },
+    { to: '/orders', label: 'Orders', icon: Package },
+    { to: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount },
+  ];
+
   return (
     <nav
       aria-label="Mobile Navigation"
       className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-neutral-200/80 dark:border-slate-800 safe-bottom shadow-lg transition-colors duration-200"
     >
-      <div className={`grid ${isAuthenticated ? 'grid-cols-5' : 'grid-cols-3'} h-12 sm:h-13 items-center px-1 max-w-md mx-auto`}>
+      <div className="grid grid-cols-5 h-12 sm:h-13 items-center px-1 max-w-md mx-auto">
         {navLinks.map((item) => {
           const Icon = item.icon;
           const isActive = item.exact
@@ -63,38 +57,20 @@ export default function BottomNav() {
             : location.pathname.startsWith(item.to);
 
           if (item.isCenter) {
-            // If user is unauthenticated, attach hold-to-admin gesture
-            const linkProps = !isAuthenticated ? holdProps : {};
-
             return (
               <Link
                 key={item.label}
                 to={item.to}
-                {...linkProps}
                 className="flex flex-col items-center justify-center relative -top-2 py-0.5 transition-transform active:scale-95 group touch-manipulation select-none"
               >
-                {/* Hold to Admin Progress Pill on unauthenticated long-press */}
-                {!isAuthenticated && isHolding && (
-                  <div className="absolute -top-7 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[9px] font-black tracking-wider uppercase shadow-lg shadow-purple-500/40 flex items-center gap-1 animate-bounce z-50 pointer-events-none">
-                    <Shield className="h-3 w-3" />
-                    <span>Admin Unlock {progress}%</span>
-                  </div>
-                )}
-
                 <div
                   className={`h-10 w-10 sm:h-11 sm:w-11 rounded-full flex items-center justify-center shadow-md transition-all ${
-                    !isAuthenticated && isHolding
-                      ? 'bg-purple-600 text-white ring-4 ring-purple-400/80 shadow-purple-500/50 scale-110'
-                      : isActive
+                    isActive
                       ? 'bg-brand-500 text-white shadow-brand-500/40 ring-3 ring-brand-100 dark:ring-brand-950/60'
                       : 'bg-white dark:bg-slate-800 text-neutral-600 dark:text-slate-300 border-2 border-neutral-200 dark:border-slate-700 hover:border-brand-400'
                   }`}
                 >
-                  {!isAuthenticated && isHolding ? (
-                    <Shield className="h-5 w-5 animate-pulse" />
-                  ) : (
-                    <Icon className="h-5 w-5" />
-                  )}
+                  <Icon className="h-5 w-5" />
 
                   {item.badge > 0 && (
                     <span className="absolute top-0 right-0 h-3.5 min-w-[14px] px-0.5 rounded-full bg-rose-500 text-white text-[8px] font-black flex items-center justify-center shadow-xs">
@@ -104,14 +80,12 @@ export default function BottomNav() {
                 </div>
                 <span
                   className={`text-[9px] mt-0.5 tracking-tight font-bold transition-colors ${
-                    !isAuthenticated && isHolding
-                      ? 'text-purple-600 dark:text-purple-400'
-                      : isActive
+                    isActive
                       ? 'text-brand-600 dark:text-brand-400'
                       : 'text-neutral-500 dark:text-slate-400'
                   }`}
                 >
-                  {!isAuthenticated && isHolding ? 'Admin' : item.label}
+                  {item.label}
                 </span>
               </Link>
             );
@@ -123,23 +97,21 @@ export default function BottomNav() {
               to={item.to}
               className={`flex flex-col items-center justify-center relative py-1 transition-colors ${
                 isActive
-                  ? 'text-brand-500 font-black'
-                  : 'text-neutral-400 dark:text-slate-400 hover:text-neutral-800 dark:hover:text-slate-200 font-semibold'
+                  ? 'text-brand-500 dark:text-brand-400 font-bold'
+                  : 'text-neutral-500 dark:text-slate-400 hover:text-neutral-800 dark:hover:text-slate-200 font-medium'
               }`}
             >
               <div className="relative">
-                <Icon
-                  className={`h-4.5 w-4.5 transition-transform duration-150 ${
-                    isActive ? 'scale-110 text-brand-500' : ''
-                  }`}
-                />
+                <Icon className={`h-5 w-5 transition-transform group-hover:scale-110 ${isActive ? 'scale-105 stroke-[2.5]' : ''}`} />
                 {item.badge > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 h-3.5 min-w-[14px] px-0.5 rounded-full bg-brand-500 text-white text-[8px] font-black flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1 -right-2 h-3.5 min-w-[14px] px-0.5 rounded-full bg-brand-500 text-white text-[8px] font-black flex items-center justify-center shadow-xs">
                     {item.badge > 99 ? '99+' : item.badge}
                   </span>
                 )}
               </div>
-              <span className="text-[9px] mt-0.5 tracking-tight font-bold">{item.label}</span>
+              <span className="text-[9px] mt-0.5 tracking-tight">
+                {item.label}
+              </span>
             </Link>
           );
         })}

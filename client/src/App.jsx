@@ -93,17 +93,73 @@ function AppLayout() {
               <Route path="/verify-email" element={<VerifyEmailPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-              {/* Customer Storefront (Home) */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/account" element={<AccountPage />} />
+              {/* Customer Storefront (Home) - Protected */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <HomePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/account"
+                element={
+                  <ProtectedRoute>
+                    <AccountPage />
+                  </ProtectedRoute>
+                }
+              />
 
-              {/* Catalog & Product Discovery */}
-              <Route path="/products" element={<ProductListingPage />} />
-              <Route path="/products/:identifier" element={<ProductDetailPage />} />
-              <Route path="/product/:identifier" element={<ProductDetailPage />} />
-              <Route path="/product" element={<ProductListingPage />} />
-              <Route path="/menu" element={<ProductListingPage />} />
-              <Route path="/wishlist" element={<WishlistPage />} />
+              {/* Catalog & Product Discovery - Protected */}
+              <Route
+                path="/products"
+                element={
+                  <ProtectedRoute>
+                    <ProductListingPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/products/:identifier"
+                element={
+                  <ProtectedRoute>
+                    <ProductDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/product/:identifier"
+                element={
+                  <ProtectedRoute>
+                    <ProductDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/product"
+                element={
+                  <ProtectedRoute>
+                    <ProductListingPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/menu"
+                element={
+                  <ProtectedRoute>
+                    <ProductListingPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/wishlist"
+                element={
+                  <ProtectedRoute>
+                    <WishlistPage />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Shopping Cart & 3-Step Checkout (Protected) */}
               <Route
