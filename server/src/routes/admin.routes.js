@@ -28,6 +28,7 @@ import {
   deleteBanner,
   getAuditLogs,
   exportCsvReport,
+  purgeOrdersAndDeliveryData,
 } from '../controllers/admin.controller.js';
 
 const router = Router();
@@ -51,6 +52,7 @@ router.get('/orders', getOrders);
 router.patch('/orders/:id/assign', assignOrderPartner);
 router.patch('/orders/:id/status', updateOrderStatus);
 router.post('/orders/:id/refund', refundOrder);
+router.delete('/orders/purge-all', purgeOrdersAndDeliveryData);
 
 // 5. Products Catalog
 router.get('/products', getAdminProducts);

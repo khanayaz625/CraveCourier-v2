@@ -106,14 +106,14 @@ const seedDatabase = async () => {
         coordinates: [78.8230, 25.5748], // Chirgaon Hub center
       },
       earnings: {
-        today: 450,
-        thisWeek: 3200,
-        total: 14500,
-        deliveriesCompleted: 112,
+        today: 0,
+        thisWeek: 0,
+        total: 0,
+        deliveriesCompleted: 0,
       },
       rating: {
-        average: 4.9,
-        count: 88,
+        average: 5.0,
+        count: 0,
       },
       documents: {
         licenseNumber: 'DL-UP93-202300412',
@@ -1428,98 +1428,8 @@ const seedDatabase = async () => {
       },
     ]);
 
-    // 7. Seed Sample Historical Orders for Analytics
-    console.info('[SEED] Creating realistic order records...');
-    const now = new Date();
-    const sampleOrders = [
-      {
-        orderNumber: 'CRV-894101',
-        customer: customerUser._id,
-        deliveryPartner: deliveryUser._id,
-        status: 'delivered',
-        paymentStatus: 'paid',
-        paymentMethod: 'cod',
-        hasReviewed: true,
-        items: [
-          {
-            product: productDocs[0]._id,
-            name: productDocs[0].name,
-            price: productDocs[0].price,
-            quantity: 2,
-            unit: productDocs[0].unit,
-            image: productDocs[0].images[0],
-            subtotal: productDocs[0].price * 2,
-          },
-        ],
-        deliveryAddress: {
-          street: 'Imli Ke Pass, Main Road',
-          city: 'Chirgaon',
-          state: 'Uttar Pradesh',
-          pincode: '284301',
-          phone: '+919876500004',
-          coordinates: { type: 'Point', coordinates: [78.8235, 25.5752] },
-        },
-        totals: {
-          itemTotal: 160,
-          tax: 0,
-          deliveryFee: 0,
-          couponDiscount: 0,
-          grandTotal: 160,
-        },
-        createdAt: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000),
-        deliveredAt: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000 + 25 * 60 * 1000),
-      },
-      {
-        orderNumber: 'CRV-894102',
-        customer: customerUser._id,
-        deliveryPartner: deliveryUser._id,
-        status: 'delivered',
-        paymentStatus: 'paid',
-        paymentMethod: 'stripe',
-        paymentId: 'pi_sample_102',
-        hasReviewed: false,
-        items: [
-          {
-            product: productDocs[32]._id,
-            name: productDocs[32].name,
-            price: productDocs[32].price,
-            quantity: 1,
-            unit: productDocs[32].unit,
-            image: productDocs[32].images[0],
-            subtotal: productDocs[32].price,
-          },
-          {
-            product: productDocs[38]._id,
-            name: productDocs[38].name,
-            price: productDocs[38].price,
-            quantity: 1,
-            unit: productDocs[38].unit,
-            image: productDocs[38].images[0],
-            subtotal: productDocs[38].price,
-          },
-        ],
-        deliveryAddress: {
-          street: 'Station Road, Mandi Gate',
-          city: 'Chirgaon',
-          state: 'Uttar Pradesh',
-          pincode: '284301',
-          phone: '+919876500004',
-          coordinates: { type: 'Point', coordinates: [78.8410, 25.5890] },
-        },
-        totals: {
-          itemTotal: 410,
-          tax: 0,
-          deliveryFee: 20,
-          couponDiscount: 20,
-          grandTotal: 410,
-        },
-        coupon: { code: 'CRAVE20', discountValue: 20 },
-        createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
-        deliveredAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000 + 35 * 60 * 1000),
-      },
-    ];
-
-    await Order.insertMany(sampleOrders);
+    // 7. Orders & Delivery Fleet (Clean slate: 0 orders, 0 deliveries)
+    console.info('[SEED] Orders starting clean (0 orders). Live orders will populate dynamically.');
 
     // 8. Seed Initial Audit Logs
     console.info('[SEED] Creating audit log trails...');

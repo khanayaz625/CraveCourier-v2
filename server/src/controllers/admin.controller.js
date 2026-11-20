@@ -1232,3 +1232,48 @@ export const exportCsvReport = asyncHandler(async (req, res) => {
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
   return res.status(200).send(csvContent);
 });
+
+/**
+ * @desc    Purge all orders, payments, reviews, and reset delivery fleet to 0
+ * @route   DELETE /api/admin/orders/purge-all
+ * @access  Admin Only
+ */
+export const purgeOrdersAndDeliveryData = asyncHandler(async (req, res) => {
+  await Promise.all([
+    Order.deleteMany({}),
+    Payment.deleteMany({}),
+    Review.deleteMany({}),
+    Notification.deleteMany({}),
+    Cart.deleteMany({}),
+    AuditLog.deleteMany({ entity: 'Order' }),
+  ]);
+
+  await DeliveryPartnerProfile.updateMany(
+    {},
+    {
+      $set: {
+        activeOrder: null,
+        isAvailable: true,
+        'earnings.today': 0,
+        'earnings.thisWeek': 0,
+        'earnings.total': 0,
+        'earnings.deliveriesCompleted': 0,
+        'rating.average': 5.0,
+        'rating.count': 0,
+      },
+    }
+  );
+
+  await logAdminAction({
+    adminId: req.user._id,
+    action: 'PURGE_ORDERS_AND_DELIVERIES',
+    entity: 'Order',
+    entityId: req.user._id,
+    details: { message: 'All orders, payments, and delivery partner stats wiped clean.' },
+    req,
+  });
+
+  return res.status(200).json(
+    new ApiResponse(200, { success: true }, 'All order and delivery data purged. Admin is now clean from scratch.')
+  );
+});

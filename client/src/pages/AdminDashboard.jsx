@@ -452,6 +452,33 @@ export default function AdminDashboard() {
     });
   };
 
+  // Handler: Purge All Orders & Reset Deliveries to Scratch
+  const handlePurgeAllOrders = () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Reset Admin: Purge All Orders & Deliveries?',
+      message:
+        'This will permanently delete all customer orders, payment transactions, and reset all delivery courier stats to 0. The admin panel will be blank from scratch for new incoming orders.',
+      confirmText: 'Wipe All Orders (Start from Scratch)',
+      isDanger: true,
+      onConfirm: async () => {
+        try {
+          setActionLoading(true);
+          await api.delete('/admin/orders/purge-all');
+          showToast('All order and delivery data purged. Admin is now clean from scratch.');
+          fetchOrders();
+          fetchAnalytics();
+          fetchPartners();
+        } catch (err) {
+          showToast(err.response?.data?.message || 'Failed to purge orders', true);
+        } finally {
+          setActionLoading(false);
+          setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
+  };
+
   // Handler: Save Product (Create or Edit)
   const handleSaveProduct = async (e) => {
     e.preventDefault();
@@ -1160,6 +1187,14 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
+                    onClick={handlePurgeAllOrders}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 shadow-xs transition-colors"
+                    title="Purge all orders and reset deliveries to start from scratch"
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-rose-600" />
+                    <span className="hidden sm:inline">Reset to Scratch</span>
+                  </button>
+                  <button
                     onClick={() => handleDownloadCsv('orders')}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50 shadow-xs"
                   >
@@ -1738,7 +1773,8 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-neutral-100">
-                      {partnersData.partners.map((p) => (
+                      {partnersData.partners.length > 0 ? (
+                        partnersData.partners.map((p) => (
                         <tr key={p._id} className="hover:bg-neutral-50">
                           <td className="py-3 px-4 flex items-center space-x-3">
                             <div className="h-8 w-8 rounded-full bg-amber-100 text-amber-700 font-bold text-xs flex items-center justify-center flex-shrink-0">
@@ -1802,7 +1838,14 @@ export default function AdminDashboard() {
                             </button>
                           </td>
                         </tr>
-                      ))}
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={7} className="py-8 text-center text-neutral-400">
+                            No delivery partners registered yet. New partners will appear here once registered.
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
