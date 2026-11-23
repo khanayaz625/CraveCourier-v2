@@ -76,6 +76,21 @@ export default function Navbar() {
               <>
                 <NotificationBell />
 
+                {/* Mobile Top View Cart Shortcut */}
+                <Link
+                  to="/cart"
+                  className="relative p-1.5 rounded-xl text-neutral-700 dark:text-slate-300 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors flex items-center justify-center"
+                  title="View Cart"
+                  aria-label="View Cart"
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-brand-500 text-white text-[9px] font-black flex items-center justify-center shadow-xs animate-pop">
+                      {cartItemCount > 99 ? '99+' : cartItemCount}
+                    </span>
+                  )}
+                </Link>
+
                 <Link
                   to="/account"
                   title="My Account"

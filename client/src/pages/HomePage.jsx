@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import SearchBar from '../components/SearchBar';
 import ProductCard from '../components/ProductCard';
-import AppUpdateModal from '../components/AppUpdateModal';
 import { ProductCardSkeleton, CategoryChipSkeleton } from '../components/SkeletonLoader';
 import EmptyState from '../components/EmptyState';
 import { useAuthStore } from '../store/useAuthStore';
@@ -17,7 +16,6 @@ import {
   Sparkles,
   ShieldCheck,
   Truck,
-  Download,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -27,7 +25,6 @@ export default function HomePage() {
   const [sections, setSections] = useState({ deals: [], popular: [], groceries: [] });
   const [loading, setLoading] = useState(true);
   const [hasPriorOrders, setHasPriorOrders] = useState(false);
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -63,42 +60,6 @@ export default function HomePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-3.5 sm:px-4 py-4 space-y-8 sm:space-y-12 pb-24 md:pb-12 overflow-x-hidden">
-      {/* 0. In-App Update Banner for Mobile Users */}
-      <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-gradient-to-r from-orange-500/10 via-brand-500/10 to-amber-500/10 border border-brand-200/80 dark:border-brand-900/60 shadow-xs">
-        <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-          <div className="h-8 w-8 rounded-xl bg-brand-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
-            <Sparkles className="h-4 w-4" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-black text-neutral-900 dark:text-slate-100 truncate">
-                CraveCourier v1.0.1 APK Update Ready
-              </span>
-              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                Live Cloud DB &bull; App Logo
-              </span>
-            </div>
-            <p className="text-[11px] text-neutral-500 dark:text-slate-400 truncate">
-              Tap here to update your phone's app without losing data
-            </p>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setShowUpdateModal(true)}
-          className="ml-2 px-3 py-1.5 rounded-xl text-xs font-black text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition-transform active:scale-95 flex items-center gap-1 flex-shrink-0"
-        >
-          <Download className="h-3.5 w-3.5" />
-          <span>Update</span>
-        </button>
-      </div>
-
-      <AppUpdateModal
-        isOpen={showUpdateModal}
-        onClose={() => setShowUpdateModal(false)}
-      />
-
       {/* 1. Gradient Hero Section */}
       <section className="relative rounded-3xl sm:rounded-4xl bg-gradient-to-br from-brand-500 via-brand-600 to-amber-500 p-5 sm:p-12 text-white shadow-glow overflow-hidden">
         <div className="relative z-10 max-w-xl space-y-3 sm:space-y-4">
