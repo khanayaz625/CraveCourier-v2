@@ -2,15 +2,17 @@ import { create } from 'zustand';
 import api from '../services/api';
 import {
   playNotificationSoundForEvent,
+  playGenericNotificationSound,
+  unlockAudio,
   isSoundEnabled,
   toggleSoundEnabled,
 } from '../services/soundEffects';
 import {
   showClientPushNotification,
   requestPushPermission,
+  getNotificationPermissionStatus,
   requestBackgroundRunning,
   releaseBackgroundRunning,
-  isPushNotificationSupported,
 } from '../services/pushNotification';
 
 export const useNotificationStore = create((set, get) => ({
@@ -27,13 +29,22 @@ export const useNotificationStore = create((set, get) => ({
   isBgTrackingActive: false,
   bgTrackingDetails: null,
 
-  // Request native system notification permissions
+  // Refresh normalized permission status (Native Android APK or Web)
+  refreshPermission: async () => {
+    const status = await getNotificationPermissionStatus();
+    set({ permission: status });
+    return status;
+  },
+
+  // Request native system notification permissions + unlock chime audio
   requestPermission: async () => {
+    unlockAudio();
     const res = await requestPushPermission();
-    const updated = typeof window !== 'undefined' && 'Notification' in window
-      ? Notification.permission
-      : 'unsupported';
+    const updated = await getNotificationPermissionStatus();
     set({ permission: updated });
+    if (res?.granted) {
+      playGenericNotificationSound();
+    }
     return res;
   },
 

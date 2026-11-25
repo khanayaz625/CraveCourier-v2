@@ -10,6 +10,7 @@ import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 import FloatingCartButton from './components/FloatingCartButton';
 import InstallPwaPrompt from './components/InstallPwaPrompt';
+import ApkUpdatePrompt from './components/ApkUpdatePrompt';
 import FirstTimeSignupModal from './components/FirstTimeSignupModal';
 import AuthRequiredModal from './components/AuthRequiredModal';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -21,6 +22,10 @@ import {
   showClientPushNotification,
   requestPushPermission,
 } from './services/pushNotification';
+import {
+  playAdminNewOrderSound,
+  playStatusUpdateSound,
+} from './services/soundEffects';
 
 // Route-Level Code Splitting (Lighthouse Performance Optimization)
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -233,6 +238,9 @@ function AppLayout() {
       {/* Install PWA Prompt Banner */}
       <InstallPwaPrompt />
 
+      {/* Conditional APK Update Prompt (only shown in native APK when a newer version is pushed) */}
+      <ApkUpdatePrompt />
+
       {/* Mobile Sticky Bottom Navigation Bar (md:hidden) */}
       <BottomNav />
 
@@ -246,8 +254,8 @@ function AppLayout() {
 }
 
 export default function App() {
-  const { checkAuth, isAuthenticated, user } = useAuthStore();
-  const { fetchNotifications, handleIncomingNotification } = useNotificationStore();
+  const { checkAuth, isAuthenticated, user, accessToken } = useAuthStore();
+  const { fetchNotifications, handleIncomingNotification, refreshPermission, addToast } = useNotificationStore();
   const { initTheme } = useThemeStore();
 
   // Initialize Dark / Light theme
@@ -255,36 +263,62 @@ export default function App() {
     initTheme();
   }, [initTheme]);
 
-  // Check auth session
+  // Check auth session & sync notification permission state
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+    refreshPermission();
+  }, [checkAuth, refreshPermission]);
 
-  // Real-Time Socket Connection & Notification Push Listener
+  // Real-Time Socket Connection, Notification Permission & Chime Listeners
   useEffect(() => {
     if (isAuthenticated && user) {
-      const socket = connectSocket();
+      const socket = connectSocket(accessToken);
       fetchNotifications();
-      requestPushPermission();
+      requestPushPermission().then(() => refreshPermission());
 
       const onNewNotification = (notification) => {
         handleIncomingNotification(notification);
-        showClientPushNotification({
-          title: notification.title || 'Crave Order Update 🛍️',
-          body: notification.message,
-          data: notification.data,
+      };
+
+      const onAdminNewOrder = (data) => {
+        if (user.role !== 'admin') return;
+        playAdminNewOrderSound();
+        const title = `🚨 New Order Received! #${data?.orderNumber || ''}`;
+        const message = `${data?.customerName || 'Customer'} placed an order (₹${data?.grandTotal || 0})`;
+        showClientPushNotification({ title, body: message, data });
+        addToast({
+          id: `admin-order-${data?.orderId || Date.now()}`,
+          title,
+          message,
+          type: 'admin_new_order',
+          orderId: data?.orderId,
+          orderNumber: data?.orderNumber,
         });
       };
 
+      const onOrderStatusUpdated = (data) => {
+        if (!data?.status) return;
+        playStatusUpdateSound(data.status);
+        const orderNum = data?.orderNumber || data?.order?.orderNumber || '';
+        const statusLabel = String(data.status).replace(/_/g, ' ');
+        const title = `Order #${orderNum} ${statusLabel}`;
+        const message = `Your order status is now ${statusLabel}.`;
+        showClientPushNotification({ title, body: message, data });
+      };
+
       socket.on('notification:new', onNewNotification);
+      socket.on('admin:new_order', onAdminNewOrder);
+      socket.on('order:status_updated', onOrderStatusUpdated);
 
       return () => {
         socket.off('notification:new', onNewNotification);
+        socket.off('admin:new_order', onAdminNewOrder);
+        socket.off('order:status_updated', onOrderStatusUpdated);
       };
     } else {
       disconnectSocket();
     }
-  }, [isAuthenticated, user, fetchNotifications, handleIncomingNotification]);
+  }, [isAuthenticated, user, accessToken, fetchNotifications, handleIncomingNotification, refreshPermission, addToast]);
 
   return (
     <BrowserRouter>

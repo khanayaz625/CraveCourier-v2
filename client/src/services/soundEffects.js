@@ -38,17 +38,24 @@ export const getAudioContext = () => {
 /**
  * Automatically unlock browser audio on first user interaction
  */
+export const unlockAudio = () => {
+  const ctx = getAudioContext();
+  if (ctx && ctx.state === 'suspended') {
+    ctx.resume().catch(() => {});
+  }
+  return ctx;
+};
+
 if (typeof window !== 'undefined') {
   const unlockAudioOnGesture = () => {
-    const ctx = getAudioContext();
-    if (ctx && ctx.state === 'suspended') {
-      ctx.resume().catch(() => {});
-    }
+    unlockAudio();
+    window.removeEventListener('pointerdown', unlockAudioOnGesture);
     window.removeEventListener('click', unlockAudioOnGesture);
     window.removeEventListener('touchstart', unlockAudioOnGesture);
     window.removeEventListener('keydown', unlockAudioOnGesture);
   };
 
+  window.addEventListener('pointerdown', unlockAudioOnGesture, { passive: true });
   window.addEventListener('click', unlockAudioOnGesture, { passive: true });
   window.addEventListener('touchstart', unlockAudioOnGesture, { passive: true });
   window.addEventListener('keydown', unlockAudioOnGesture, { passive: true });

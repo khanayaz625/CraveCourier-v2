@@ -1,16 +1,82 @@
+import { LocalNotifications } from '@capacitor/local-notifications';
 import api from './api';
+import { isNativeApk } from '../config/appVersion';
+
+const ANDROID_CHANNEL_ID = 'crave_orders_channel';
+let channelInitialized = false;
 
 /**
- * Checks if Web Push / Notification APIs are supported by the browser
+ * Checks if Web Push / Notification APIs or Native Capacitor LocalNotifications are supported
  */
 export const isPushNotificationSupported = () => {
+  if (isNativeApk()) return true;
   return typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator;
 };
 
 /**
- * Requests native system notification permissions from the user
+ * Ensures the high-importance Android notification channel exists for chime + heads-up alerts
+ */
+const ensureAndroidNotificationChannel = async () => {
+  if (!isNativeApk() || channelInitialized) return;
+  try {
+    await LocalNotifications.createChannel({
+      id: ANDROID_CHANNEL_ID,
+      name: 'Crave Orders & Live Alerts',
+      description: 'Real-time order updates, admin alerts, and delivery notifications',
+      importance: 5, // High importance (heads-up banner + sound)
+      visibility: 1, // Public on lockscreen
+      vibration: true,
+    });
+    channelInitialized = true;
+  } catch (err) {
+    console.warn('[NATIVE CHANNEL ERROR]', err);
+  }
+};
+
+/**
+ * Returns normalized notification permission status across Native APK and Web
+ * ('granted' | 'denied' | 'default' | 'unsupported')
+ */
+export const getNotificationPermissionStatus = async () => {
+  if (isNativeApk()) {
+    try {
+      const status = await LocalNotifications.checkPermissions();
+      if (status.display === 'granted') return 'granted';
+      if (status.display === 'denied') return 'denied';
+      return 'default';
+    } catch {
+      return 'default';
+    }
+  }
+
+  if (typeof window !== 'undefined' && 'Notification' in window) {
+    return Notification.permission;
+  }
+  return 'unsupported';
+};
+
+/**
+ * Requests real native system notification permissions (Android 13+ / Web Browser)
  */
 export const requestPushPermission = async () => {
+  if (isNativeApk()) {
+    try {
+      let perm = await LocalNotifications.checkPermissions();
+      if (perm.display !== 'granted') {
+        perm = await LocalNotifications.requestPermissions();
+      }
+      if (perm.display === 'granted') {
+        await ensureAndroidNotificationChannel();
+        const token = await registerDevicePushToken();
+        return { granted: true, token };
+      }
+      return { granted: false, reason: perm.display };
+    } catch (err) {
+      console.error('[NATIVE PUSH PERMISSION ERROR]', err);
+      return { granted: false, error: err.message };
+    }
+  }
+
   if (!isPushNotificationSupported()) {
     console.warn('[PUSH] Push notifications are not supported in this browser.');
     return { granted: false, reason: 'unsupported' };
@@ -20,7 +86,6 @@ export const requestPushPermission = async () => {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
       console.log('[PUSH] Notification permission granted by user.');
-      // Register device token with backend
       const token = await registerDevicePushToken();
       return { granted: true, token };
     } else {
@@ -34,28 +99,29 @@ export const requestPushPermission = async () => {
 };
 
 /**
- * Subscribes the current service worker to push and persists the token with the backend
+ * Subscribes the current device/service worker and persists the token with the backend
  */
 export const registerDevicePushToken = async () => {
   try {
-    // Generate or retrieve device-specific push token
     let token = localStorage.getItem('crave_push_token');
     if (!token) {
-      token = 'fcm_web_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      const prefix = isNativeApk() ? 'fcm_apk_' : 'fcm_web_';
+      token = prefix + Math.random().toString(36).substring(2) + Date.now().toString(36);
       localStorage.setItem('crave_push_token', token);
     }
 
-    const deviceName = `${navigator.userAgentData?.platform || navigator.platform || 'Web'} - ${
-      navigator.userAgentData?.brands?.[0]?.brand || 'Browser'
-    }`;
+    const deviceName = isNativeApk()
+      ? 'Android APK (Capacitor)'
+      : `${navigator.userAgentData?.platform || navigator.platform || 'Web'} - ${
+          navigator.userAgentData?.brands?.[0]?.brand || 'Browser'
+        }`;
 
-    // Register with Crave backend
     await api.post('/notifications/fcm-token', {
       token,
       device: deviceName,
     });
 
-    console.log('[PUSH] Registered Web Push token successfully:', token);
+    console.log('[PUSH] Registered push token successfully:', token);
     return token;
   } catch (err) {
     console.error('[PUSH REGISTRATION ERROR]', err);
@@ -64,9 +130,34 @@ export const registerDevicePushToken = async () => {
 };
 
 /**
- * Displays a push notification immediately using the active Service Worker
+ * Displays a real system tray notification immediately (Native Android or Web Service Worker)
  */
 export const showClientPushNotification = async ({ title, body, data = {} }) => {
+  if (isNativeApk()) {
+    try {
+      const perm = await LocalNotifications.checkPermissions();
+      if (perm.display !== 'granted') return;
+
+      await ensureAndroidNotificationChannel();
+      const notifId = Math.floor(Date.now() % 2147483000);
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: notifId,
+            title: title || 'CraveCourier',
+            body: body || 'You have a new update',
+            channelId: ANDROID_CHANNEL_ID,
+            extra: data,
+            smallIcon: 'ic_stat_icon_config_sample',
+          },
+        ],
+      });
+      return;
+    } catch (err) {
+      console.warn('[NATIVE NOTIFICATION DISPLAY WARNING]', err);
+    }
+  }
+
   if (!isPushNotificationSupported() || Notification.permission !== 'granted') {
     return;
   }
@@ -88,7 +179,6 @@ export const showClientPushNotification = async ({ title, body, data = {} }) => 
         return;
       }
     }
-    // Fallback to desktop Notification constructor
     new Notification(title, notificationOptions);
   } catch (err) {
     console.warn('[PUSH DISPLAY WARNING]', err);
@@ -104,7 +194,6 @@ let wakeLockSentinel = null;
 export const requestBackgroundRunning = async () => {
   const status = { wakeLock: false, persistentStorage: false };
 
-  // 1. Screen Wake Lock API (keeps screen active during live rider tracking)
   if (typeof navigator !== 'undefined' && 'wakeLock' in navigator) {
     try {
       wakeLockSentinel = await navigator.wakeLock.request('screen');
@@ -117,7 +206,6 @@ export const requestBackgroundRunning = async () => {
     }
   }
 
-  // 2. Persistent Storage (protects live route cache and offline tracking data)
   if (typeof navigator !== 'undefined' && navigator.storage?.persist) {
     try {
       status.persistentStorage = await navigator.storage.persist();
@@ -140,4 +228,3 @@ export const releaseBackgroundRunning = async () => {
     } catch {}
   }
 };
-

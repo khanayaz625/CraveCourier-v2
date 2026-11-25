@@ -85,4 +85,12 @@ export const ENV = {
   BREVO_SENDER_NAME: process.env.BREVO_SENDER_NAME || 'Crave Courier',
   TWOFACTOR_API_KEY: (process.env.TWOFACTOR_API_KEY || process.env['2FACTOR_API_KEY'] || '').trim(),
   TWOFACTOR_TEMPLATE_NAME: (process.env.TWOFACTOR_TEMPLATE_NAME || '').trim(),
+  APK_LATEST_VERSION: (process.env.APK_LATEST_VERSION || '1.0.1').trim(),
+  APK_VERSION_CODE: parseInt(process.env.APK_VERSION_CODE || '2', 10),
+  APK_DOWNLOAD_URL: (
+    process.env.APK_DOWNLOAD_URL ||
+    'https://github.com/khanayaz625/CraveCourier-v2/releases/latest/download/CraveCourier.apk'
+  ).trim(),
+  APK_RELEASE_NOTES: (process.env.APK_RELEASE_NOTES || 'Bug fixes and performance improvements.').trim(),
+  APK_FORCE_UPDATE: process.env.APK_FORCE_UPDATE === 'true',
 };

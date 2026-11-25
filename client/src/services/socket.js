@@ -70,10 +70,15 @@ export const getSocket = () => {
  */
 export const connectSocket = (token) => {
   if (socket) {
-    if (token) {
+    const prevToken = socket.auth?.token;
+    if (token && prevToken !== token) {
       socket.auth = { token };
-    }
-    if (!socket.connected) {
+      if (socket.connected) {
+        socket.disconnect();
+      }
+      socket.connect();
+    } else if (!socket.connected) {
+      if (token) socket.auth = { token };
       socket.connect();
     }
     return socket;
@@ -84,6 +89,10 @@ export const connectSocket = (token) => {
     withCredentials: true,
     auth: token ? { token } : undefined,
     transports: ['websocket', 'polling'],
+  });
+
+  socket.on('connect', () => {
+    console.log('[SOCKET] Connected to real-time server with ID:', socket.id);
   });
 
   return socket;

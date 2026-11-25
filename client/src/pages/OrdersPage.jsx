@@ -16,6 +16,7 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import api from '../services/api';
+import { getSocket } from '../services/socket';
 import { useCartStore } from '../store/useCartStore';
 import EmptyState from '../components/EmptyState';
 import { OrderCardSkeleton } from '../components/SkeletonLoader';
@@ -32,6 +33,23 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchOrders();
+  }, [activeTab]);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleRealtimeOrderUpdate = () => {
+      fetchOrders();
+    };
+
+    socket.on('order:status_updated', handleRealtimeOrderUpdate);
+    socket.on('notification:new', handleRealtimeOrderUpdate);
+
+    return () => {
+      socket.off('order:status_updated', handleRealtimeOrderUpdate);
+      socket.off('notification:new', handleRealtimeOrderUpdate);
+    };
   }, [activeTab]);
 
   const fetchOrders = async () => {

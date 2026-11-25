@@ -26,3 +26,15 @@ export const getHealthStatus = asyncHandler(async (req, res) => {
   return res.status(httpStatus).json(new ApiResponse(httpStatus, healthData, 'Crave Health Check: Operational'));
 });
 
+export const getAppVersion = asyncHandler(async (req, res) => {
+  const versionData = {
+    latestVersion: ENV.APK_LATEST_VERSION,
+    versionCode: ENV.APK_VERSION_CODE,
+    downloadUrl: ENV.APK_DOWNLOAD_URL,
+    releaseNotes: ENV.APK_RELEASE_NOTES,
+    forceUpdate: ENV.APK_FORCE_UPDATE,
+  };
+
+  return res.status(200).json(new ApiResponse(200, versionData, 'App version fetched successfully'));
+});
+
