@@ -190,7 +190,7 @@ export default function RegisterPage() {
                 />
               </div>
               <p className="mt-1 text-[11px] text-orange-600 dark:text-orange-400 font-medium">
-                📱 6-digit OTP code will be sent to this number via SMS &amp; email
+                ✉️ A 6-digit verification OTP will be sent to your Email (and SMS if provided)
               </p>
             </div>
 

@@ -356,6 +356,28 @@ export async function sendVerificationOtpEmail({ toEmail, toName, otp, expiryMin
 }
 
 /**
+ * Send One-Time Login OTP Email
+ */
+export async function sendLoginOtpEmail({ toEmail, toName, otp, expiryMinutes = 15 }) {
+  const htmlContent = generateOtpEmailHtml({
+    name: toName || 'Customer',
+    otp,
+    type: 'login',
+    expiryMinutes,
+    brandName: 'Crave Courier',
+    supportEmail: ENV.BREVO_SENDER_EMAIL || 'ayaz56465@gmail.com',
+  });
+
+  return await sendBrevoEmail({
+    toEmail,
+    toName,
+    subject: `${otp} is your Crave Courier sign-in code`,
+    htmlContent,
+    textContent: `Hi ${toName || 'there'},\n\nYour 6-digit one-time sign-in code for Crave Courier is: ${otp}\n\nThis code is valid for ${expiryMinutes} minutes. Please do not share it with anyone.`,
+  });
+}
+
+/**
  * Send Password Reset OTP Email
  */
 export async function sendPasswordResetOtpEmail({ toEmail, toName, otp, expiryMinutes = 15 }) {

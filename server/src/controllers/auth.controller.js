@@ -8,6 +8,7 @@ import { DeliveryPartnerProfile } from '../models/DeliveryPartnerProfile.model.j
 import { ENV } from '../config/env.js';
 import {
   sendVerificationOtpEmail,
+  sendLoginOtpEmail,
   sendPasswordResetOtpEmail,
 } from '../services/email.service.js';
 import {
@@ -75,12 +76,15 @@ export const register = asyncHandler(async (req, res) => {
     console.info(`[AUTH] Refreshed OTP for unverified account ${email}: ${verificationOtp}`);
 
     // Dispatch fresh transactional verification email
-    sendVerificationOtpEmail({
+    const refreshEmailRes = await sendVerificationOtpEmail({
       toEmail: existingUser.email,
       toName: existingUser.name,
       otp: verificationOtp,
       expiryMinutes: 15,
-    }).catch((err) => console.error('[AUTH] Failed to send verification email on account refresh:', err));
+    }).catch((err) => {
+      console.error('[AUTH] Failed to send verification email on account refresh:', err);
+      return { success: false };
+    });
 
     // Dispatch fresh SMS OTP via 2Factor.in / SMS Gateway
     if (existingUser.phone || phone) {
@@ -105,9 +109,10 @@ export const register = asyncHandler(async (req, res) => {
             avatar: existingUser.avatar,
           },
           requiresVerification: true,
+          emailSent: Boolean(refreshEmailRes?.success),
           debugOtp: verificationOtp,
         },
-        'A fresh 6-digit verification code has been dispatched via SMS and email.'
+        'A fresh 6-digit verification code has been dispatched to your email.'
       )
     );
   }
@@ -148,12 +153,15 @@ export const register = asyncHandler(async (req, res) => {
   console.info(`[AUTH] Verification OTP for ${email}: ${verificationOtp}`);
 
   // Dispatch live transactional email via Brevo
-  sendVerificationOtpEmail({
+  const emailRes = await sendVerificationOtpEmail({
     toEmail: user.email,
     toName: user.name,
     otp: verificationOtp,
     expiryMinutes: 15,
-  }).catch((err) => console.error(`[AUTH] Failed to send verification email to ${user.email}:`, err));
+  }).catch((err) => {
+    console.error(`[AUTH] Failed to send verification email to ${user.email}:`, err);
+    return { success: false };
+  });
 
   // Dispatch live SMS OTP via 2Factor.in / SMS Gateway
   if (user.phone) {
@@ -178,9 +186,10 @@ export const register = asyncHandler(async (req, res) => {
           avatar: user.avatar,
         },
         requiresVerification: true,
+        emailSent: Boolean(emailRes?.success),
         debugOtp: verificationOtp,
       },
-      'Registration successful. Please verify with the 6-digit code sent to your phone and email.'
+      'Registration successful. Please verify with the 6-digit code sent to your email.'
     )
   );
 });
@@ -553,13 +562,17 @@ export const resendOtp = asyncHandler(async (req, res) => {
   console.info(`[AUTH] Resent Verification OTP for ${user.email || user.phone}: ${newOtp}`);
 
   // Dispatch live transactional email via Brevo
+  let emailRes = { success: false };
   if (user.email) {
-    sendVerificationOtpEmail({
+    emailRes = await sendVerificationOtpEmail({
       toEmail: user.email,
       toName: user.name,
       otp: newOtp,
       expiryMinutes: 15,
-    }).catch((err) => console.error('[AUTH] Failed to resend verification email:', err));
+    }).catch((err) => {
+      console.error('[AUTH] Failed to resend verification email:', err);
+      return { success: false };
+    });
   }
 
   // Dispatch live SMS OTP via 2Factor.in / SMS Gateway
@@ -574,8 +587,11 @@ export const resendOtp = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      { debugOtp: newOtp },
-      'A fresh 6-digit verification code has been dispatched via SMS and email.'
+      {
+        emailSent: Boolean(emailRes?.success),
+        debugOtp: newOtp,
+      },
+      'A fresh 6-digit verification code has been dispatched to your email.'
     )
   );
 });
@@ -625,7 +641,10 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      {},
+      {
+        emailSent: Boolean(emailDispatch?.success),
+        debugOtp: ENV.NODE_ENV !== 'production' ? resetOtp : undefined,
+      },
       'If an account exists with that email, a password reset code has been sent.'
     )
   );
@@ -953,6 +972,126 @@ export const toggle2FA = asyncHandler(async (req, res) => {
       user.twoFactorEnabled
         ? `Two-Factor Mobile Authentication is now ACTIVE. Every sign in will require an SMS code sent to ${maskPhoneNumber(user.phone)}.`
         : 'Two-Factor Mobile Authentication has been deactivated.'
+    )
+  );
+});
+
+/**
+ * @desc   Send 6-digit Email OTP for Passwordless / Session-Expired Login
+ * @route  POST /api/auth/email/send-otp
+ */
+export const sendEmailLoginOtp = asyncHandler(async (req, res) => {
+  const { email, role } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError(404, 'No account found with this email address. Please sign up first.');
+  }
+
+  if (!user.isActive) {
+    throw new ApiError(403, 'Your account is deactivated. Please contact support.');
+  }
+
+  if (user.role === 'admin' && !role) {
+    throw new ApiError(403, 'Administrators must log in via the dedicated /admin/login portal.');
+  }
+
+  if (role && user.role !== role) {
+    throw new ApiError(
+      403,
+      `This account is registered as a ${user.role}. Please log in under the ${user.role} tab.`
+    );
+  }
+
+  const otp = generateOTP();
+  user.loginOtp = otp;
+  user.loginOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
+  await user.save({ validateBeforeSave: false });
+
+  console.info(`[AUTH] Email Login OTP for ${user.email}: ${otp}`);
+
+  const emailRes = await sendLoginOtpEmail({
+    toEmail: user.email,
+    toName: user.name,
+    otp,
+    expiryMinutes: 15,
+  }).catch((err) => {
+    console.error(`[AUTH] Failed to send login OTP email to ${user.email}:`, err);
+    return { success: false, error: err.message };
+  });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        email: user.email,
+        emailSent: Boolean(emailRes?.success),
+        debugOtp: ENV.NODE_ENV !== 'production' ? otp : undefined,
+      },
+      emailRes?.success
+        ? `6-digit sign-in OTP sent to ${user.email}`
+        : `6-digit sign-in OTP generated for ${user.email}.`
+    )
+  );
+});
+
+/**
+ * @desc   Verify 6-digit Email OTP and issue session tokens
+ * @route  POST /api/auth/email/verify-otp
+ */
+export const verifyEmailLoginOtp = asyncHandler(async (req, res) => {
+  const { email, otp, role } = req.body;
+
+  const user = await User.findOne({ email }).select('+loginOtp +loginOtpExpires');
+  if (!user) {
+    throw new ApiError(404, 'No account found with this email address.');
+  }
+
+  if (!user.isActive) {
+    throw new ApiError(403, 'Your account is deactivated. Please contact support.');
+  }
+
+  if (role && user.role !== role) {
+    throw new ApiError(
+      403,
+      `This account is registered as a ${user.role}. Please log in under the ${user.role} tab.`
+    );
+  }
+
+  if (!user.loginOtp || user.loginOtp !== otp) {
+    throw new ApiError(400, 'Invalid 6-digit email OTP code. Please check your inbox and try again.');
+  }
+
+  if (!user.loginOtpExpires || new Date() > user.loginOtpExpires) {
+    throw new ApiError(400, 'Email OTP code has expired. Please request a new code.');
+  }
+
+  // Email ownership verified; clear temporary login OTP
+  user.isEmailVerified = true;
+  user.loginOtp = undefined;
+  user.loginOtpExpires = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  const { accessToken, refreshToken } = await generateTokens(user._id);
+  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          isEmailVerified: true,
+          twoFactorEnabled: user.twoFactorEnabled,
+          avatar: user.avatar,
+        },
+        accessToken,
+      },
+      'Logged in successfully via Email OTP'
     )
   );
 });

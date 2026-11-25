@@ -30,16 +30,30 @@ export const useAuthStore = create((set, get) => ({
   isLoading: false,
   error: null,
   authModalOpen: false,
+  sessionExpired: false,
+  expiredEmail: '',
 
   openAuthModal: () => set({ authModalOpen: true }),
   closeAuthModal: () => set({ authModalOpen: false }),
+  clearSessionExpired: () => set({ sessionExpired: false, expiredEmail: '' }),
 
   clearError: () => set({ error: null }),
 
   /**
    * Local state reset for logout or token expiry
    */
-  logoutLocally: () => {
+  logoutLocally: (isExpired = false) => {
+    const prevEmail =
+      get().user?.email ||
+      (() => {
+        try {
+          const raw = typeof window !== 'undefined' ? localStorage.getItem('crave_auth_user') : null;
+          return raw ? JSON.parse(raw)?.email || '' : '';
+        } catch {
+          return '';
+        }
+      })();
+
     setAccessToken(null);
     if (typeof window !== 'undefined') {
       localStorage.removeItem('crave_auth_token');
@@ -51,6 +65,8 @@ export const useAuthStore = create((set, get) => ({
       isAuthenticated: false,
       isAuthInitialized: true,
       error: null,
+      sessionExpired: Boolean(isExpired),
+      expiredEmail: isExpired ? prevEmail : '',
     });
   },
 
@@ -79,7 +95,7 @@ export const useAuthStore = create((set, get) => ({
       } catch (err) {
         // Only clear session if token is truly invalid/expired (401)
         if (err.statusCode === 401 || err.response?.status === 401) {
-          get().logoutLocally();
+          get().logoutLocally(true);
         } else {
           // On transient network error, keep offline session
           set({ isAuthInitialized: true, isLoading: false });
@@ -409,6 +425,53 @@ export const useAuthStore = create((set, get) => ({
         isAuthenticated: true,
         isAuthInitialized: true,
         isLoading: false,
+      });
+      useCartStore.getState().syncGuestCart();
+      useCartStore.getState().fetchCart();
+      return user;
+    } catch (err) {
+      set({ error: err.message, isLoading: false });
+      throw err;
+    }
+  },
+
+  /**
+   * Email OTP Login - Dispatch 6-digit Login OTP to Email
+   */
+  sendEmailOtp: async (email, role = 'customer') => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await api.post('/auth/email/send-otp', { email, role });
+      set({ isLoading: false });
+      return res.data;
+    } catch (err) {
+      set({ error: err.message, isLoading: false });
+      throw err;
+    }
+  },
+
+  /**
+   * Email OTP Login - Verify 6-digit Code & Login
+   */
+  verifyEmailOtp: async (email, otp, role = 'customer') => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await api.post('/auth/email/verify-otp', { email, otp, role });
+      const { user, accessToken } = res.data;
+
+      setAccessToken(accessToken);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('crave_auth_token', accessToken);
+        localStorage.setItem('crave_auth_user', JSON.stringify(user));
+      }
+      set({
+        user,
+        accessToken,
+        isAuthenticated: true,
+        isAuthInitialized: true,
+        isLoading: false,
+        sessionExpired: false,
+        expiredEmail: '',
       });
       useCartStore.getState().syncGuestCart();
       useCartStore.getState().fetchCart();

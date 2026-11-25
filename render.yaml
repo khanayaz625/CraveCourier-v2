@@ -31,6 +31,12 @@ services:
         sync: false
       - key: STRIPE_CURRENCY
         value: usd
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_SENDER_EMAIL
+        sync: false
+      - key: BREVO_SENDER_NAME
+        value: Crave Courier
 
   # 2. Crave PWA Frontend (Render Static Site)
   - type: web

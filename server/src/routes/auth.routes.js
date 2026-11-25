@@ -14,6 +14,8 @@ import {
   resend2FA,
   sendMobileOtp,
   verifyMobileOtp,
+  sendEmailLoginOtp,
+  verifyEmailLoginOtp,
   toggle2FA,
 } from '../controllers/auth.controller.js';
 import { protect } from '../middlewares/auth.middleware.js';
@@ -30,6 +32,8 @@ import {
   resend2FASchema,
   sendMobileOtpSchema,
   verifyMobileOtpSchema,
+  sendEmailOtpSchema,
+  verifyEmailOtpSchema,
   toggle2FASchema,
 } from '../validations/auth.validation.js';
 
@@ -56,6 +60,10 @@ router.post('/toggle-2fa', protect, validate(toggle2FASchema), toggle2FA);
 // Fast 1-Tap Mobile OTP Endpoints (Phone Login)
 router.post('/mobile/send-otp', validate(sendMobileOtpSchema), sendMobileOtp);
 router.post('/mobile/verify-otp', validate(verifyMobileOtpSchema), verifyMobileOtp);
+
+// Email OTP Login Endpoints (Passwordless & Session-Expired Re-Login)
+router.post('/email/send-otp', validate(sendEmailOtpSchema), sendEmailLoginOtp);
+router.post('/email/verify-otp', validate(verifyEmailOtpSchema), verifyEmailLoginOtp);
 
 // Protected User State
 router.get('/me', protect, getMe);

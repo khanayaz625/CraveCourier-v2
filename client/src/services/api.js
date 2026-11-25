@@ -154,6 +154,18 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         setAccessToken(null);
         if (typeof window !== 'undefined') {
+          try {
+            const rawUser = localStorage.getItem('crave_auth_user');
+            const parsedUser = rawUser ? JSON.parse(rawUser) : null;
+            if (parsedUser?.email) {
+              sessionStorage.setItem('crave_expired_email', parsedUser.email);
+            }
+            if (rawUser || localStorage.getItem('crave_auth_token')) {
+              sessionStorage.setItem('crave_session_expired', '1');
+            }
+          } catch {
+            // ignore storage parse error
+          }
           localStorage.removeItem('crave_auth_token');
           localStorage.removeItem('crave_auth_user');
         }

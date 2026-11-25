@@ -8,12 +8,21 @@ import { useHoldToAdmin } from '../hooks/useHoldToAdmin';
 
 export default function LoginPage() {
   const [role, setRole] = useState('customer'); // 'customer' | 'delivery'
-  const [authMethod, setAuthMethod] = useState('password'); // 'password' | 'mobile'
+  const [authMethod, setAuthMethod] = useState('password'); // 'email-otp' | 'password' | 'mobile'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState('');
   const [unverifiedState, setUnverifiedState] = useState(null); // { email, role, message }
+  const [sessionExpiredBanner, setSessionExpiredBanner] = useState(false);
+
+  // Email OTP Login states
+  const [otpEmail, setOtpEmail] = useState('');
+  const [emailOtpCode, setEmailOtpCode] = useState('');
+  const [emailOtpStep, setEmailOtpStep] = useState(1); // 1 = Email, 2 = OTP
+  const [emailOtpSending, setEmailOtpSending] = useState(false);
+  const [emailDebugOtp, setEmailDebugOtp] = useState(null);
+  const [emailSuccessMsg, setEmailSuccessMsg] = useState('');
 
   // 2FA Mobile OTP states
   const [twoFactorChallenge, setTwoFactorChallenge] = useState(null);
@@ -32,12 +41,17 @@ export default function LoginPage() {
     login,
     sendMobileOtp,
     verifyMobileOtp,
+    sendEmailOtp,
+    verifyEmailOtp,
     isLoading,
     error: storeError,
     clearError,
     isAuthenticated,
     user,
     isAuthInitialized,
+    sessionExpired,
+    expiredEmail,
+    clearSessionExpired,
   } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,6 +69,29 @@ export default function LoginPage() {
       }
     }
   }, [isAuthenticated, user, navigate, from]);
+
+  // If previous login session expired, automatically guide user to Email OTP login
+  useEffect(() => {
+    const storedExpired =
+      typeof window !== 'undefined' && sessionStorage.getItem('crave_session_expired') === '1';
+    const storedEmail =
+      (typeof window !== 'undefined' && sessionStorage.getItem('crave_expired_email')) || '';
+
+    if (sessionExpired || storedExpired) {
+      setSessionExpiredBanner(true);
+      setAuthMethod('email-otp');
+      const targetEmail = expiredEmail || storedEmail;
+      if (targetEmail) {
+        setOtpEmail(targetEmail);
+        setEmail(targetEmail);
+      }
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('crave_session_expired');
+        sessionStorage.removeItem('crave_expired_email');
+      }
+      clearSessionExpired();
+    }
+  }, [sessionExpired, expiredEmail, clearSessionExpired]);
 
   // While session is being checked on initial boot, prevent flash of login form
   if (!isAuthInitialized) {
@@ -109,6 +146,51 @@ export default function LoginPage() {
       } else {
         setLocalError(err.message || 'Login failed. Please check your credentials.');
       }
+    }
+  };
+
+  // Email OTP Login Handlers
+  const handleSendEmailOtp = async (e) => {
+    if (e) e.preventDefault();
+    const cleanEmail = otpEmail.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setLocalError('Please enter a valid email address.');
+      return;
+    }
+
+    setLocalError('');
+    setEmailSuccessMsg('');
+    setEmailOtpSending(true);
+    try {
+      const res = await sendEmailOtp(cleanEmail, role);
+      setEmailOtpStep(2);
+      setEmailSuccessMsg(`6-digit OTP sent to ${cleanEmail}. Please check your Inbox or Spam folder.`);
+      if (res?.debugOtp) {
+        setEmailDebugOtp(res.debugOtp);
+      }
+    } catch (err) {
+      setLocalError(err.message || 'Failed to send Email OTP. Please try again.');
+    } finally {
+      setEmailOtpSending(false);
+    }
+  };
+
+  const handleVerifyEmailOtp = async (e) => {
+    e.preventDefault();
+    if (!emailOtpCode || emailOtpCode.trim().length !== 6) {
+      setLocalError('Please enter the 6-digit OTP received in your email.');
+      return;
+    }
+
+    setLocalError('');
+    setEmailOtpSending(true);
+    try {
+      const loggedUser = await verifyEmailOtp(otpEmail.trim().toLowerCase(), emailOtpCode.trim(), role);
+      handleLoginSuccess(loggedUser);
+    } catch (err) {
+      setLocalError(err.message || 'Invalid or expired Email OTP.');
+    } finally {
+      setEmailOtpSending(false);
     }
   };
 
@@ -295,6 +377,21 @@ export default function LoginPage() {
             </div>
           )}
 
+          {/* Session Expired Notice Banner */}
+          {sessionExpiredBanner && (
+            <div className="mb-5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200 dark:border-amber-800/60 p-3.5 flex items-start gap-2.5 animate-pop">
+              <Sparkles className="h-4 w-4 text-brand-500 flex-shrink-0 mt-0.5" />
+              <div className="text-xs">
+                <p className="font-bold text-amber-950 dark:text-amber-200">
+                  Login Session Expired
+                </p>
+                <p className="text-[11px] text-amber-800 dark:text-amber-300 mt-0.5">
+                  Sign back in instantly using a 6-digit <strong>Email OTP</strong> sent to your inbox.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Standard Error Display */}
           {(localError || storeError) && !unverifiedState && (
             <div className="mb-5 rounded-2xl bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/50 p-3.5 flex items-start space-x-2.5">
@@ -305,22 +402,37 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Auth Method Tabs: Password & 2FA vs 1-Tap Mobile OTP */}
-          <div className="mb-5 flex rounded-2xl bg-neutral-100/80 dark:bg-slate-800 p-1 border border-neutral-200/60 dark:border-slate-700/80">
+          {/* Auth Method Tabs: Password & 2FA vs Email OTP vs Mobile OTP */}
+          <div className="mb-5 grid grid-cols-3 rounded-2xl bg-neutral-100/80 dark:bg-slate-800 p-1 border border-neutral-200/60 dark:border-slate-700/80 gap-1">
             <button
               type="button"
               onClick={() => {
                 setAuthMethod('password');
                 setLocalError('');
               }}
-              className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+              className={`py-2 px-1 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 ${
                 authMethod === 'password'
                   ? 'bg-white dark:bg-slate-700 text-neutral-900 dark:text-white shadow-xs'
                   : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
               }`}
             >
-              <KeyRound className="h-3.5 w-3.5" />
-              <span>Password & 2FA</span>
+              <KeyRound className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="truncate">Password</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMethod('email-otp');
+                setLocalError('');
+              }}
+              className={`py-2 px-1 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                authMethod === 'email-otp'
+                  ? 'bg-gradient-to-r from-[#FF541E] to-[#FF7A00] text-white shadow-xs'
+                  : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
+              }`}
+            >
+              <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="truncate">Email OTP</span>
             </button>
             <button
               type="button"
@@ -328,18 +440,147 @@ export default function LoginPage() {
                 setAuthMethod('mobile');
                 setLocalError('');
               }}
-              className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+              className={`py-2 px-1 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 ${
                 authMethod === 'mobile'
                   ? 'bg-gradient-to-r from-brand-500 to-orange-500 text-white shadow-xs'
                   : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
               }`}
             >
-              <Smartphone className="h-3.5 w-3.5" />
-              <span>Mobile OTP</span>
+              <Smartphone className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="truncate">Mobile OTP</span>
             </button>
           </div>
 
-          {authMethod === 'password' ? (
+          {authMethod === 'email-otp' ? (
+            /* Email OTP Passwordless Login Form */
+            <div className="space-y-4">
+              {emailSuccessMsg && (
+                <div className="rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/50 p-3 flex items-start space-x-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-emerald-700 dark:text-emerald-300 font-medium leading-relaxed">
+                    {emailSuccessMsg}
+                  </p>
+                </div>
+              )}
+
+              {emailOtpStep === 1 ? (
+                <form onSubmit={handleSendEmailOtp} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-200 mb-1.5">
+                      Registered Email Address
+                    </label>
+                    <div className="relative rounded-2xl shadow-xs">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400 dark:text-neutral-500">
+                        <Mail className="h-4 w-4" />
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        value={otpEmail}
+                        onChange={(e) => setOtpEmail(e.target.value)}
+                        placeholder="name@example.com"
+                        className="block w-full pl-10 pr-3.5 py-3 text-xs sm:text-sm border border-neutral-200 dark:border-slate-700 rounded-2xl bg-neutral-50/70 dark:bg-slate-800/60 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#FF541E] focus:border-transparent transition-all"
+                      />
+                    </div>
+                    <p className="text-[11px] text-neutral-400 mt-1">
+                      We'll send a 6-digit one-time sign-in code to your email inbox.
+                    </p>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={emailOtpSending || !otpEmail.trim()}
+                    className="w-full relative mt-2 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-[#FF541E] via-[#FF6B35] to-[#FF7A00] hover:from-[#E03E00] hover:to-[#F56E00] shadow-lg shadow-orange-500/30 transition-all duration-200 disabled:opacity-60 active:scale-[0.99]"
+                  >
+                    {emailOtpSending ? (
+                      <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <>
+                        <span>Send 6-Digit Email OTP</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyEmailOtp} className="space-y-4">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-orange-50 dark:bg-slate-800 border border-orange-200/60 dark:border-slate-700 text-xs">
+                    <span className="font-bold text-neutral-800 dark:text-slate-200 truncate">
+                      Code sent to {otpEmail}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailOtpStep(1);
+                        setEmailSuccessMsg('');
+                      }}
+                      className="text-[#FF541E] font-bold hover:underline ml-2 flex-shrink-0"
+                    >
+                      Change
+                    </button>
+                  </div>
+
+                  {emailDebugOtp && (
+                    <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-between text-xs">
+                      <span className="text-amber-800 dark:text-amber-300 font-medium">
+                        Code: <strong className="font-mono">{emailDebugOtp}</strong>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setEmailOtpCode(emailDebugOtp)}
+                        className="px-2 py-1 rounded bg-amber-500 text-white font-bold text-[10px]"
+                      >
+                        Fill Code
+                      </button>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-200 mb-1.5">
+                      Enter 6-Digit Email Code
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      required
+                      value={emailOtpCode}
+                      onChange={(e) => setEmailOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="••••••"
+                      maxLength={6}
+                      className="block w-full py-3 text-center text-xl font-mono font-black tracking-widest border border-neutral-200 dark:border-slate-700 rounded-2xl bg-neutral-50/70 dark:bg-slate-800/60 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#FF541E] focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={emailOtpSending || emailOtpCode.length !== 6}
+                    className="w-full relative mt-2 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-[#FF541E] via-[#FF6B35] to-[#FF7A00] hover:from-[#E03E00] hover:to-[#F56E00] shadow-lg shadow-orange-500/30 transition-all duration-200 disabled:opacity-60 active:scale-[0.99]"
+                  >
+                    {emailOtpSending ? (
+                      <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <>
+                        <span>Verify &amp; Sign In</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </button>
+
+                  <div className="text-center pt-1">
+                    <button
+                      type="button"
+                      onClick={() => handleSendEmailOtp()}
+                      disabled={emailOtpSending}
+                      className="text-xs font-bold text-neutral-500 dark:text-neutral-400 hover:text-brand-500 inline-flex items-center gap-1"
+                    >
+                      <RotateCw className="h-3.5 w-3.5" />
+                      <span>Resend Email OTP</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          ) : authMethod === 'password' ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Field */}
               <div>

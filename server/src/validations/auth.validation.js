@@ -138,3 +138,26 @@ export const toggle2FASchema = z.object({
   phone: z.string().trim().regex(/^[+0-9\s-]{10,15}$/, 'Please enter a valid phone number').optional(),
 });
 
+// Email OTP Login Schemas
+export const sendEmailOtpSchema = z.object({
+  email: z
+    .string({ required_error: 'Email address is required' })
+    .trim()
+    .toLowerCase()
+    .email('Please enter a valid email address'),
+  role: z.enum(['customer', 'delivery']).optional().default('customer'),
+});
+
+export const verifyEmailOtpSchema = z.object({
+  email: z
+    .string({ required_error: 'Email address is required' })
+    .trim()
+    .toLowerCase()
+    .email('Please enter a valid email address'),
+  otp: z
+    .string({ required_error: '6-digit OTP code is required' })
+    .trim()
+    .length(6, 'OTP must be exactly 6 digits'),
+  role: z.enum(['customer', 'delivery']).optional().default('customer'),
+});
+
