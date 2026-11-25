@@ -44,7 +44,22 @@ export const getAddresses = asyncHandler(async (req, res) => {
  * @access Private
  */
 export const addAddress = asyncHandler(async (req, res) => {
-  const { label, street, city, state, pincode, landmark, phone, coordinates, isDefault } = req.body;
+  const {
+    label,
+    recipientName,
+    houseFloor,
+    apartmentArea,
+    street,
+    city,
+    state,
+    pincode,
+    landmark,
+    phone,
+    alternatePhone,
+    deliveryInstructions,
+    coordinates,
+    isDefault,
+  } = req.body;
 
   if (!street || !city || !state || !pincode) {
     throw new ApiError(400, 'Street, city, state, and pincode are required');
@@ -69,12 +84,17 @@ export const addAddress = asyncHandler(async (req, res) => {
 
   const newAddress = {
     label: label || 'Home',
+    recipientName: recipientName || user.name || '',
+    houseFloor: houseFloor || '',
+    apartmentArea: apartmentArea || '',
     street,
     city,
     state,
     pincode,
     landmark: landmark || '',
     phone: phone || user.phone || '',
+    alternatePhone: alternatePhone || '',
+    deliveryInstructions: deliveryInstructions || '',
     coordinates: {
       type: 'Point',
       coordinates: validCoords,
@@ -88,6 +108,74 @@ export const addAddress = asyncHandler(async (req, res) => {
   return res
     .status(201)
     .json(new ApiResponse(201, user.addresses, 'Address added to your address book'));
+});
+
+/**
+ * @desc   Update an existing address in address book
+ * @route  PUT /api/users/addresses/:addressId
+ * @access Private
+ */
+export const updateAddress = asyncHandler(async (req, res) => {
+  const { addressId } = req.params;
+  const {
+    label,
+    recipientName,
+    houseFloor,
+    apartmentArea,
+    street,
+    city,
+    state,
+    pincode,
+    landmark,
+    phone,
+    alternatePhone,
+    deliveryInstructions,
+    coordinates,
+    isDefault,
+  } = req.body;
+
+  if (!street || !city || !state || !pincode) {
+    throw new ApiError(400, 'Street, city, state, and pincode are required');
+  }
+
+  const user = await User.findById(req.user._id);
+  const existing = user.addresses.id(addressId);
+  if (!existing) {
+    throw new ApiError(404, 'Address not found');
+  }
+
+  if (isDefault) {
+    user.addresses.forEach((addr) => {
+      addr.isDefault = false;
+    });
+    existing.isDefault = true;
+  }
+
+  existing.label = label || existing.label || 'Home';
+  existing.recipientName = recipientName ?? existing.recipientName ?? user.name ?? '';
+  existing.houseFloor = houseFloor ?? '';
+  existing.apartmentArea = apartmentArea ?? '';
+  existing.street = street;
+  existing.city = city;
+  existing.state = state;
+  existing.pincode = pincode;
+  existing.landmark = landmark ?? '';
+  existing.phone = phone ?? existing.phone ?? user.phone ?? '';
+  existing.alternatePhone = alternatePhone ?? '';
+  existing.deliveryInstructions = deliveryInstructions ?? '';
+
+  if (Array.isArray(coordinates) && coordinates.length === 2) {
+    existing.coordinates = {
+      type: 'Point',
+      coordinates: [parseFloat(coordinates[0]), parseFloat(coordinates[1])],
+    };
+  }
+
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user.addresses, 'Address updated successfully'));
 });
 
 /**

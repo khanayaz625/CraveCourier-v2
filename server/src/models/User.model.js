@@ -10,12 +10,17 @@ const addressSchema = new mongoose.Schema(
       enum: ['Home', 'Work', 'Other'],
       default: 'Home',
     },
+    recipientName: { type: String, trim: true },
+    houseFloor: { type: String, trim: true },
+    apartmentArea: { type: String, trim: true },
     street: { type: String, required: true, trim: true },
     city: { type: String, required: true, trim: true },
     state: { type: String, required: true, trim: true },
     pincode: { type: String, required: true, trim: true },
     landmark: { type: String, trim: true },
     phone: { type: String, trim: true },
+    alternatePhone: { type: String, trim: true },
+    deliveryInstructions: { type: String, trim: true },
     coordinates: {
       type: {
         type: String,

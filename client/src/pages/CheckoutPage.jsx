@@ -32,6 +32,7 @@ export default function CheckoutPage() {
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [editingAddress, setEditingAddress] = useState(false);
+  const [editingAddressData, setEditingAddressData] = useState(null);
   const [showAddAddressModal, setShowAddAddressModal] = useState(false);
   const [deliveryRadiusInfo, setDeliveryRadiusInfo] = useState(null);
 
@@ -128,25 +129,30 @@ export default function CheckoutPage() {
     checkRadius(coords);
   };
 
-  const handleAddNewAddressSubmit = async (addressData) => {
+  const handleAddNewAddressSubmit = async (addressData, addressId = null) => {
     try {
-      const res = await api.post('/users/addresses', addressData);
+      const res = addressId
+        ? await api.put(`/users/addresses/${addressId}`, addressData)
+        : await api.post('/users/addresses', addressData);
       const updatedList = res.data || [];
       setAddresses(updatedList);
-      const added = updatedList[updatedList.length - 1];
-      if (added) {
-        setSelectedAddressId(added._id);
+      const target = addressId
+        ? updatedList.find((a) => a._id === addressId) || updatedList[updatedList.length - 1]
+        : updatedList[updatedList.length - 1];
+      if (target) {
+        setSelectedAddressId(target._id);
         const coords =
-          added.coordinates?.coordinates &&
-          (added.coordinates.coordinates[0] !== 0 || added.coordinates.coordinates[1] !== 0)
-            ? added.coordinates.coordinates
+          target.coordinates?.coordinates &&
+          (target.coordinates.coordinates[0] !== 0 || target.coordinates.coordinates[1] !== 0)
+            ? target.coordinates.coordinates
             : addressData.coordinates;
         checkRadius(coords);
       }
       setShowAddAddressModal(false);
+      setEditingAddressData(null);
       setEditingAddress(false);
     } catch (err) {
-      alert(err.message || 'Failed to add address');
+      alert(err.message || 'Failed to save address');
     }
   };
 
@@ -416,15 +422,28 @@ export default function CheckoutPage() {
 
           {selectedAddress ? (
             <div className="text-xs text-neutral-600 dark:text-slate-300 space-y-0.5 leading-relaxed">
+              {selectedAddress.recipientName && (
+                <p className="font-bold text-neutral-900 dark:text-slate-100">
+                  {selectedAddress.recipientName} ({selectedAddress.label || 'Home'})
+                </p>
+              )}
               <p className="font-semibold text-neutral-800 dark:text-slate-200">
-                {selectedAddress.street}
+                {[selectedAddress.houseFloor, selectedAddress.apartmentArea, selectedAddress.street]
+                  .filter(Boolean)
+                  .join(', ')}
               </p>
               <p>
                 {selectedAddress.city}, {selectedAddress.state} {selectedAddress.pincode}
               </p>
+              {selectedAddress.landmark && (
+                <p className="text-[11px] text-neutral-400 dark:text-slate-500">
+                  Landmark: {selectedAddress.landmark}
+                </p>
+              )}
               {selectedAddress.phone && (
                 <p className="pt-0.5 text-neutral-500 dark:text-slate-400">
                   Phone : {selectedAddress.phone}
+                  {selectedAddress.alternatePhone ? ` / ${selectedAddress.alternatePhone}` : ''}
                 </p>
               )}
               {deliveryRadiusInfo && (
@@ -446,7 +465,10 @@ export default function CheckoutPage() {
           ) : (
             <button
               type="button"
-              onClick={() => setShowAddAddressModal(true)}
+              onClick={() => {
+                setEditingAddressData(null);
+                setShowAddAddressModal(true);
+              }}
               className="w-full py-3 rounded-2xl border border-dashed border-brand-300 dark:border-brand-800 text-xs font-bold text-brand-600 dark:text-brand-400 flex items-center justify-center gap-1.5 hover:bg-brand-50/50 dark:hover:bg-brand-950/30 transition-colors"
             >
               <Plus className="h-4 w-4" />
@@ -460,32 +482,50 @@ export default function CheckoutPage() {
               {addresses.map((addr) => {
                 const isSelected = addr._id === selectedAddressId;
                 return (
-                  <button
+                  <div
                     key={addr._id}
-                    type="button"
-                    onClick={() => handleSelectAddress(addr)}
-                    className={`w-full text-left p-3 rounded-2xl border text-xs transition-all flex items-center justify-between ${
+                    className={`w-full p-3 rounded-2xl border text-xs transition-all flex items-center justify-between gap-2 ${
                       isSelected
                         ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-950/30'
                         : 'border-neutral-200 dark:border-slate-700 hover:bg-neutral-50 dark:hover:bg-slate-800/50'
                     }`}
                   >
-                    <div className="min-w-0 pr-2">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectAddress(addr)}
+                      className="min-w-0 flex-1 text-left"
+                    >
                       <span className="font-bold text-neutral-900 dark:text-slate-100 block">
-                        {addr.label} &bull; {addr.street}
+                        {addr.label} &bull; {[addr.houseFloor, addr.apartmentArea, addr.street].filter(Boolean).join(', ')}
                       </span>
                       <span className="text-[11px] text-neutral-500 dark:text-slate-400 truncate block">
                         {addr.city}, {addr.pincode}
                       </span>
+                    </button>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingAddressData(addr);
+                          setShowAddAddressModal(true);
+                        }}
+                        className="p-1.5 rounded-lg text-neutral-400 hover:text-brand-500 hover:bg-white dark:hover:bg-slate-800 transition-colors"
+                        title="Update this address"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      {isSelected && <CheckCircle2 className="h-4 w-4 text-brand-500" />}
                     </div>
-                    {isSelected && <CheckCircle2 className="h-4 w-4 text-brand-500 flex-shrink-0" />}
-                  </button>
+                  </div>
                 );
               })}
 
               <button
                 type="button"
-                onClick={() => setShowAddAddressModal(true)}
+                onClick={() => {
+                  setEditingAddressData(null);
+                  setShowAddAddressModal(true);
+                }}
                 className="w-full py-2.5 rounded-2xl bg-neutral-100 dark:bg-slate-800 text-xs font-bold text-brand-600 dark:text-brand-400 flex items-center justify-center gap-1.5 hover:bg-neutral-200 dark:hover:bg-slate-700 transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -827,9 +867,14 @@ export default function CheckoutPage() {
 
       <LocationPickerModal
         isOpen={showAddAddressModal}
-        onClose={() => setShowAddAddressModal(false)}
+        onClose={() => {
+          setShowAddAddressModal(false);
+          setEditingAddressData(null);
+        }}
         onSaveAddress={handleAddNewAddressSubmit}
         userPhone={user?.phone || ''}
+        userName={user?.name || ''}
+        initialAddress={editingAddressData}
       />
     </div>
   );

@@ -7,23 +7,18 @@ import {
   Check,
   AlertCircle,
   Loader2,
-  ExternalLink,
   ShieldCheck,
-  Zap,
 } from 'lucide-react';
 
 // Pizza 65 & Crave Central Hub Coordinates (Imli Ke Pass, Main Road, Chirgaon)
 const HUB_COORDINATES = [78.8228, 25.5746]; // [lng, lat]
 
-/**
- * Calculates Haversine distance in kilometers between two [lng, lat] coordinate points
- */
 function calculateDistanceKm(coords1, coords2) {
   if (!coords1 || !coords2) return 0;
   const [lon1, lat1] = coords1;
   const [lon2, lat2] = coords2;
 
-  const R = 6371; // Earth's radius in km
+  const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -41,14 +36,24 @@ export default function LocationPickerModal({
   onClose,
   onSaveAddress,
   userPhone = '',
+  userName = '',
+  initialAddress = null,
 }) {
+  const isEditMode = Boolean(initialAddress?._id);
+
   const [label, setLabel] = useState('Home');
+  const [recipientName, setRecipientName] = useState(userName || '');
+  const [houseFloor, setHouseFloor] = useState('');
+  const [apartmentArea, setApartmentArea] = useState('');
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('Chirgaon');
   const [state, setState] = useState('Uttar Pradesh');
   const [pincode, setPincode] = useState('284301');
   const [landmark, setLandmark] = useState('');
   const [phone, setPhone] = useState(userPhone || '');
+  const [alternatePhone, setAlternatePhone] = useState('');
+  const [deliveryInstructions, setDeliveryInstructions] = useState('');
+  const [isDefault, setIsDefault] = useState(false);
   const [coordinates, setCoordinates] = useState([78.8235, 25.5752]); // [lng, lat]
 
   const [detectingLocation, setDetectingLocation] = useState(false);
@@ -56,11 +61,53 @@ export default function LocationPickerModal({
   const [detectionSuccess, setDetectionSuccess] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  // Distance from restaurant hub in km
+  // Sync form state whenever modal opens or initialAddress changes
+  useEffect(() => {
+    if (!isOpen) return;
+    setDetectionError('');
+    setDetectionSuccess('');
+
+    if (initialAddress) {
+      setLabel(initialAddress.label || 'Home');
+      setRecipientName(initialAddress.recipientName || userName || '');
+      setHouseFloor(initialAddress.houseFloor || '');
+      setApartmentArea(initialAddress.apartmentArea || '');
+      setStreet(initialAddress.street || '');
+      setCity(initialAddress.city || 'Chirgaon');
+      setState(initialAddress.state || 'Uttar Pradesh');
+      setPincode(initialAddress.pincode || '284301');
+      setLandmark(initialAddress.landmark || '');
+      setPhone(initialAddress.phone || userPhone || '');
+      setAlternatePhone(initialAddress.alternatePhone || '');
+      setDeliveryInstructions(initialAddress.deliveryInstructions || '');
+      setIsDefault(Boolean(initialAddress.isDefault));
+      const coords = initialAddress.coordinates?.coordinates;
+      if (Array.isArray(coords) && coords.length === 2 && (coords[0] !== 0 || coords[1] !== 0)) {
+        setCoordinates(coords);
+      } else {
+        setCoordinates([78.8235, 25.5752]);
+      }
+    } else {
+      setLabel('Home');
+      setRecipientName(userName || '');
+      setHouseFloor('');
+      setApartmentArea('');
+      setStreet('');
+      setCity('Chirgaon');
+      setState('Uttar Pradesh');
+      setPincode('284301');
+      setLandmark('');
+      setPhone(userPhone || '');
+      setAlternatePhone('');
+      setDeliveryInstructions('');
+      setIsDefault(false);
+      setCoordinates([78.8235, 25.5752]);
+    }
+  }, [isOpen, initialAddress, userName, userPhone]);
+
   const distanceKm = calculateDistanceKm(coordinates, HUB_COORDINATES);
   const isFreeDelivery = distanceKm <= 1.0;
 
-  // Auto-Detect Location using Native Browser Geolocation + Reverse Geocoding
   const handleAutoDetectLocation = () => {
     setDetectionError('');
     setDetectionSuccess('');
@@ -79,26 +126,24 @@ export default function LocationPickerModal({
         setCoordinates(newCoords);
 
         try {
-          // Live reverse geocode to fetch real human-readable street address
           const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
           const response = await fetch(url, {
-            headers: {
-              'User-Agent': 'CraveCourierDelivery/2.0',
-            },
+            headers: { 'User-Agent': 'CraveCourierDelivery/2.0' },
           });
 
           if (response.ok) {
             const data = await response.json();
             const addr = data.address || {};
 
-            const detectedStreet = [
-              addr.house_number,
-              addr.building,
-              addr.road || addr.street || addr.neighbourhood || addr.suburb,
-            ]
+            if (addr.house_number || addr.building) {
+              setHouseFloor([addr.house_number, addr.building].filter(Boolean).join(', '));
+            }
+            if (addr.neighbourhood || addr.suburb || addr.residential) {
+              setApartmentArea(addr.neighbourhood || addr.suburb || addr.residential);
+            }
+            const detectedStreet = [addr.road || addr.street, addr.suburb]
               .filter(Boolean)
               .join(', ');
-
             if (detectedStreet) setStreet(detectedStreet);
             if (addr.town || addr.city || addr.village) {
               setCity(addr.town || addr.city || addr.village);
@@ -107,18 +152,16 @@ export default function LocationPickerModal({
             if (addr.postcode) setPincode(addr.postcode);
 
             setDetectionSuccess(
-              `Live GPS location captured! (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
+              `Live GPS captured! (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
             );
           } else {
             setDetectionSuccess(
-              `GPS coordinates pinpointed: [${latitude.toFixed(4)}, ${longitude.toFixed(4)}]`
+              `GPS pinpointed: [${latitude.toFixed(4)}, ${longitude.toFixed(4)}]`
             );
           }
         } catch (err) {
           console.warn('Reverse geocoding error:', err);
-          setDetectionSuccess(
-            `GPS captured: [${latitude.toFixed(4)}, ${longitude.toFixed(4)}]`
-          );
+          setDetectionSuccess(`GPS captured: [${latitude.toFixed(4)}, ${longitude.toFixed(4)}]`);
         } finally {
           setDetectingLocation(false);
         }
@@ -127,41 +170,46 @@ export default function LocationPickerModal({
         setDetectingLocation(false);
         let msg = 'Unable to fetch your location.';
         if (err.code === 1) {
-          msg = 'Location access permission was denied. Please allow location in your browser settings.';
+          msg = 'Location access denied. Please allow location in your device/browser settings.';
         } else if (err.code === 2) {
-          msg = 'Location position unavailable. Please check your device GPS.';
+          msg = 'Location unavailable. Please check your device GPS.';
         } else if (err.code === 3) {
           msg = 'Location request timed out. Please try again.';
         }
         setDetectionError(msg);
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 12000,
-        maximumAge: 0,
-      }
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
     );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!street.trim()) {
-      setDetectionError('Please enter a street or building name.');
+      setDetectionError('Please enter a street or road name.');
       return;
     }
 
     setIsSaving(true);
     try {
-      await onSaveAddress({
-        label,
-        street: street.trim(),
-        city: city.trim() || 'Chirgaon',
-        state: state.trim() || 'Uttar Pradesh',
-        pincode: pincode.trim() || '284301',
-        landmark: landmark.trim(),
-        phone: phone.trim() || userPhone,
-        coordinates,
-      });
+      await onSaveAddress(
+        {
+          label,
+          recipientName: recipientName.trim() || userName,
+          houseFloor: houseFloor.trim(),
+          apartmentArea: apartmentArea.trim(),
+          street: street.trim(),
+          city: city.trim() || 'Chirgaon',
+          state: state.trim() || 'Uttar Pradesh',
+          pincode: pincode.trim() || '284301',
+          landmark: landmark.trim(),
+          phone: phone.trim() || userPhone,
+          alternatePhone: alternatePhone.trim(),
+          deliveryInstructions: deliveryInstructions.trim(),
+          isDefault,
+          coordinates,
+        },
+        initialAddress?._id || null
+      );
       onClose();
     } catch (err) {
       setDetectionError(err.message || 'Failed to save address.');
@@ -172,7 +220,6 @@ export default function LocationPickerModal({
 
   if (!isOpen) return null;
 
-  // Google Maps Embed URL centered on coordinates
   const googleMapEmbedUrl = `https://maps.google.com/maps?q=${coordinates[1]},${coordinates[0]}&z=16&output=embed`;
 
   return (
@@ -186,10 +233,10 @@ export default function LocationPickerModal({
             </span>
             <div>
               <h3 className="font-black text-base text-neutral-900 dark:text-slate-100 font-heading">
-                Add Delivery Address
+                {isEditMode ? 'Update Delivery Address' : 'Add Precise Delivery Address'}
               </h3>
               <p className="text-[11px] text-neutral-400 dark:text-slate-500">
-                Live GPS auto-detection & Google Maps verification
+                Doorstep GPS pin &amp; complete address details for faster delivery
               </p>
             </div>
           </div>
@@ -214,7 +261,7 @@ export default function LocationPickerModal({
                   Auto-Detect Current Location
                 </p>
                 <p className="text-[10px] text-brand-800/80 dark:text-brand-300">
-                  Uses device GPS to pinpoint your doorstep with high accuracy
+                  Uses device GPS to auto-fill street, locality &amp; PIN code
                 </p>
               </div>
             </div>
@@ -254,19 +301,19 @@ export default function LocationPickerModal({
           )}
         </div>
 
-        {/* 2. Real Interactive Google Maps View */}
+        {/* 2. Live Map Preview */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-[11px] font-bold text-neutral-600 dark:text-slate-400">
             <span className="flex items-center gap-1">
               <MapPin className="h-3.5 w-3.5 text-brand-500" />
-              Google Maps Live Satellite / Street View
+              Google Maps Pin Location
             </span>
             <span className="font-mono text-[10px] text-neutral-500 dark:text-slate-400">
               [{coordinates[1].toFixed(4)}, {coordinates[0].toFixed(4)}]
             </span>
           </div>
 
-          <div className="relative w-full h-44 rounded-2xl overflow-hidden border border-neutral-200 dark:border-slate-800 shadow-inner bg-neutral-100 dark:bg-slate-800">
+          <div className="relative w-full h-36 rounded-2xl overflow-hidden border border-neutral-200 dark:border-slate-800 shadow-inner bg-neutral-100 dark:bg-slate-800">
             <iframe
               title="Google Maps Location Preview"
               src={googleMapEmbedUrl}
@@ -280,11 +327,10 @@ export default function LocationPickerModal({
             />
           </div>
 
-          {/* Delivery Distance & Fee Indicator */}
           <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-neutral-50 dark:bg-slate-800/60 border border-neutral-100 dark:border-slate-800 text-[11px]">
             <span className="text-neutral-500 dark:text-slate-400 flex items-center gap-1">
               <ShieldCheck className="h-3.5 w-3.5 text-brand-500" />
-              From Pizza 65 Hub: <strong className="text-neutral-900 dark:text-slate-100">{distanceKm} km</strong>
+              Distance: <strong className="text-neutral-900 dark:text-slate-100">{distanceKm} km</strong>
             </span>
             <span
               className={`font-black uppercase tracking-wider text-[10px] px-2 py-0.5 rounded-md ${
@@ -293,17 +339,17 @@ export default function LocationPickerModal({
                   : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
               }`}
             >
-              {isFreeDelivery ? 'FREE Delivery (Within 1km)' : 'Standard Delivery (₹20)'}
+              {isFreeDelivery ? 'FREE Delivery (≤1km)' : 'Standard Delivery (₹20)'}
             </span>
           </div>
         </div>
 
-        {/* 3. Address Form Details */}
+        {/* 3. Detailed Address Form */}
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
-          {/* Label Selector */}
+          {/* Address Label */}
           <div>
             <label className="block font-bold text-neutral-700 dark:text-slate-300 mb-1">
-              Address Label
+              Save As
             </label>
             <div className="grid grid-cols-3 gap-2">
               {['Home', 'Work', 'Other'].map((l) => (
@@ -323,23 +369,80 @@ export default function LocationPickerModal({
             </div>
           </div>
 
-          {/* Street Address */}
+          {/* Recipient Name & Primary Phone */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label className="block font-bold text-neutral-700 dark:text-slate-300 mb-1">
+                Recipient Name
+              </label>
+              <input
+                type="text"
+                placeholder="Receiver's full name"
+                value={recipientName}
+                onChange={(e) => setRecipientName(e.target.value)}
+                className="w-full p-2.5 bg-neutral-50 dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-neutral-900 dark:text-slate-100"
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-neutral-700 dark:text-slate-300 mb-1">
+                Contact Phone <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="tel"
+                required
+                placeholder="10-digit mobile number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full p-2.5 bg-neutral-50 dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-neutral-900 dark:text-slate-100"
+              />
+            </div>
+          </div>
+
+          {/* House / Flat / Floor & Colony / Area */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label className="block font-bold text-neutral-700 dark:text-slate-300 mb-1">
+                House / Flat / Floor No.
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. H.No 42, 2nd Floor"
+                value={houseFloor}
+                onChange={(e) => setHouseFloor(e.target.value)}
+                className="w-full p-2.5 bg-neutral-50 dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-neutral-900 dark:text-slate-100"
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-neutral-700 dark:text-slate-300 mb-1">
+                Colony / Mohalla / Building
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Shastri Nagar"
+                value={apartmentArea}
+                onChange={(e) => setApartmentArea(e.target.value)}
+                className="w-full p-2.5 bg-neutral-50 dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-neutral-900 dark:text-slate-100"
+              />
+            </div>
+          </div>
+
+          {/* Street / Road */}
           <div>
             <label className="block font-bold text-neutral-700 dark:text-slate-300 mb-1">
-              Street / House / Building <span className="text-rose-500">*</span>
+              Street / Road / Locality <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
               required
-              placeholder="e.g. Flat 204, Garautha Road, Near Imli Ke Pass"
+              placeholder="e.g. Garautha Road, Near Imli Ke Pass"
               value={street}
               onChange={(e) => setStreet(e.target.value)}
               className="w-full p-2.5 bg-neutral-50 dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-neutral-900 dark:text-slate-100"
             />
           </div>
 
-          {/* City & PIN Code */}
-          <div className="grid grid-cols-2 gap-2">
+          {/* City, State & PIN Code */}
+          <div className="grid grid-cols-3 gap-2">
             <div>
               <label className="block font-bold text-neutral-700 dark:text-slate-300 mb-1">
                 City / Town
@@ -349,6 +452,18 @@ export default function LocationPickerModal({
                 required
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
+                className="w-full p-2.5 bg-neutral-50 dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-neutral-900 dark:text-slate-100"
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-neutral-700 dark:text-slate-300 mb-1">
+                State
+              </label>
+              <input
+                type="text"
+                required
+                value={state}
+                onChange={(e) => setState(e.target.value)}
                 className="w-full p-2.5 bg-neutral-50 dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-neutral-900 dark:text-slate-100"
               />
             </div>
@@ -366,11 +481,11 @@ export default function LocationPickerModal({
             </div>
           </div>
 
-          {/* Landmark & Phone */}
+          {/* Landmark & Alternate Phone */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <label className="block font-bold text-neutral-700 dark:text-slate-300 mb-1">
-                Landmark (Optional)
+                Nearby Landmark
               </label>
               <input
                 type="text"
@@ -382,34 +497,61 @@ export default function LocationPickerModal({
             </div>
             <div>
               <label className="block font-bold text-neutral-700 dark:text-slate-300 mb-1">
-                Contact Phone
+                Alternate Phone (Optional)
               </label>
               <input
                 type="tel"
-                placeholder="Rider contact number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Backup number for rider"
+                value={alternatePhone}
+                onChange={(e) => setAlternatePhone(e.target.value)}
                 className="w-full p-2.5 bg-neutral-50 dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-neutral-900 dark:text-slate-100"
               />
             </div>
           </div>
+
+          {/* Delivery Instructions */}
+          <div>
+            <label className="block font-bold text-neutral-700 dark:text-slate-300 mb-1">
+              How to Reach / Delivery Directions (Optional)
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Blue gate on left lane, call before arriving"
+              value={deliveryInstructions}
+              onChange={(e) => setDeliveryInstructions(e.target.value)}
+              className="w-full p-2.5 bg-neutral-50 dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-neutral-900 dark:text-slate-100"
+            />
+          </div>
+
+          {/* Default Address Checkbox */}
+          <label className="flex items-center gap-2 pt-1 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={isDefault}
+              onChange={(e) => setIsDefault(e.target.checked)}
+              className="rounded border-neutral-300 text-brand-500 focus:ring-brand-500"
+            />
+            <span className="font-semibold text-neutral-700 dark:text-slate-300">
+              Set as default delivery address
+            </span>
+          </label>
 
           {/* Submit Button */}
           <div className="pt-2">
             <button
               type="submit"
               disabled={isSaving}
-              className="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-black text-xs sm:text-sm rounded-xl shadow-md shadow-brand-500/25 transition-all active:scale-98 flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 bg-gradient-to-r from-[#FF541E] to-[#FF7A00] hover:opacity-95 text-white font-black text-xs sm:text-sm rounded-full shadow-md shadow-orange-500/25 transition-all active:scale-98 flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isSaving ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Saving Location...</span>
+                  <span>{isEditMode ? 'Updating Address...' : 'Saving Location...'}</span>
                 </>
               ) : (
                 <>
                   <Check className="h-4 w-4" />
-                  <span>Save &amp; Select Delivery Location</span>
+                  <span>{isEditMode ? 'Update & Save Address' : 'Save & Select Delivery Location'}</span>
                 </>
               )}
             </button>

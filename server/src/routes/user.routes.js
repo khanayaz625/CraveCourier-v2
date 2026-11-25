@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getAddresses,
   addAddress,
+  updateAddress,
   deleteAddress,
   checkDeliveryRadius,
 } from '../controllers/user.controller.js';
@@ -15,6 +16,7 @@ router.post('/check-delivery-radius', checkDeliveryRadius);
 // Protected address book
 router.get('/addresses', protect, getAddresses);
 router.post('/addresses', protect, addAddress);
+router.put('/addresses/:addressId', protect, updateAddress);
 router.delete('/addresses/:addressId', protect, deleteAddress);
 
 export default router;

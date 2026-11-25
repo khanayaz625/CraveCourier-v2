@@ -32,6 +32,7 @@ import {
   Plus,
   Navigation,
   Smartphone,
+  Pencil,
 } from 'lucide-react';
 import UserAvatar from '../components/UserAvatar';
 
@@ -47,6 +48,7 @@ export default function AccountPage() {
   const [addresses, setAddresses] = useState([]);
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
 
   // 2-Factor Mobile Authentication states
   const [twoFactorActive, setTwoFactorActive] = useState(user?.twoFactorEnabled || false);
@@ -93,9 +95,12 @@ export default function AccountPage() {
     }
   }, [isAuthenticated]);
 
-  const handleSaveAddress = async (addressData) => {
-    const res = await api.post('/users/addresses', addressData);
+  const handleSaveAddress = async (addressData, addressId = null) => {
+    const res = addressId
+      ? await api.put(`/users/addresses/${addressId}`, addressData)
+      : await api.post('/users/addresses', addressData);
     setAddresses(res.data || []);
+    setEditingAddress(null);
   };
 
   const handleDeleteAddress = async (id) => {
@@ -293,7 +298,10 @@ export default function AccountPage() {
 
               <button
                 type="button"
-                onClick={() => setShowAddressModal(true)}
+                onClick={() => {
+                  setEditingAddress(null);
+                  setShowAddressModal(true);
+                }}
                 className="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1 active:scale-95"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -332,28 +340,49 @@ export default function AccountPage() {
                         <span className="font-black text-xs text-neutral-900 dark:text-slate-100">
                           {addr.label}
                         </span>
+                        {addr.recipientName && (
+                          <span className="text-[11px] font-semibold text-neutral-500 dark:text-slate-400 truncate">
+                            ({addr.recipientName})
+                          </span>
+                        )}
                         {addr.isDefault && (
                           <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
                             Default
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-neutral-600 dark:text-slate-300 font-medium mt-0.5 line-clamp-1">
-                        {addr.street}
+                      <p className="text-xs text-neutral-600 dark:text-slate-300 font-medium mt-0.5 line-clamp-2">
+                        {[addr.houseFloor, addr.apartmentArea, addr.street].filter(Boolean).join(', ')}
                       </p>
                       <p className="text-[11px] text-neutral-400">
                         {addr.city}, {addr.state} - {addr.pincode}
                       </p>
+                      {addr.landmark && (
+                        <p className="text-[10px] text-neutral-400">Near: {addr.landmark}</p>
+                      )}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteAddress(addr._id)}
-                      className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
-                      title="Delete address"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingAddress(addr);
+                          setShowAddressModal(true);
+                        }}
+                        className="p-1.5 rounded-lg text-neutral-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
+                        title="Edit address"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteAddress(addr._id)}
+                        className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+                        title="Delete address"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -442,9 +471,14 @@ export default function AccountPage() {
           {/* Location Picker Modal */}
           <LocationPickerModal
             isOpen={showAddressModal}
-            onClose={() => setShowAddressModal(false)}
+            onClose={() => {
+              setShowAddressModal(false);
+              setEditingAddress(null);
+            }}
             onSaveAddress={handleSaveAddress}
             userPhone={user?.phone || ''}
+            userName={user?.name || ''}
+            initialAddress={editingAddress}
           />
         </>
       ) : (
