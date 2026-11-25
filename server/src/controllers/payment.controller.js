@@ -814,8 +814,16 @@ export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
     paymentStatus: 'paid',
     paymentMethod: 'razorpay',
     paymentId: razorpay_payment_id,
-    totals: { ...cart.totals },
-    coupon: cart.couponApplied ? { code: 'PROMO_APPLIED', discountValue: cart.totals.couponDiscount } : null,
+    totals: {
+      itemTotal: Number(cart.totals.itemTotal || 0),
+      tax: Number(cart.totals.tax || 0),
+      deliveryFee: Number(cart.totals.deliveryFee || 0),
+      couponDiscount: Number(cart.totals.couponDiscount || 0),
+      grandTotal: Number(cart.totals.grandTotal || 0),
+    },
+    coupon: cart.couponApplied
+      ? { code: 'PROMO_APPLIED', discountValue: Number(cart.totals.couponDiscount || 0) }
+      : { code: null, discountValue: 0 },
     estimatedDeliveryTime: new Date(Date.now() + 35 * 60 * 1000), // ~35 minutes
   });
 
@@ -846,9 +854,13 @@ export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
   await cart.recalculateTotals();
   await cart.save();
 
-  // 9. Push Order Notification
-  await pushOrderStatusNotification(order, 'placed');
-  await notifyAdminsNewOrder(order);
+  // 9. Push Order Notification (non-blocking)
+  await pushOrderStatusNotification(order, 'placed').catch((e) =>
+    console.warn('[NOTIFY] pushOrderStatusNotification failed:', e.message)
+  );
+  await notifyAdminsNewOrder(order).catch((e) =>
+    console.warn('[NOTIFY] notifyAdminsNewOrder failed:', e.message)
+  );
 
   return res.status(201).json(
     new ApiResponse(201, {

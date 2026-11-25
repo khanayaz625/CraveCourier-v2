@@ -30,7 +30,8 @@ export const errorHandler = (err, req, res, next) => {
       field: item.path,
       message: item.message,
     }));
-    error = new ApiError(400, 'Mongoose Schema Validation Failed', extractedErrors);
+    const detailText = extractedErrors.map((e) => `${e.field}: ${e.message}`).join('; ');
+    error = new ApiError(400, `Mongoose Schema Validation Failed (${detailText})`, extractedErrors);
   }
 
   // Handle Zod Validation Errors
