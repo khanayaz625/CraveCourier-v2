@@ -804,12 +804,12 @@ export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
       state: address.state,
       pincode: address.pincode,
       landmark: address.landmark || '',
-      phone: address.phone || user.phone,
+      phone: address.phone || user.phone || 'Not provided',
       coordinates: address.coordinates || { type: 'Point', coordinates: [78.8228, 25.5746] },
     },
     status: 'placed',
     statusTimeline: [
-      { status: 'placed', timestamp: new Date(), note: `Paid via Razorpay UPI/Card (${deliverySlot || 'Standard Delivery'})` },
+      { status: 'placed', timestamp: new Date(), note: `Paid via Razorpay (${deliverySlot || 'Standard Delivery'})` },
     ],
     paymentStatus: 'paid',
     paymentMethod: 'razorpay',
@@ -828,7 +828,7 @@ export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
     paymentMethod: 'razorpay',
     paymentGateway: 'razorpay',
     transactionId: razorpay_payment_id,
-    status: 'completed',
+    status: 'succeeded',
     rawResponse: {
       razorpay_order_id,
       razorpay_payment_id,

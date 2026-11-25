@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
 import { useAuthStore } from '../store/useAuthStore';
 import api from '../services/api';
-import StripePaymentForm from '../components/checkout/StripePaymentForm';
 import { triggerOrderCelebration } from '../utils/confetti';
 import LocationPickerModal from '../components/location/LocationPickerModal';
 import {
@@ -16,7 +15,6 @@ import {
   AlertCircle,
   ShieldCheck,
   Zap,
-  CreditCard,
   Banknote,
   ShoppingBag,
   Truck,
@@ -41,7 +39,7 @@ export default function CheckoutPage() {
   const [editingDelivery, setEditingDelivery] = useState(false);
   const [deliveryNote, setDeliveryNote] = useState('');
 
-  // Payment method state ('razorpay' | 'cod' | 'stripe')
+  // Payment method state ('razorpay' | 'cod')
   const [paymentMethod, setPaymentMethod] = useState('razorpay');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(null);
@@ -49,11 +47,6 @@ export default function CheckoutPage() {
   // Razorpay Payment State
   const [isRazorpayLoading, setIsRazorpayLoading] = useState(false);
   const [razorpayError, setRazorpayError] = useState(null);
-
-  // Stripe Payment Intent State
-  const [paymentIntentData, setPaymentIntentData] = useState(null);
-  const [isCreatingIntent, setIsCreatingIntent] = useState(false);
-  const [intentError, setIntentError] = useState(null);
 
   const checkRadius = async (coords) => {
     const validCoords =
@@ -92,34 +85,8 @@ export default function CheckoutPage() {
     fetchAddresses();
   }, []);
 
-  const fetchPaymentIntent = async () => {
-    if (!selectedAddressId) return;
-    setIsCreatingIntent(true);
-    setIntentError(null);
-    try {
-      await useCartStore.getState().syncGuestCart();
-      const res = await api.post('/payments/create-intent', {
-        addressId: selectedAddressId,
-        deliverySlot: selectedSlot,
-        note: deliveryNote,
-      });
-      setPaymentIntentData(res.data);
-    } catch (err) {
-      setIntentError(err.message || 'Failed to initialize Stripe payment gateway.');
-    } finally {
-      setIsCreatingIntent(false);
-    }
-  };
-
-  useEffect(() => {
-    if (paymentMethod === 'stripe' && !paymentIntentData && selectedAddressId) {
-      fetchPaymentIntent();
-    }
-  }, [paymentMethod, selectedAddressId]);
-
   const handleSelectAddress = (addr) => {
     setSelectedAddressId(addr._id);
-    setPaymentIntentData(null);
     setEditingAddress(false);
     const coords =
       addr.coordinates?.coordinates &&
@@ -270,10 +237,6 @@ export default function CheckoutPage() {
       handlePayWithRazorpay();
     } else if (paymentMethod === 'cod') {
       handlePlaceCodOrder();
-    } else if (paymentMethod === 'stripe') {
-      const form = document.getElementById('stripe-payment-form');
-      if (form) form.requestSubmit();
-      else alert('Please complete the card details below.');
     }
   };
 
@@ -673,7 +636,7 @@ export default function CheckoutPage() {
             {[
               {
                 id: 'razorpay',
-                label: 'Pay with Razorpay (UPI / Cards)',
+                label: 'Pay Online via Razorpay (UPI / NetBanking)',
                 icon: Zap,
                 iconBg: 'bg-brand-50 dark:bg-brand-950/60 text-brand-500',
               },
@@ -682,12 +645,6 @@ export default function CheckoutPage() {
                 label: 'Pay with Cash on Delivery (COD)',
                 icon: Banknote,
                 iconBg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600',
-              },
-              {
-                id: 'stripe',
-                label: 'Pay with Debit / Credit Card (Stripe)',
-                icon: CreditCard,
-                iconBg: 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600',
               },
             ].map((m) => {
               const IconComp = m.icon;
@@ -731,27 +688,6 @@ export default function CheckoutPage() {
             <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <span>{razorpayError}</span>
-            </div>
-          )}
-
-          {paymentMethod === 'stripe' && (
-            <div className="pt-2">
-              {isCreatingIntent && (
-                <p className="text-xs text-neutral-500 py-2">Initializing Stripe card form...</p>
-              )}
-              {intentError && !isCreatingIntent && (
-                <p className="text-xs text-rose-600 py-2">{intentError}</p>
-              )}
-              {paymentIntentData && !isCreatingIntent && (
-                <StripePaymentForm
-                  clientSecret={paymentIntentData.clientSecret}
-                  paymentIntentId={paymentIntentData.paymentIntentId}
-                  addressId={selectedAddressId}
-                  deliverySlot={selectedSlot}
-                  deliveryNote={deliveryNote}
-                  totals={paymentIntentData.totals || effectiveTotals}
-                />
-              )}
             </div>
           )}
         </div>
