@@ -110,9 +110,8 @@ export const register = asyncHandler(async (req, res) => {
           },
           requiresVerification: true,
           emailSent: Boolean(refreshEmailRes?.success),
-          debugOtp: verificationOtp,
         },
-        'A fresh 6-digit verification code has been dispatched to your email.'
+        'A fresh 6-digit verification code has been sent to your email.'
       )
     );
   }
@@ -187,7 +186,6 @@ export const register = asyncHandler(async (req, res) => {
         },
         requiresVerification: true,
         emailSent: Boolean(emailRes?.success),
-        debugOtp: verificationOtp,
       },
       'Registration successful. Please verify with the 6-digit code sent to your email.'
     )
@@ -241,7 +239,6 @@ export const login = asyncHandler(async (req, res) => {
       isEmailVerified: false,
       email: user.email,
       role: user.role,
-      debugOtp: verificationOtp,
       message: 'Email verification required. We have dispatched a fresh 6-digit code to your email. Please verify to sign in.',
     });
   }
@@ -293,7 +290,6 @@ export const login = asyncHandler(async (req, res) => {
           twoFactorTempToken,
           maskedPhone,
           phone: user.phone,
-          debugOtp: ENV.NODE_ENV !== 'production' ? twoFactorOtp : undefined,
         },
         `2-Factor Authentication Required: A 6-digit security code has been sent to ${maskedPhone}.`
       )
@@ -589,7 +585,6 @@ export const resendOtp = asyncHandler(async (req, res) => {
       200,
       {
         emailSent: Boolean(emailRes?.success),
-        debugOtp: newOtp,
       },
       'A fresh 6-digit verification code has been dispatched to your email.'
     )
@@ -643,7 +638,6 @@ export const forgotPassword = asyncHandler(async (req, res) => {
       200,
       {
         emailSent: Boolean(emailDispatch?.success),
-        debugOtp: ENV.NODE_ENV !== 'production' ? resetOtp : undefined,
       },
       'If an account exists with that email, a password reset code has been sent.'
     )
@@ -798,9 +792,7 @@ export const resend2FA = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      {
-        debugOtp: ENV.NODE_ENV !== 'production' ? newOtp : undefined,
-      },
+      {},
       `A fresh 6-digit security code has been sent to your phone.`
     )
   );
@@ -872,7 +864,6 @@ export const sendMobileOtp = asyncHandler(async (req, res) => {
       200,
       {
         phone: maskPhoneNumber(cleanPhone),
-        debugOtp: ENV.NODE_ENV !== 'production' ? otp : undefined,
       },
       `6-digit OTP code sent to ${maskPhoneNumber(cleanPhone)}`
     )
@@ -1026,7 +1017,6 @@ export const sendEmailLoginOtp = asyncHandler(async (req, res) => {
       {
         email: user.email,
         emailSent: Boolean(emailRes?.success),
-        debugOtp: ENV.NODE_ENV !== 'production' ? otp : undefined,
       },
       emailRes?.success
         ? `6-digit sign-in OTP sent to ${user.email}`

@@ -21,7 +21,6 @@ export default function LoginPage() {
   const [emailOtpCode, setEmailOtpCode] = useState('');
   const [emailOtpStep, setEmailOtpStep] = useState(1); // 1 = Email, 2 = OTP
   const [emailOtpSending, setEmailOtpSending] = useState(false);
-  const [emailDebugOtp, setEmailDebugOtp] = useState(null);
   const [emailSuccessMsg, setEmailSuccessMsg] = useState('');
 
   // 2FA Mobile OTP states
@@ -33,7 +32,6 @@ export default function LoginPage() {
   const [mobileOtp, setMobileOtp] = useState('');
   const [mobileStep, setMobileStep] = useState(1); // 1 = Phone, 2 = OTP
   const [mobileSending, setMobileSending] = useState(false);
-  const [mobileDebugOtp, setMobileDebugOtp] = useState(null);
 
   const { isHolding, progress, holdProps } = useHoldToAdmin({ durationMs: 1400 });
 
@@ -140,7 +138,6 @@ export default function LoginPage() {
         setUnverifiedState({
           email: err.unverifiedEmail || email,
           role,
-          debugOtp: err.debugOtp,
           message: err.message || 'Email verification is required before signing in. A fresh 6-digit code has been dispatched to your email.',
         });
       } else {
@@ -162,12 +159,9 @@ export default function LoginPage() {
     setEmailSuccessMsg('');
     setEmailOtpSending(true);
     try {
-      const res = await sendEmailOtp(cleanEmail, role);
+      await sendEmailOtp(cleanEmail, role);
       setEmailOtpStep(2);
-      setEmailSuccessMsg(`6-digit OTP sent to ${cleanEmail}. Please check your Inbox or Spam folder.`);
-      if (res?.debugOtp) {
-        setEmailDebugOtp(res.debugOtp);
-      }
+      setEmailSuccessMsg(`6-digit OTP sent to ${cleanEmail}. Check your email inbox and enter the code below.`);
     } catch (err) {
       setLocalError(err.message || 'Failed to send Email OTP. Please try again.');
     } finally {
@@ -206,11 +200,8 @@ export default function LoginPage() {
     setLocalError('');
     setMobileSending(true);
     try {
-      const res = await sendMobileOtp(cleanPhone, role);
+      await sendMobileOtp(cleanPhone, role);
       setMobileStep(2);
-      if (res?.debugOtp) {
-        setMobileDebugOtp(res.debugOtp);
-      }
     } catch (err) {
       if (err.message?.includes('Route not found') || err.message?.includes('404')) {
         setLocalError(
@@ -351,7 +342,6 @@ export default function LoginPage() {
                           state: {
                             email: unverifiedState.email,
                             role: unverifiedState.role,
-                            debugOtp: unverifiedState.debugOtp,
                           },
                         })
                       }
@@ -519,21 +509,6 @@ export default function LoginPage() {
                       Change
                     </button>
                   </div>
-
-                  {emailDebugOtp && (
-                    <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-between text-xs">
-                      <span className="text-amber-800 dark:text-amber-300 font-medium">
-                        Code: <strong className="font-mono">{emailDebugOtp}</strong>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setEmailOtpCode(emailDebugOtp)}
-                        className="px-2 py-1 rounded bg-amber-500 text-white font-bold text-[10px]"
-                      >
-                        Fill Code
-                      </button>
-                    </div>
-                  )}
 
                   <div>
                     <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-200 mb-1.5">
@@ -711,21 +686,6 @@ export default function LoginPage() {
                       Change
                     </button>
                   </div>
-
-                  {mobileDebugOtp && (
-                    <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-between text-xs">
-                      <span className="text-amber-800 dark:text-amber-300 font-medium">
-                        Demo Code: <strong className="font-mono">{mobileDebugOtp}</strong>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setMobileOtp(mobileDebugOtp)}
-                        className="px-2 py-1 rounded bg-amber-500 text-white font-bold text-[10px]"
-                      >
-                        Fill Code
-                      </button>
-                    </div>
-                  )}
 
                   <div>
                     <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-200 mb-1.5">

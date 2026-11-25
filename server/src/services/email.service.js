@@ -25,231 +25,41 @@ export function generateOtpEmailHtml({
   const isReset = type === 'reset';
   const isLogin = type === 'login';
 
-  const badgeText = isReset
-    ? 'PASSWORD RESET REQUEST'
-    : isLogin
-    ? 'ONE-TIME SIGN IN CODE'
-    : 'ACCOUNT VERIFICATION';
-
   const heading = isReset
-    ? 'Reset Your Password'
+    ? 'Password reset code'
     : isLogin
-    ? 'Your One-Time Login Code'
-    : 'Verify Your Email Address';
+    ? 'Sign-in verification code'
+    : 'Verify your email address';
 
   const leadText = isReset
-    ? `We received a request to reset your password for your <strong>${brandName}</strong> account. Use the one-time code below to proceed with setting a new password.`
+    ? `We received a request to reset the password for your ${brandName} account. Enter the code below to set a new password.`
     : isLogin
-    ? `Welcome back! Use the 6-digit one-time passcode below to securely sign in to your <strong>${brandName}</strong> account.`
-    : `Thank you for choosing <strong>${brandName}</strong>! To complete your registration and secure your account, please enter the 6-digit verification code below.`;
-
-  // Format OTP with clean spaced numbers (e.g. 5 2 9 1 0 4)
-  const formattedOtp = String(otp).split('').join(' ');
+    ? `Use the 6-digit one-time code below to sign in to your ${brandName} account.`
+    : `Thanks for signing up with ${brandName}. Please enter the 6-digit code below to verify your email address.`;
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>${heading} - ${brandName}</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #F8F9FA;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      color: #2D3748;
-      -webkit-font-smoothing: antialiased;
-    }
-    .wrapper {
-      width: 100%;
-      table-layout: fixed;
-      background-color: #F8F9FA;
-      padding: 40px 16px;
-    }
-    .main-table {
-      max-width: 560px;
-      margin: 0 auto;
-      background-color: #FFFFFF;
-      border-radius: 24px;
-      overflow: hidden;
-      border: 1px solid #EDF2F7;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-    }
-    .header-banner {
-      background: linear-gradient(135deg, #FF541E 0%, #FF7A00 100%);
-      padding: 36px 32px 32px;
-      text-align: center;
-      color: #FFFFFF;
-    }
-    .brand-title {
-      font-size: 26px;
-      font-weight: 900;
-      letter-spacing: -0.5px;
-      margin: 0;
-      color: #FFFFFF;
-      text-transform: uppercase;
-    }
-    .brand-subtitle {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      opacity: 0.9;
-      margin-top: 4px;
-      color: #FFE3D8;
-    }
-    .content-body {
-      padding: 36px 32px;
-    }
-    .badge {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: #FF541E;
-      background-color: #FFF2ED;
-      padding: 6px 14px;
-      border-radius: 20px;
-      margin-bottom: 16px;
-    }
-    .greeting {
-      font-size: 22px;
-      font-weight: 800;
-      color: #1A202C;
-      margin: 0 0 14px 0;
-      line-height: 1.3;
-    }
-    .description {
-      font-size: 14px;
-      line-height: 1.6;
-      color: #4A5568;
-      margin: 0 0 28px 0;
-    }
-    .otp-card {
-      background: #FFF9F6;
-      border: 2px dashed #FFD4C4;
-      border-radius: 18px;
-      padding: 24px 20px;
-      text-align: center;
-      margin: 0 0 24px 0;
-    }
-    .otp-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #8C4329;
-      margin-bottom: 8px;
-    }
-    .otp-code {
-      font-family: 'SF Pro Mono', 'Courier New', Courier, monospace;
-      font-size: 34px;
-      font-weight: 900;
-      letter-spacing: 8px;
-      color: #FF541E;
-      margin: 6px 0;
-      user-select: all;
-    }
-    .otp-expiry {
-      font-size: 12px;
-      font-weight: 600;
-      color: #B25E3B;
-      margin-top: 6px;
-    }
-    .security-notice {
-      background-color: #F7FAFC;
-      border-left: 4px solid #CBD5E0;
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-size: 12px;
-      color: #718096;
-      line-height: 1.5;
-      margin-bottom: 28px;
-    }
-    .security-notice strong {
-      color: #4A5568;
-    }
-    .divider {
-      border: 0;
-      border-top: 1px solid #EDF2F7;
-      margin: 28px 0;
-    }
-    .footer {
-      background-color: #FAFAFA;
-      padding: 24px 32px;
-      text-align: center;
-      font-size: 11px;
-      color: #A0AEC0;
-      line-height: 1.6;
-      border-top: 1px solid #EDF2F7;
-    }
-    .footer a {
-      color: #FF541E;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .footer-address {
-      margin-top: 8px;
-      color: #718096;
-      font-size: 11px;
-    }
-  </style>
+  <title>${heading}</title>
 </head>
-<body>
-  <div class="wrapper">
-    <table class="main-table" cellpadding="0" cellspacing="0" width="100%">
-      <!-- Header Banner -->
-      <tr>
-        <td class="header-banner">
-          <h1 class="brand-title">🛍️ ${brandName}</h1>
-          <div class="brand-subtitle">Hyperlocal Express Food & Order Delivery</div>
-        </td>
-      </tr>
-
-      <!-- Body Content -->
-      <tr>
-        <td class="content-body">
-          <div class="badge">${badgeText}</div>
-          <h2 class="greeting">Hi ${name},</h2>
-          <p class="description">
-            ${leadText}
-          </p>
-
-          <!-- OTP Box -->
-          <div class="otp-card">
-            <div class="otp-label">Your One-Time Passcode</div>
-            <div class="otp-code">${formattedOtp}</div>
-            <div class="otp-expiry">⏱️ Valid for the next <strong>${expiryMinutes} minutes</strong></div>
-          </div>
-
-          <!-- Security Tip -->
-          <div class="security-notice">
-            🔒 <strong>Security Tip:</strong> Never share this code with anyone, including staff or delivery partners. Crave Courier will never ask for your verification code.
-          </div>
-
-          <p class="description" style="font-size: 12px; margin-bottom: 0;">
-            If you did not initiate this request, you can safely ignore this email. Your account remains protected.
-          </p>
-        </td>
-      </tr>
-
-      <!-- Footer -->
-      <tr>
-        <td class="footer">
-          <div>Need assistance? Contact our support desk at <a href="mailto:${supportEmail}">${supportEmail}</a></div>
-          <div class="footer-address">
-            📍 <strong>Crave Courier</strong> &bull; Imli Ke Pass, Main Road, Chirgaon, Jhansi, UP
-          </div>
-          <div style="margin-top: 10px; font-size: 10px;">
-            &copy; ${new Date().getFullYear()} ${brandName}. All rights reserved.
-          </div>
-        </td>
-      </tr>
-    </table>
-  </div>
+<body style="margin:0;padding:0;background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1f2937;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:24px auto;padding:0 16px;">
+    <tr>
+      <td style="padding:24px;border:1px solid #e5e7eb;border-radius:12px;background-color:#ffffff;">
+        <p style="margin:0 0 16px 0;font-size:15px;font-weight:700;color:#ea580c;">${brandName}</p>
+        <h1 style="margin:0 0 12px 0;font-size:20px;font-weight:700;color:#111827;">${heading}</h1>
+        <p style="margin:0 0 20px 0;font-size:14px;line-height:1.6;color:#4b5563;">Hi ${name},</p>
+        <p style="margin:0 0 20px 0;font-size:14px;line-height:1.6;color:#4b5563;">${leadText}</p>
+        <div style="margin:0 0 20px 0;padding:16px;background-color:#fff7ed;border:1px solid #fed7aa;border-radius:8px;text-align:center;">
+          <span style="font-family:'Courier New',Courier,monospace;font-size:28px;font-weight:700;letter-spacing:6px;color:#c2410c;">${otp}</span>
+        </div>
+        <p style="margin:0 0 12px 0;font-size:13px;color:#6b7280;">This code expires in ${expiryMinutes} minutes. Do not share it with anyone.</p>
+        <p style="margin:0;font-size:12px;color:#9ca3af;">If you did not request this, you can safely ignore this email. Questions? Reply to <a href="mailto:${supportEmail}" style="color:#ea580c;text-decoration:none;">${supportEmail}</a>.</p>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 }
@@ -296,13 +106,6 @@ export async function sendBrevoEmail({ toEmail, toName, subject, htmlContent, te
       subject,
       htmlContent,
       ...(textContent && { textContent }),
-      tags: ['otp', 'verification', 'authentication'],
-      headers: {
-        'X-Mailin-Tag': 'otp-verification',
-        'X-Priority': '1',
-        'Priority': 'Urgent',
-        'Importance': 'high',
-      },
     };
 
     const response = await fetch(BREVO_API_URL, {

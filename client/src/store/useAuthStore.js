@@ -144,7 +144,6 @@ export const useAuthStore = create((set, get) => ({
           requires2FA: true,
           twoFactorTempToken: res.data.twoFactorTempToken,
           maskedPhone: res.data.maskedPhone,
-          debugOtp: res.data.debugOtp,
         };
       }
 
@@ -176,7 +175,6 @@ export const useAuthStore = create((set, get) => ({
       ) {
         err.isEmailVerified = false;
         err.unverifiedEmail = email;
-        err.debugOtp = err.response?.data?.debugOtp || err.response?.data?.data?.debugOtp;
       }
       throw err;
     }
@@ -220,12 +218,11 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await api.post('/auth/register', userData);
       const user = res.data?.user || res.data?.data?.user || res.data;
-      const debugOtp = res.data?.debugOtp || res.data?.data?.debugOtp;
       set({
         isLoading: false,
         error: null,
       });
-      return { user, requiresVerification: true, debugOtp };
+      return { user, requiresVerification: true };
     } catch (err) {
       set({ error: err.message, isLoading: false });
       throw err;

@@ -63,8 +63,11 @@ describe('Auth API Hardening & Access Control', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.requiresVerification).toBe(true);
-    expect(res.body.data.debugOtp).toBeDefined();
-    expect(res.body.data.debugOtp.length).toBe(6);
+    expect(res.body.data.debugOtp).toBeUndefined();
+
+    const dbUser = await User.findOne({ email: testUser.email }).select('+verificationOtp');
+    expect(dbUser.verificationOtp).toBeDefined();
+    expect(dbUser.verificationOtp.length).toBe(6);
   });
 
   test('POST /api/auth/verify-email - Verifies email with OTP and issues tokens & secure cookie', async () => {

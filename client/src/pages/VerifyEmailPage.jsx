@@ -15,7 +15,6 @@ export default function VerifyEmailPage() {
   const autoResend = location.state?.autoResend || false;
 
   const [otp, setOtp] = useState('');
-  const [debugOtp, setDebugOtp] = useState(location.state?.debugOtp || '');
   const [localError, setLocalError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [resending, setResending] = useState(false);
@@ -73,11 +72,8 @@ export default function VerifyEmailPage() {
     setSuccessMsg('');
     setResending(true);
     try {
-      const res = await resendOtp(email || phone, phone);
-      setSuccessMsg('A fresh 6-digit code has been dispatched via SMS & email.');
-      if (res?.debugOtp) {
-        setDebugOtp(res.debugOtp);
-      }
+      await resendOtp(email || phone, phone);
+      setSuccessMsg('A fresh 6-digit code has been sent to your email inbox.');
       setResendCooldown(30);
     } catch (err) {
       setLocalError(err.message || 'Failed to resend verification code');
@@ -158,27 +154,6 @@ export default function VerifyEmailPage() {
               </p>
             </div>
           </div>
-
-          {/* Quick-Fill OTP Helper (if available) */}
-          {debugOtp && (
-            <div className="mb-5 p-3 rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/40 dark:to-amber-950/30 border border-orange-200/90 dark:border-orange-800/60 flex items-center justify-between gap-3 shadow-xs animate-pop">
-              <div className="min-w-0">
-                <div className="text-[11px] font-bold text-orange-900 dark:text-orange-200">
-                  ⚡ Verification Code Available:
-                </div>
-                <div className="text-base font-mono font-black tracking-widest text-[#FF541E] dark:text-orange-400">
-                  {debugOtp}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setOtp(debugOtp)}
-                className="px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-[#FF541E] to-[#FF7A00] text-white rounded-xl shadow-xs hover:opacity-95 active:scale-95 transition-all shrink-0"
-              >
-                1-Tap Fill
-              </button>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>

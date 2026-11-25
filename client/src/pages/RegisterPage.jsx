@@ -44,13 +44,12 @@ export default function RegisterPage() {
         role,
       });
 
-      // Redirect to Email & Mobile SMS OTP Verification
+      // Redirect to Email OTP Verification
       navigate('/verify-email', {
         state: {
           email: formData.email,
           phone: formData.phone,
           role: regResult?.user?.role || role,
-          debugOtp: regResult?.debugOtp,
         },
       });
     } catch (err) {

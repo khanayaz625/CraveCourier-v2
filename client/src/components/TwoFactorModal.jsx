@@ -114,22 +114,12 @@ export default function TwoFactorModal({ isOpen, onClose, twoFactorData, onSucce
     setResendSuccess('');
 
     try {
-      const res = await resend2FA(currentTempToken);
+      await resend2FA(currentTempToken);
       setResendSuccess('A fresh 6-digit SMS code has been dispatched.');
       setResendCooldown(45);
-      if (res?.debugOtp && twoFactorData) {
-        twoFactorData.debugOtp = res.debugOtp;
-      }
     } catch (err) {
       setLocalError(err.message || 'Failed to resend SMS code. Please try again.');
     }
-  };
-
-  const fillDebugOtp = () => {
-    if (!twoFactorData?.debugOtp) return;
-    const chars = twoFactorData.debugOtp.split('');
-    setDigits(chars);
-    handleVerify(twoFactorData.debugOtp);
   };
 
   return (
@@ -166,22 +156,6 @@ export default function TwoFactorModal({ isOpen, onClose, twoFactorData, onSucce
             </strong>
           </p>
         </div>
-
-        {/* Development Mode Quick Fill */}
-        {twoFactorData?.debugOtp && (
-          <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-between text-xs">
-            <span className="text-amber-800 dark:text-amber-300 font-medium">
-              Demo Code: <strong className="font-mono font-bold tracking-wider">{twoFactorData.debugOtp}</strong>
-            </span>
-            <button
-              type="button"
-              onClick={fillDebugOtp}
-              className="px-2 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] shadow-xs active:scale-95"
-            >
-              1-Tap Fill
-            </button>
-          </div>
-        )}
 
         {/* Feedback alerts */}
         {localError && (
