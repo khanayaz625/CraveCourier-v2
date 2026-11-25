@@ -383,29 +383,30 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-3.5 sm:px-4 py-4 sm:py-6 pb-28">
-      {/* Minimalist Top Header Bar */}
-      <div className="flex items-center justify-between mb-4">
-        <button
-          type="button"
-          onClick={() => navigate('/cart')}
-          className="h-9 w-9 rounded-full bg-white dark:bg-slate-900 border border-neutral-200/80 dark:border-slate-800 flex items-center justify-center text-neutral-700 dark:text-slate-200 shadow-xs hover:bg-neutral-50 dark:hover:bg-slate-800 transition-colors"
-          aria-label="Back to cart"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
+    <div className="w-full min-h-[calc(100vh-60px)] bg-white dark:bg-slate-950 pb-28">
+      <div className="max-w-3xl mx-auto">
+        {/* Minimalist Top Header Bar */}
+        <div className="flex items-center justify-between px-4 sm:px-6 pt-4 pb-3 border-b border-neutral-100 dark:border-slate-800/80">
+          <button
+            type="button"
+            onClick={() => navigate('/cart')}
+            className="h-9 w-9 rounded-full bg-neutral-100/80 dark:bg-slate-900 border border-neutral-200/70 dark:border-slate-800 flex items-center justify-center text-neutral-700 dark:text-slate-200 hover:bg-neutral-200/70 dark:hover:bg-slate-800 transition-colors"
+            aria-label="Back to cart"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
 
-        <h1 className="text-base sm:text-lg font-black text-neutral-900 dark:text-slate-100 tracking-tight">
-          Checkout
-        </h1>
+          <h1 className="text-base sm:text-lg font-black text-neutral-900 dark:text-slate-100 tracking-tight">
+            Checkout
+          </h1>
 
-        <div className="w-9" />
-      </div>
+          <div className="w-9" />
+        </div>
 
-      {/* Clean Unified Dribbble-Inspired Stacked Checkout Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800 shadow-soft divide-y divide-neutral-100 dark:divide-slate-800 overflow-hidden">
-        {/* 1. ADDRESS SECTION */}
-        <div className="p-4 sm:p-6 space-y-3">
+        {/* Full-Width Seamless Stacked Checkout Sections */}
+        <div className="divide-y divide-neutral-100 dark:divide-slate-800/80">
+          {/* 1. ADDRESS SECTION */}
+          <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs sm:text-sm font-black text-neutral-900 dark:text-slate-100">
               Address
@@ -835,17 +836,18 @@ export default function CheckoutPage() {
             </span>
           </div>
         </div>
-      </div>
+        </div>
 
-      {/* Trust Note */}
-      <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-neutral-400 dark:text-slate-500">
-        <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-        <span>256-Bit SSL Encrypted &bull; 100% Secure Checkout</span>
+        {/* Trust Note */}
+        <div className="py-4 flex items-center justify-center gap-1.5 text-[11px] text-neutral-400 dark:text-slate-500 border-t border-neutral-100 dark:border-slate-800/80">
+          <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+          <span>256-Bit SSL Encrypted &bull; 100% Secure Checkout</span>
+        </div>
       </div>
 
       {/* Fixed Bottom Full-Width Pill Checkout Button */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-neutral-200/80 dark:border-slate-800 px-4 py-3 safe-bottom">
-        <div className="max-w-2xl mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-t border-neutral-200/80 dark:border-slate-800 px-4 py-3 safe-bottom">
+        <div className="max-w-3xl mx-auto">
           <button
             type="button"
             onClick={handlePlaceOrder}

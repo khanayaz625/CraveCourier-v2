@@ -151,7 +151,8 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-3.5 sm:px-4 py-4 sm:py-6 space-y-5 pb-28 md:pb-12">
+    <div className="w-full min-h-[calc(100vh-60px)] bg-white dark:bg-slate-950 pb-28 md:pb-12">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-5">
       {/* Minimalist Top Header Bar */}
       <div className="flex items-center justify-between">
         <button
@@ -341,6 +342,7 @@ export default function OrdersPage() {
           })}
         </div>
       )}
+      </div>
     </div>
   );
 }
