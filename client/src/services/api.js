@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Canonical production Render cloud backend
-export const LIVE_BACKEND_URL = 'https://cravecourier-v2-1.onrender.com';
+export const LIVE_BACKEND_URL = 'https://cravecourier-v2.onrender.com';
 export const LIVE_API_URL = `${LIVE_BACKEND_URL}/api`;
 
 const getBaseUrl = () => {

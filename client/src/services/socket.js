@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-export const LIVE_BACKEND_URL = 'https://cravecourier-v2-1.onrender.com';
+export const LIVE_BACKEND_URL = 'https://cravecourier-v2.onrender.com';
 
 const getSocketUrl = () => {
   // 1. If running inside native Android/iOS Capacitor app, connect to the live cloud backend
