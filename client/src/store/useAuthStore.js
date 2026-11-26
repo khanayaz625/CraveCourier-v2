@@ -313,12 +313,16 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
-   * Request Password Reset OTP
+   * Request Password Reset OTP (Dispatched via BOTH Email & SMS)
    */
-  forgotPassword: async (email) => {
+  forgotPassword: async (identifier) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await api.post('/auth/forgot-password', { email });
+      const clean = String(identifier || '').trim();
+      const payload = clean.includes('@')
+        ? { email: clean.toLowerCase(), identifier: clean.toLowerCase() }
+        : { phone: clean, identifier: clean };
+      const res = await api.post('/auth/forgot-password', payload);
       set({ isLoading: false });
       return res.data;
     } catch (err) {
@@ -330,10 +334,14 @@ export const useAuthStore = create((set, get) => ({
   /**
    * Submit New Password with Reset OTP
    */
-  resetPassword: async (email, otp, newPassword) => {
+  resetPassword: async (identifier, otp, newPassword) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await api.post('/auth/reset-password', { email, otp, newPassword });
+      const clean = String(identifier || '').trim();
+      const payload = clean.includes('@')
+        ? { email: clean.toLowerCase(), identifier: clean.toLowerCase(), otp, newPassword }
+        : { phone: clean, identifier: clean, otp, newPassword };
+      const res = await api.post('/auth/reset-password', payload);
       set({ isLoading: false });
       return res;
     } catch (err) {

@@ -152,9 +152,44 @@ describe('Payments API Security & NoSQL Injection Protection', () => {
     await Order.deleteMany({ customer: buyer._id });
     await Payment.deleteMany({ user: buyer._id });
     await Cart.deleteMany({ user: buyer._id });
-    await Product.deleteById ? null : Product.deleteOne({ _id: prod._id });
+    await Product.deleteOne({ _id: prod._id });
     await Category.deleteOne({ _id: cat._id });
     await User.deleteOne({ _id: buyer._id });
+  });
+
+  test('SECURITY: Cart rejects tampered variant sellingPrice from client', async () => {
+    const cat = await Category.create({
+      name: `TamperCat_${Date.now()}`,
+      slug: `tamper-cat-${Date.now()}`,
+      image: 'https://example.com/cat.jpg',
+      type: 'food',
+    });
+    const prod = await Product.create({
+      name: 'Special Paneer Pizza',
+      slug: `tamper-pizza-${Date.now()}`,
+      category: cat._id,
+      price: 299,
+      unit: '1 Pizza',
+      stock: 10,
+      type: 'food',
+      images: ['https://example.com/pizza.jpg'],
+      variants: [{ size: 'Large', unit: '10 inch', mrp: 350, sellingPrice: 299, sku: 'PZ-L' }],
+    });
+
+    const res = await request(app)
+      .post('/api/cart/items')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        productId: prod._id.toString(),
+        quantity: 1,
+        variant: { size: 'FAKE_SIZE', sellingPrice: 1 },
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+
+    await Product.deleteOne({ _id: prod._id });
+    await Category.deleteOne({ _id: cat._id });
   });
 });
 

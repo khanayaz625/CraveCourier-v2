@@ -89,6 +89,15 @@ export const createOrderReview = asyncHandler(async (req, res) => {
 export const getOrderReviews = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
 
+  const order = await Order.findById(orderId).select('customer');
+  if (!order) {
+    throw new ApiError(404, 'Order not found');
+  }
+
+  if (order.customer.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    throw new ApiError(403, 'You do not have permission to view reviews for this order');
+  }
+
   const reviews = await Review.find({ order: orderId })
     .populate('product', 'name images price unit')
     .populate('user', 'name avatar');

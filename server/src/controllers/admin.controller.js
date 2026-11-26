@@ -26,6 +26,8 @@ const stripe = new Stripe(ENV.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
 });
 
+const escapeRegex = (str = '') => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // Helper to slugify string
 const slugify = (text) =>
   text
@@ -232,7 +234,7 @@ export const getUsers = asyncHandler(async (req, res) => {
   if (status === 'blocked') filter.isActive = false;
 
   if (search.trim()) {
-    const sRegex = new RegExp(search.trim(), 'i');
+    const sRegex = new RegExp(escapeRegex(search.trim()), 'i');
     filter.$or = [{ name: sRegex }, { email: sRegex }, { phone: sRegex }];
   }
 
@@ -336,7 +338,7 @@ export const getDeliveryPartners = asyncHandler(async (req, res) => {
 
   let userIds = null;
   if (search.trim()) {
-    const sRegex = new RegExp(search.trim(), 'i');
+    const sRegex = new RegExp(escapeRegex(search.trim()), 'i');
     const matchingUsers = await User.find({
       role: 'delivery',
       $or: [{ name: sRegex }, { email: sRegex }, { phone: sRegex }],
@@ -440,7 +442,7 @@ export const getOrders = asyncHandler(async (req, res) => {
   if (paymentStatus !== 'all') filter.paymentStatus = paymentStatus;
 
   if (search.trim()) {
-    const sRegex = new RegExp(search.trim(), 'i');
+    const sRegex = new RegExp(escapeRegex(search.trim()), 'i');
     filter.$or = [{ orderNumber: sRegex }];
   }
 

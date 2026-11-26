@@ -4,6 +4,8 @@ import { ApiError } from '../utils/ApiError.js';
 import { Product } from '../models/Product.model.js';
 import { Category } from '../models/Category.model.js';
 
+const escapeRegex = (str = '') => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const slugify = (text) =>
   text
     .toString()
@@ -45,7 +47,7 @@ export const getProducts = asyncHandler(async (req, res) => {
 
   // 1. Text search across name, brand, subcategory, tags, keywords, description
   if (search && search.trim()) {
-    const cleanSearch = search.trim();
+    const cleanSearch = escapeRegex(search.trim());
     filter.$or = [
       { name: { $regex: cleanSearch, $options: 'i' } },
       { brand: { $regex: cleanSearch, $options: 'i' } },
@@ -68,12 +70,12 @@ export const getProducts = asyncHandler(async (req, res) => {
 
   // 2b. Subcategory filter
   if (subcategory && subcategory !== 'all') {
-    filter.subcategory = { $regex: new RegExp(`^${subcategory}$`, 'i') };
+    filter.subcategory = { $regex: new RegExp(`^${escapeRegex(subcategory)}$`, 'i') };
   }
 
   // 2c. Brand filter
   if (brand && brand !== 'all') {
-    filter.brand = { $regex: new RegExp(`^${brand}$`, 'i') };
+    filter.brand = { $regex: new RegExp(`^${escapeRegex(brand)}$`, 'i') };
   }
 
   // 3. Product Type (food vs grocery)
@@ -188,7 +190,7 @@ export const getAutocompleteSuggestions = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, [], 'Empty query'));
   }
 
-  const cleanQuery = q.trim();
+  const cleanQuery = escapeRegex(q.trim());
 
   // Search matching products & categories in parallel
   const [matchingProducts, matchingCategories] = await Promise.all([

@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
-import { KeyRound, Mail, Lock, AlertCircle, CheckCircle2, ArrowRight, ArrowLeft, RotateCw } from 'lucide-react';
+import { KeyRound, Mail, Smartphone, Lock, AlertCircle, CheckCircle2, ArrowRight, ArrowLeft, RotateCw } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1); // 1 = Request OTP, 2 = Enter OTP + New Password
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [localError, setLocalError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [dispatchInfo, setDispatchInfo] = useState(null);
   const [cooldown, setCooldown] = useState(0);
 
   const { forgotPassword, resetPassword, isLoading, error: storeError, clearError } = useAuthStore();
@@ -23,16 +24,33 @@ export default function ForgotPasswordPage() {
     return () => clearTimeout(t);
   }, [cooldown]);
 
+  const normalizedIdentifier = identifier.trim().includes('@')
+    ? identifier.trim().toLowerCase()
+    : identifier.trim();
+
   const handleRequestOtp = async (e) => {
     if (e) e.preventDefault();
-    if (!email.trim()) return;
+    if (!normalizedIdentifier) return;
     setLocalError('');
     setSuccessMsg('');
     clearError();
 
     try {
-      await forgotPassword(email.trim().toLowerCase());
-      setSuccessMsg(`A 6-digit reset code has been sent to ${email.trim().toLowerCase()}.`);
+      const data = await forgotPassword(normalizedIdentifier);
+      setDispatchInfo(data || null);
+
+      if (data?.emailSent && data?.smsSent) {
+        setSuccessMsg('A 6-digit reset code has been sent to both your registered email and mobile SMS.');
+      } else if (data?.smsSent) {
+        setSuccessMsg('A 6-digit reset code has been sent to your registered mobile number via SMS.');
+      } else if (data?.emailSent) {
+        setSuccessMsg('A 6-digit reset code has been sent to your registered email address.');
+      } else {
+        setSuccessMsg(
+          'If an account exists with those details, a 6-digit reset code has been sent to your registered email and mobile SMS.'
+        );
+      }
+
       setStep(2);
       setCooldown(30);
     } catch (err) {
@@ -56,13 +74,15 @@ export default function ForgotPasswordPage() {
     }
 
     try {
-      await resetPassword(email.trim().toLowerCase(), otp.trim(), newPassword);
+      await resetPassword(normalizedIdentifier, otp.trim(), newPassword);
       setSuccessMsg('Password has been reset successfully! Redirecting to login...');
       setTimeout(() => navigate('/login'), 1800);
     } catch (err) {
       setLocalError(err.message || 'Password reset failed');
     }
   };
+
+  const isEmailInput = normalizedIdentifier.includes('@');
 
   return (
     <div className="min-h-[calc(100vh-60px)] relative overflow-hidden bg-gradient-to-b from-[#FFF5F0] via-white to-[#FFF0EA] dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8">
@@ -82,8 +102,8 @@ export default function ForgotPasswordPage() {
           </h1>
           <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
             {step === 1
-              ? 'Enter your registered email to receive a 6-digit recovery OTP'
-              : 'Enter the 6-digit code sent to your email and choose a new password'}
+              ? 'Enter your registered email or mobile number to receive a 6-digit recovery OTP via Email & SMS'
+              : 'Enter the 6-digit code sent to your email & SMS and choose a new password'}
           </p>
         </div>
 
@@ -108,21 +128,28 @@ export default function ForgotPasswordPage() {
             <form onSubmit={handleRequestOtp} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-200 mb-1.5">
-                  Registered Email Address
+                  Registered Email or Mobile Number
                 </label>
                 <div className="relative rounded-2xl shadow-xs">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400 dark:text-neutral-500">
-                    <Mail className="h-4 w-4" />
+                    {isEmailInput || !identifier ? (
+                      <Mail className="h-4 w-4" />
+                    ) : (
+                      <Smartphone className="h-4 w-4" />
+                    )}
                   </div>
                   <input
-                    type="email"
+                    type="text"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@example.com"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    placeholder="name@example.com or 9876543210"
                     className="block w-full pl-10 pr-3.5 py-3 text-xs sm:text-sm border border-neutral-200 dark:border-slate-700 rounded-2xl bg-neutral-50/70 dark:bg-slate-800/60 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#FF541E] focus:border-transparent transition-all"
                   />
                 </div>
+                <p className="mt-1.5 text-[11px] text-neutral-500 dark:text-neutral-400">
+                  We will dispatch the 6-digit recovery OTP to both your registered <strong>Email</strong> and <strong>Mobile SMS</strong>.
+                </p>
               </div>
 
               <button
@@ -134,7 +161,7 @@ export default function ForgotPasswordPage() {
                   <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <>
-                    <span>Send Reset Code to Email</span>
+                    <span>Send Reset Code (Email &amp; SMS)</span>
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
@@ -145,7 +172,13 @@ export default function ForgotPasswordPage() {
               <div className="mb-4 rounded-2xl bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200/90 dark:border-amber-800/50 p-3 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
                 <span className="text-base leading-none mt-0.5">📩</span>
                 <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
-                  Sent by <strong>Crave Courier</strong> to <strong>{email}</strong>. Please check your <strong>Spam</strong> or <strong>Promotions</strong> folder if not in your primary inbox.
+                  Dispatched by <strong>Crave Courier</strong> for <strong>{normalizedIdentifier}</strong> via{' '}
+                  {dispatchInfo?.emailSent && dispatchInfo?.smsSent
+                    ? 'Email & Mobile SMS'
+                    : dispatchInfo?.smsSent
+                    ? 'Mobile SMS'
+                    : 'Email & Mobile SMS'}
+                  . Please check your SMS messages or email <strong>Spam / Promotions</strong> folder.
                 </p>
               </div>
 
@@ -220,7 +253,19 @@ export default function ForgotPasswordPage() {
                   )}
                 </button>
 
-                <div className="text-center pt-1">
+                <div className="flex items-center justify-between pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStep(1);
+                      setOtp('');
+                      setLocalError('');
+                      setSuccessMsg('');
+                    }}
+                    className="text-xs font-semibold text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
+                  >
+                    Change email / mobile
+                  </button>
                   <button
                     type="button"
                     onClick={() => handleRequestOtp()}
@@ -228,7 +273,7 @@ export default function ForgotPasswordPage() {
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FF541E] hover:text-[#E03E00] dark:text-orange-400 disabled:opacity-50"
                   >
                     <RotateCw className="h-3.5 w-3.5" />
-                    <span>{cooldown > 0 ? `Resend reset code in ${cooldown}s` : 'Resend Reset Code'}</span>
+                    <span>{cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend Code'}</span>
                   </button>
                 </div>
               </form>

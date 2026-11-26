@@ -79,8 +79,6 @@ cartSchema.methods.recalculateTotals = async function () {
           livePrice = foundVar.sellingPrice;
           item.selectedVariant.sellingPrice = foundVar.sellingPrice;
           item.selectedVariant.mrp = foundVar.mrp;
-        } else if (item.selectedVariant.sellingPrice > 0) {
-          livePrice = item.selectedVariant.sellingPrice;
         }
       }
 

@@ -151,6 +151,19 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    otpFailedAttempts: {
+      type: Number,
+      default: 0,
+      select: false,
+    },
+    otpLockedUntil: {
+      type: Date,
+      select: false,
+    },
+    passwordChangedAt: {
+      type: Date,
+      select: false,
+    },
     fcmTokens: [
       {
         token: { type: String, required: true },

@@ -16,9 +16,9 @@ services:
       - key: MONGO_URI
         sync: false
       - key: CLIENT_URL
-        sync: false
+        value: https://www.cravecourier.in
       - key: ALLOWED_ORIGINS
-        sync: false
+        value: https://cravecourier.in,https://www.cravecourier.in,https://client-six-kappa.vercel.app
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
@@ -30,13 +30,23 @@ services:
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
       - key: STRIPE_CURRENCY
-        value: usd
+        value: inr
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
       - key: BREVO_API_KEY
         sync: false
       - key: BREVO_SENDER_EMAIL
         sync: false
       - key: BREVO_SENDER_NAME
         value: Crave Courier
+      - key: TWOFACTOR_API_KEY
+        sync: false
+      - key: TWOFACTOR_TEMPLATE_NAME
+        sync: false
+      - key: FAST2SMS_API_KEY
+        sync: false
 
   # 2. Crave PWA Frontend (Render Static Site)
   - type: web

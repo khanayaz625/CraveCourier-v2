@@ -73,7 +73,7 @@ export default function VerifyEmailPage() {
     setResending(true);
     try {
       await resendOtp(email || phone, phone);
-      setSuccessMsg('A fresh 6-digit code has been sent to your email inbox.');
+      setSuccessMsg('A fresh 6-digit code has been sent to your email and registered mobile number.');
       setResendCooldown(30);
     } catch (err) {
       setLocalError(err.message || 'Failed to resend verification code');

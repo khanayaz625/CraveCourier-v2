@@ -66,12 +66,20 @@ export const addItem = asyncHandler(async (req, res) => {
       ? product.discountPrice
       : product.price;
 
+  let resolvedVariant = null;
   if (variant && variant.size) {
     const foundVar = product.variants?.find((v) => v.size === variant.size);
     if (foundVar) {
       livePrice = foundVar.sellingPrice;
-    } else if (variant.sellingPrice > 0) {
-      livePrice = variant.sellingPrice;
+      resolvedVariant = {
+        size: foundVar.size,
+        unit: foundVar.unit || '',
+        mrp: foundVar.mrp || 0,
+        sellingPrice: foundVar.sellingPrice,
+        sku: foundVar.sku || '',
+      };
+    } else if (Array.isArray(product.variants) && product.variants.length > 0) {
+      throw new ApiError(400, `Selected variant '${variant.size}' is not valid for this product`);
     }
   }
 
@@ -87,8 +95,8 @@ export const addItem = asyncHandler(async (req, res) => {
     }
     cart.items[existingItemIndex].quantity = requestedQty;
     cart.items[existingItemIndex].priceAtAddition = livePrice;
-    if (variant) {
-      cart.items[existingItemIndex].selectedVariant = variant;
+    if (resolvedVariant) {
+      cart.items[existingItemIndex].selectedVariant = resolvedVariant;
     }
   } else {
     const safeQty = Math.min(parseInt(quantity, 10), product.stock);
@@ -96,7 +104,7 @@ export const addItem = asyncHandler(async (req, res) => {
       product: productId,
       quantity: safeQty,
       priceAtAddition: livePrice,
-      selectedVariant: variant || null,
+      selectedVariant: resolvedVariant,
     });
   }
 

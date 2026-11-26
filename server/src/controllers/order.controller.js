@@ -66,11 +66,17 @@ export const getOrderById = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'Order not found');
   }
 
-  // Authorization check: customer must own the order, or user is admin or delivery partner
+  // Authorization check: customer owner, admin, assigned delivery partner, or rider viewing unassigned ready order
   const isCustomerOwner = order.customer._id.toString() === req.user._id.toString();
-  const isAdminOrDelivery = req.user.role === 'admin' || req.user.role === 'delivery';
+  const isAdmin = req.user.role === 'admin';
+  const isAssignedDelivery =
+    req.user.role === 'delivery' &&
+    order.deliveryPartner &&
+    order.deliveryPartner._id.toString() === req.user._id.toString();
+  const isOpenPickupDelivery =
+    req.user.role === 'delivery' && !order.deliveryPartner && order.status === 'ready';
 
-  if (!isCustomerOwner && !isAdminOrDelivery) {
+  if (!isCustomerOwner && !isAdmin && !isAssignedDelivery && !isOpenPickupDelivery) {
     throw new ApiError(403, 'You do not have permission to view this order');
   }
 
@@ -153,8 +159,11 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'Order not found');
   }
 
-  // Delivery partner rules: can claim and update status
+  // Delivery partner rules: can only update orders unassigned or assigned to themselves
   if (req.user.role === 'delivery') {
+    if (order.deliveryPartner && order.deliveryPartner.toString() !== req.user._id.toString()) {
+      throw new ApiError(403, 'This order is assigned to another delivery partner');
+    }
     if (!order.deliveryPartner) {
       order.deliveryPartner = req.user._id;
     }

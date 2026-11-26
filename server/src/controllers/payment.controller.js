@@ -214,6 +214,9 @@ export const confirmStripePayment = asyncHandler(async (req, res) => {
   // Idempotency check: see if order has already been created for this paymentIntentId
   const existingOrder = await Order.findOne({ paymentId: paymentIntentId });
   if (existingOrder) {
+    if (existingOrder.customer.toString() !== req.user._id.toString()) {
+      throw new ApiError(403, 'Unauthorized payment reference');
+    }
     return res.status(200).json(
       new ApiResponse(200, {
         order: existingOrder,
@@ -223,16 +226,26 @@ export const confirmStripePayment = asyncHandler(async (req, res) => {
     );
   }
 
-  // 1. Verify with Stripe if configured
-  if (isStripeConfigured() && !paymentIntentId.startsWith('pi_mock_')) {
+  // 1. Verify with Stripe (never allow pi_mock_ bypass in production or when Stripe is configured)
+  let verifiedIntent = null;
+  if (isStripeConfigured()) {
+    if (paymentIntentId.startsWith('pi_mock_')) {
+      throw new ApiError(400, 'Invalid Stripe PaymentIntent ID');
+    }
     try {
-      const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
-      if (intent.status !== 'succeeded') {
-        throw new ApiError(400, `Payment verification failed. Current status: ${intent.status}`);
+      verifiedIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      if (verifiedIntent.status !== 'succeeded') {
+        throw new ApiError(400, `Payment verification failed. Current status: ${verifiedIntent.status}`);
+      }
+      if (verifiedIntent.metadata?.userId && verifiedIntent.metadata.userId !== req.user._id.toString()) {
+        throw new ApiError(403, 'PaymentIntent does not belong to this account');
       }
     } catch (err) {
+      if (err instanceof ApiError) throw err;
       throw new ApiError(400, `Stripe verification failed: ${err.message}`);
     }
+  } else if (ENV.NODE_ENV === 'production') {
+    throw new ApiError(503, 'Stripe payment processing is not configured on the server');
   }
 
   // 2. Fetch User & Delivery Address
@@ -259,6 +272,14 @@ export const confirmStripePayment = asyncHandler(async (req, res) => {
   cart.totals.deliveryFee = deliveryFee;
   cart.totals.tax = 0;
   cart.totals.grandTotal = Math.max(0, Math.round((cart.totals.itemTotal + deliveryFee - (cart.totals.couponDiscount || 0)) * 100) / 100);
+
+  if (verifiedIntent) {
+    const expectedAmountInCents = Math.round(cart.totals.grandTotal * 100);
+    const paidAmount = verifiedIntent.amount_received || verifiedIntent.amount || 0;
+    if (paidAmount < expectedAmountInCents) {
+      throw new ApiError(400, 'Paid Stripe amount does not match current cart total');
+    }
+  }
 
   // 4. Create snapshot items
   const snapshotItems = await buildOrderItemsSnapshot(cart.items);
@@ -757,13 +778,35 @@ export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Missing required Razorpay payment confirmation details');
   }
 
-  // 1. Cryptographic HMAC-SHA256 signature verification
+  // Idempotency check: prevent duplicate order creation for the same Razorpay payment
+  const existingRazorpayOrder = await Order.findOne({ paymentId: razorpay_payment_id });
+  if (existingRazorpayOrder) {
+    if (existingRazorpayOrder.customer.toString() !== req.user._id.toString()) {
+      throw new ApiError(403, 'Unauthorized payment reference');
+    }
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          order: existingRazorpayOrder,
+          orderId: existingRazorpayOrder._id,
+          orderNumber: existingRazorpayOrder.orderNumber,
+          alreadyProcessed: true,
+        },
+        'Order already confirmed'
+      )
+    );
+  }
+
+  // 1. Cryptographic HMAC-SHA256 signature verification (constant-time comparison)
   const generatedSignature = crypto
     .createHmac('sha256', ENV.RAZORPAY_KEY_SECRET)
     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
     .digest('hex');
 
-  if (generatedSignature !== razorpay_signature) {
+  const sigA = Buffer.from(generatedSignature, 'utf8');
+  const sigB = Buffer.from(String(razorpay_signature), 'utf8');
+  if (sigA.length !== sigB.length || !crypto.timingSafeEqual(sigA, sigB)) {
     throw new ApiError(400, 'Cryptographic payment verification failed. Unauthorized signature.');
   }
 
@@ -785,6 +828,24 @@ export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
   cart.totals.deliveryFee = deliveryFee;
   cart.totals.tax = 0;
   cart.totals.grandTotal = Math.max(0, Math.round((cart.totals.itemTotal + deliveryFee - (cart.totals.couponDiscount || 0)) * 100) / 100);
+
+  // Verify live Razorpay order amount & ownership to prevent cart tampering between order creation & verify
+  const isMockTestOrder = ENV.NODE_ENV === 'test' && razorpay_order_id.startsWith('order_test_');
+  if (isRazorpayConfigured() && !isMockTestOrder) {
+    try {
+      const rzpOrder = await razorpay.orders.fetch(razorpay_order_id);
+      const expectedPaise = Math.round(cart.totals.grandTotal * 100);
+      if (rzpOrder.notes?.userId && rzpOrder.notes.userId !== req.user._id.toString()) {
+        throw new ApiError(403, 'Razorpay order does not belong to this account');
+      }
+      if (typeof rzpOrder.amount === 'number' && rzpOrder.amount < expectedPaise) {
+        throw new ApiError(400, 'Paid Razorpay amount does not match current cart total');
+      }
+    } catch (err) {
+      if (err instanceof ApiError) throw err;
+      throw new ApiError(400, `Razorpay order verification failed: ${err.message}`);
+    }
+  }
 
   // 4. Build snapshot items
   const snapshotItems = await buildOrderItemsSnapshot(cart.items);

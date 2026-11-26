@@ -15,7 +15,11 @@ import {
   sendSmsOtp,
   maskPhoneNumber,
   formatPhoneNumber,
+  getPhoneLookupVariants,
 } from '../services/sms.service.js';
+
+const MAX_OTP_FAILED_ATTEMPTS = 5;
+const OTP_LOCK_DURATION_MS = 15 * 60 * 1000;
 
 // Helper to generate access and refresh tokens
 const generateTokens = async (userId) => {
@@ -33,16 +37,87 @@ const generateTokens = async (userId) => {
   return { accessToken, refreshToken };
 };
 
-// Cookie settings helper
-const getCookieOptions = (isRefresh = false) => ({
-  httpOnly: true,
-  secure: ENV.NODE_ENV === 'production',
-  sameSite: ENV.NODE_ENV === 'production' ? 'none' : 'lax',
-  maxAge: isRefresh ? 7 * 24 * 60 * 60 * 1000 : 15 * 60 * 1000,
-});
+// Cookie settings helper (supports cross-origin HTTPS even behind reverse proxy)
+const getCookieOptions = (req, isRefresh = false) => {
+  const isHttps =
+    ENV.NODE_ENV === 'production' ||
+    Boolean(req?.secure) ||
+    req?.headers?.['x-forwarded-proto'] === 'https';
 
-// Helper to generate 6-digit OTP
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+  return {
+    httpOnly: true,
+    secure: isHttps,
+    sameSite: isHttps ? 'none' : 'lax',
+    maxAge: isRefresh ? 7 * 24 * 60 * 60 * 1000 : 15 * 60 * 1000,
+  };
+};
+
+// Cryptographically secure 6-digit OTP generator
+const generateOTP = () => crypto.randomInt(100000, 1000000).toString();
+
+// Constant-time string comparison for OTPs
+const isOtpMatch = (storedOtp, providedOtp) => {
+  if (typeof storedOtp !== 'string' || typeof providedOtp !== 'string') return false;
+  if (!storedOtp || !providedOtp) return false;
+  const a = Buffer.from(storedOtp, 'utf8');
+  const b = Buffer.from(providedOtp, 'utf8');
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+};
+
+// Mask OTPs in production logs
+const logAuthOtp = (label, target, otp) => {
+  const safeOtp = ENV.NODE_ENV === 'production' ? '******' : otp;
+  console.info(`[AUTH] ${label} for ${target}: ${safeOtp}`);
+};
+
+// Lookup user safely by email, phone, or generic identifier (no unanchored $regex)
+const findUserByIdentifier = async ({ email, phone, identifier }, selectFields = '') => {
+  const raw = (identifier || '').trim();
+  const resolvedEmail = email || (raw.includes('@') ? raw.toLowerCase() : '');
+  const resolvedPhone = phone || (!raw.includes('@') && raw ? raw : '');
+
+  let query = null;
+  if (resolvedEmail) {
+    query = { email: resolvedEmail };
+  } else if (resolvedPhone) {
+    const variants = getPhoneLookupVariants(resolvedPhone);
+    if (variants.length === 0) {
+      return null;
+    }
+    query = { phone: { $in: variants } };
+  } else {
+    return null;
+  }
+
+  const dbQuery = User.findOne(query);
+  return selectFields ? dbQuery.select(selectFields) : dbQuery;
+};
+
+// Enforce per-account OTP brute-force lockout
+const assertNotOtpLocked = (user) => {
+  if (user.otpLockedUntil && new Date() < user.otpLockedUntil) {
+    throw new ApiError(
+      429,
+      'Too many incorrect OTP attempts. For your security, please request a new code or try again in 15 minutes.'
+    );
+  }
+};
+
+// Record failed OTP attempt and invalidate OTP after MAX_OTP_FAILED_ATTEMPTS
+const recordOtpFailure = async (user, fieldsToClear = {}) => {
+  const nextAttempts = (user.otpFailedAttempts || 0) + 1;
+  user.otpFailedAttempts = nextAttempts;
+
+  if (nextAttempts >= MAX_OTP_FAILED_ATTEMPTS) {
+    Object.keys(fieldsToClear).forEach((field) => {
+      user[field] = undefined;
+    });
+    user.otpLockedUntil = new Date(Date.now() + OTP_LOCK_DURATION_MS);
+  }
+
+  await user.save({ validateBeforeSave: false });
+};
 
 /**
  * @desc   Register a new user (Customer or Delivery Partner)
@@ -50,6 +125,7 @@ const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString()
  */
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password, phone, role } = req.body;
+  const formattedPhone = phone ? formatPhoneNumber(phone) : undefined;
 
   // 1. Check if user already exists
   const existingUser = await User.findOne({ email });
@@ -58,42 +134,46 @@ export const register = asyncHandler(async (req, res) => {
       throw new ApiError(409, 'An account with this email address already exists. Please log in.');
     }
 
-    // Existing unverified account: update credentials, refresh OTP and allow re-verification!
+    // Existing unverified account: update credentials, refresh OTP and allow re-verification
     existingUser.name = name || existingUser.name;
     existingUser.password = password; // mongoose pre-save hook will hash this password
-    if (phone) existingUser.phone = phone;
+    if (formattedPhone) existingUser.phone = formattedPhone;
     if (role) existingUser.role = role;
 
     const verificationOtp = generateOTP();
     existingUser.verificationOtp = verificationOtp;
     existingUser.verificationOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
-    if (existingUser.phone || phone) {
+    existingUser.otpFailedAttempts = 0;
+    existingUser.otpLockedUntil = undefined;
+    if (existingUser.phone) {
       existingUser.phoneOtp = verificationOtp;
       existingUser.phoneOtpExpires = existingUser.verificationOtpExpires;
     }
     await existingUser.save();
 
-    console.info(`[AUTH] Refreshed OTP for unverified account ${email}: ${verificationOtp}`);
+    logAuthOtp('Refreshed OTP for unverified account', email, verificationOtp);
 
-    // Dispatch fresh transactional verification email
-    const refreshEmailRes = await sendVerificationOtpEmail({
-      toEmail: existingUser.email,
-      toName: existingUser.name,
-      otp: verificationOtp,
-      expiryMinutes: 15,
-    }).catch((err) => {
-      console.error('[AUTH] Failed to send verification email on account refresh:', err);
-      return { success: false };
-    });
-
-    // Dispatch fresh SMS OTP via 2Factor.in / SMS Gateway
-    if (existingUser.phone || phone) {
-      sendSmsOtp({
-        phone: existingUser.phone || phone,
+    const [refreshEmailRes, refreshSmsRes] = await Promise.all([
+      sendVerificationOtpEmail({
+        toEmail: existingUser.email,
+        toName: existingUser.name,
         otp: verificationOtp,
-        purpose: 'Account Registration Verification',
-      }).catch((err) => console.error('[AUTH] Failed to send SMS OTP on account refresh:', err));
-    }
+        expiryMinutes: 15,
+      }).catch((err) => {
+        console.error('[AUTH] Failed to send verification email on account refresh:', err);
+        return { success: false };
+      }),
+      existingUser.phone
+        ? sendSmsOtp({
+            phone: existingUser.phone,
+            otp: verificationOtp,
+            purpose: 'Account Registration Verification',
+          }).catch((err) => {
+            console.error('[AUTH] Failed to send SMS OTP on account refresh:', err);
+            return { success: false };
+          })
+        : Promise.resolve({ success: false }),
+    ]);
 
     return res.status(200).json(
       new ApiResponse(
@@ -110,8 +190,9 @@ export const register = asyncHandler(async (req, res) => {
           },
           requiresVerification: true,
           emailSent: Boolean(refreshEmailRes?.success),
+          smsSent: Boolean(refreshSmsRes?.success),
         },
-        'A fresh 6-digit verification code has been sent to your email.'
+        'A fresh 6-digit verification code has been sent to your email and registered mobile number.'
       )
     );
   }
@@ -125,12 +206,12 @@ export const register = asyncHandler(async (req, res) => {
     name,
     email,
     password,
-    phone,
+    phone: formattedPhone,
     role: role || 'customer',
     verificationOtp,
     verificationOtpExpires,
-    phoneOtp: phone ? verificationOtp : undefined,
-    phoneOtpExpires: phone ? verificationOtpExpires : undefined,
+    phoneOtp: formattedPhone ? verificationOtp : undefined,
+    phoneOtpExpires: formattedPhone ? verificationOtpExpires : undefined,
     isEmailVerified: false,
   });
 
@@ -149,27 +230,29 @@ export const register = asyncHandler(async (req, res) => {
   }
 
   // 5. Registration created, dispatch verification email & SMS OTP
-  console.info(`[AUTH] Verification OTP for ${email}: ${verificationOtp}`);
+  logAuthOtp('Verification OTP', email, verificationOtp);
 
-  // Dispatch live transactional email via Brevo
-  const emailRes = await sendVerificationOtpEmail({
-    toEmail: user.email,
-    toName: user.name,
-    otp: verificationOtp,
-    expiryMinutes: 15,
-  }).catch((err) => {
-    console.error(`[AUTH] Failed to send verification email to ${user.email}:`, err);
-    return { success: false };
-  });
-
-  // Dispatch live SMS OTP via 2Factor.in / SMS Gateway
-  if (user.phone) {
-    sendSmsOtp({
-      phone: user.phone,
+  const [emailRes, smsRes] = await Promise.all([
+    sendVerificationOtpEmail({
+      toEmail: user.email,
+      toName: user.name,
       otp: verificationOtp,
-      purpose: 'Account Registration Verification',
-    }).catch((err) => console.error(`[AUTH] Failed to send SMS OTP to ${user.phone}:`, err));
-  }
+      expiryMinutes: 15,
+    }).catch((err) => {
+      console.error(`[AUTH] Failed to send verification email to ${user.email}:`, err);
+      return { success: false };
+    }),
+    user.phone
+      ? sendSmsOtp({
+          phone: user.phone,
+          otp: verificationOtp,
+          purpose: 'Account Registration Verification',
+        }).catch((err) => {
+          console.error(`[AUTH] Failed to send SMS OTP to ${maskPhoneNumber(user.phone)}:`, err);
+          return { success: false };
+        })
+      : Promise.resolve({ success: false }),
+  ]);
 
   return res.status(201).json(
     new ApiResponse(
@@ -186,8 +269,9 @@ export const register = asyncHandler(async (req, res) => {
         },
         requiresVerification: true,
         emailSent: Boolean(emailRes?.success),
+        smsSent: Boolean(smsRes?.success),
       },
-      'Registration successful. Please verify with the 6-digit code sent to your email.'
+      'Registration successful. Please verify with the 6-digit code sent to your email and mobile number.'
     )
   );
 });
@@ -216,15 +300,21 @@ export const login = asyncHandler(async (req, res) => {
     throw new ApiError(401, 'Invalid email or password');
   }
 
-  // 3.5. Ensure email is verified before allowing sign in!
+  // 3.5. Ensure email is verified before allowing sign in
   if (!user.isEmailVerified) {
-    // Generate fresh OTP and dispatch to email so user can immediately verify
     const verificationOtp = generateOTP();
+    const expiry = new Date(Date.now() + 15 * 60 * 1000);
     user.verificationOtp = verificationOtp;
-    user.verificationOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
+    user.verificationOtpExpires = expiry;
+    user.otpFailedAttempts = 0;
+    user.otpLockedUntil = undefined;
+    if (user.phone) {
+      user.phoneOtp = verificationOtp;
+      user.phoneOtpExpires = expiry;
+    }
     await user.save({ validateBeforeSave: false });
 
-    console.info(`[AUTH] Dispatched new verification OTP on login attempt for ${user.email}: ${verificationOtp}`);
+    logAuthOtp('Dispatched new verification OTP on login attempt', user.email, verificationOtp);
 
     sendVerificationOtpEmail({
       toEmail: user.email,
@@ -233,13 +323,21 @@ export const login = asyncHandler(async (req, res) => {
       expiryMinutes: 15,
     }).catch((err) => console.error('[AUTH] Failed to dispatch verification email on login:', err));
 
+    if (user.phone) {
+      sendSmsOtp({
+        phone: user.phone,
+        otp: verificationOtp,
+        purpose: 'Account Verification',
+      }).catch((err) => console.error('[AUTH] Failed to dispatch SMS verification OTP on login:', err));
+    }
+
     return res.status(403).json({
       statusCode: 403,
       success: false,
       isEmailVerified: false,
       email: user.email,
       role: user.role,
-      message: 'Email verification required. We have dispatched a fresh 6-digit code to your email. Please verify to sign in.',
+      message: 'Email verification required. We have dispatched a fresh 6-digit code to your email and registered mobile number.',
     });
   }
 
@@ -263,22 +361,23 @@ export const login = asyncHandler(async (req, res) => {
     user.twoFactorOtp = twoFactorOtp;
     user.twoFactorOtpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     user.twoFactorTempToken = twoFactorTempToken;
+    user.otpFailedAttempts = 0;
+    user.otpLockedUntil = undefined;
     await user.save({ validateBeforeSave: false });
 
-    // Send SMS OTP
-    await sendSmsOtp({
-      phone: user.phone,
-      otp: twoFactorOtp,
-      purpose: '2-Factor Security',
-    });
-
-    // Send backup copy to user email
-    sendVerificationOtpEmail({
-      toEmail: user.email,
-      toName: user.name,
-      otp: twoFactorOtp,
-      expiryMinutes: 10,
-    }).catch(() => {});
+    const [smsRes, emailRes] = await Promise.all([
+      sendSmsOtp({
+        phone: user.phone,
+        otp: twoFactorOtp,
+        purpose: '2-Factor Security',
+      }).catch(() => ({ success: false })),
+      sendVerificationOtpEmail({
+        toEmail: user.email,
+        toName: user.name,
+        otp: twoFactorOtp,
+        expiryMinutes: 10,
+      }).catch(() => ({ success: false })),
+    ]);
 
     const maskedPhone = maskPhoneNumber(user.phone);
 
@@ -289,7 +388,8 @@ export const login = asyncHandler(async (req, res) => {
           requires2FA: true,
           twoFactorTempToken,
           maskedPhone,
-          phone: user.phone,
+          smsSent: Boolean(smsRes?.success),
+          emailSent: Boolean(emailRes?.success),
         },
         `2-Factor Authentication Required: A 6-digit security code has been sent to ${maskedPhone}.`
       )
@@ -299,7 +399,7 @@ export const login = asyncHandler(async (req, res) => {
   // 6. Generate tokens
   const { accessToken, refreshToken } = await generateTokens(user._id);
 
-  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
+  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(req, true));
 
   return res.status(200).json(
     new ApiResponse(
@@ -312,6 +412,7 @@ export const login = asyncHandler(async (req, res) => {
           role: user.role,
           phone: user.phone,
           isEmailVerified: user.isEmailVerified,
+          twoFactorEnabled: user.twoFactorEnabled,
           avatar: user.avatar,
         },
         accessToken,
@@ -348,7 +449,7 @@ export const adminLogin = asyncHandler(async (req, res) => {
 
   const { accessToken, refreshToken } = await generateTokens(user._id);
 
-  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
+  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(req, true));
 
   return res.status(200).json(
     new ApiResponse(
@@ -383,9 +484,21 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   try {
     const decoded = jwt.verify(incomingRefreshToken, ENV.JWT_REFRESH_SECRET);
 
-    const user = await User.findById(decoded._id).select('+refreshToken');
+    const user = await User.findById(decoded._id).select('+refreshToken +passwordChangedAt');
     if (!user) {
       throw new ApiError(401, 'Invalid refresh token. User not found.');
+    }
+
+    if (!user.isActive) {
+      throw new ApiError(403, 'Your account has been deactivated. Please contact support.');
+    }
+
+    if (
+      user.passwordChangedAt &&
+      decoded.iat &&
+      decoded.iat * 1000 < user.passwordChangedAt.getTime() - 1000
+    ) {
+      throw new ApiError(401, 'Password was recently changed. Please log in again.');
     }
 
     if (incomingRefreshToken !== user.refreshToken) {
@@ -395,7 +508,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     // Rotate tokens
     const { accessToken, refreshToken } = await generateTokens(user._id);
 
-    res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
+    res.cookie('crave_refreshToken', refreshToken, getCookieOptions(req, true));
 
     return res.status(200).json(
       new ApiResponse(
@@ -407,6 +520,8 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
             name: user.name,
             email: user.email,
             role: user.role,
+            phone: user.phone,
+            twoFactorEnabled: user.twoFactorEnabled,
             avatar: user.avatar,
           },
         },
@@ -414,7 +529,8 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
       )
     );
   } catch (err) {
-    throw new ApiError(401, err.message || 'Invalid refresh token. Please log in again.');
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(401, 'Invalid or expired refresh token. Please log in again.');
   }
 });
 
@@ -437,8 +553,8 @@ export const logout = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } });
   }
 
-  res.clearCookie('crave_refreshToken', getCookieOptions(true));
-  res.clearCookie('crave_accessToken', getCookieOptions(false));
+  res.clearCookie('crave_refreshToken', getCookieOptions(req, true));
+  res.clearCookie('crave_accessToken', getCookieOptions(req, false));
 
   return res.status(200).json(new ApiResponse(200, {}, 'User logged out successfully'));
 });
@@ -450,59 +566,67 @@ export const logout = asyncHandler(async (req, res) => {
 export const verifyEmail = asyncHandler(async (req, res) => {
   const { email, phone, otp } = req.body;
 
-  let query = {};
-  if (email) {
-    query.email = email;
-  } else if (phone) {
-    const rawDigits = phone.replace(/[^\d]/g, '').slice(-10);
-    query = { $or: [{ phone: formatPhoneNumber(phone) }, { phone: { $regex: rawDigits } }] };
-  } else {
-    throw new ApiError(400, 'Please provide an email address or mobile phone number.');
-  }
-
-  const user = await User.findOne(query).select('+verificationOtp +verificationOtpExpires +phoneOtp +phoneOtpExpires');
+  const user = await findUserByIdentifier(
+    { email, phone },
+    '+verificationOtp +verificationOtpExpires +phoneOtp +phoneOtpExpires +otpFailedAttempts +otpLockedUntil'
+  );
   if (!user) {
     throw new ApiError(404, 'User account not found');
+  }
+
+  if (!user.isActive) {
+    throw new ApiError(403, 'Your account is deactivated. Please contact support.');
   }
 
   if (user.isEmailVerified && user.isPhoneVerified) {
     return res.status(200).json(new ApiResponse(200, {}, 'Account is already verified.'));
   }
 
-  const isMatch =
-    (user.verificationOtp && user.verificationOtp === otp) ||
-    (user.phoneOtp && user.phoneOtp === otp);
+  assertNotOtpLocked(user);
 
-  if (!isMatch) {
+  const emailOtpMatched = isOtpMatch(user.verificationOtp, otp);
+  const phoneOtpMatched = isOtpMatch(user.phoneOtp, otp);
+
+  if (!emailOtpMatched && !phoneOtpMatched) {
+    await recordOtpFailure(user, {
+      verificationOtp: 1,
+      verificationOtpExpires: 1,
+      phoneOtp: 1,
+      phoneOtpExpires: 1,
+    });
     throw new ApiError(400, 'Invalid verification code. Please check and try again.');
   }
 
-  const isExpired =
-    user.verificationOtpExpires && new Date() > user.verificationOtpExpires &&
-    (!user.phoneOtpExpires || new Date() > user.phoneOtpExpires);
+  const now = new Date();
+  const isEmailOtpValid =
+    emailOtpMatched && user.verificationOtpExpires && now <= user.verificationOtpExpires;
+  const isPhoneOtpValid =
+    phoneOtpMatched && user.phoneOtpExpires && now <= user.phoneOtpExpires;
 
-  if (isExpired) {
+  if (!isEmailOtpValid && !isPhoneOtpValid) {
     throw new ApiError(400, 'Verification code has expired. Please request a new code.');
   }
 
   user.isEmailVerified = true;
-  user.isPhoneVerified = true;
+  if (user.phone) user.isPhoneVerified = true;
   user.verificationOtp = undefined;
   user.verificationOtpExpires = undefined;
   user.phoneOtp = undefined;
   user.phoneOtpExpires = undefined;
+  user.otpFailedAttempts = 0;
+  user.otpLockedUntil = undefined;
   await user.save({ validateBeforeSave: false });
 
   // Generate tokens NOW upon successful verification
   const { accessToken, refreshToken } = await generateTokens(user._id);
-  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
+  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(req, true));
 
   return res.status(200).json(
     new ApiResponse(
       200,
       {
         isEmailVerified: true,
-        isPhoneVerified: true,
+        isPhoneVerified: Boolean(user.isPhoneVerified),
         user: {
           _id: user._id,
           name: user.name,
@@ -510,7 +634,7 @@ export const verifyEmail = asyncHandler(async (req, res) => {
           role: user.role,
           phone: user.phone,
           isEmailVerified: true,
-          isPhoneVerified: true,
+          isPhoneVerified: Boolean(user.isPhoneVerified),
           avatar: user.avatar,
         },
         accessToken,
@@ -527,17 +651,7 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 export const resendOtp = asyncHandler(async (req, res) => {
   const { email, phone } = req.body;
 
-  let query = {};
-  if (email) {
-    query.email = email;
-  } else if (phone) {
-    const rawDigits = phone.replace(/[^\d]/g, '').slice(-10);
-    query = { $or: [{ phone: formatPhoneNumber(phone) }, { phone: { $regex: rawDigits } }] };
-  } else {
-    throw new ApiError(400, 'Please provide an email address or mobile phone number.');
-  }
-
-  const user = await User.findOne(query);
+  const user = await findUserByIdentifier({ email, phone });
   if (!user) {
     throw new ApiError(404, 'User account not found');
   }
@@ -549,88 +663,111 @@ export const resendOtp = asyncHandler(async (req, res) => {
   const newOtp = generateOTP();
   user.verificationOtp = newOtp;
   user.verificationOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
+  user.otpFailedAttempts = 0;
+  user.otpLockedUntil = undefined;
   if (user.phone) {
     user.phoneOtp = newOtp;
     user.phoneOtpExpires = user.verificationOtpExpires;
   }
   await user.save({ validateBeforeSave: false });
 
-  console.info(`[AUTH] Resent Verification OTP for ${user.email || user.phone}: ${newOtp}`);
+  logAuthOtp('Resent Verification OTP', user.email || maskPhoneNumber(user.phone), newOtp);
 
-  // Dispatch live transactional email via Brevo
-  let emailRes = { success: false };
-  if (user.email) {
-    emailRes = await sendVerificationOtpEmail({
-      toEmail: user.email,
-      toName: user.name,
-      otp: newOtp,
-      expiryMinutes: 15,
-    }).catch((err) => {
-      console.error('[AUTH] Failed to resend verification email:', err);
-      return { success: false };
-    });
-  }
-
-  // Dispatch live SMS OTP via 2Factor.in / SMS Gateway
-  if (user.phone) {
-    sendSmsOtp({
-      phone: user.phone,
-      otp: newOtp,
-      purpose: 'Account Verification',
-    }).catch((err) => console.error('[AUTH] Failed to resend SMS OTP:', err));
-  }
+  const [emailRes, smsRes] = await Promise.all([
+    user.email && !user.email.endsWith('@cravecourier.app')
+      ? sendVerificationOtpEmail({
+          toEmail: user.email,
+          toName: user.name,
+          otp: newOtp,
+          expiryMinutes: 15,
+        }).catch((err) => {
+          console.error('[AUTH] Failed to resend verification email:', err);
+          return { success: false };
+        })
+      : Promise.resolve({ success: false }),
+    user.phone
+      ? sendSmsOtp({
+          phone: user.phone,
+          otp: newOtp,
+          purpose: 'Account Verification',
+        }).catch((err) => {
+          console.error('[AUTH] Failed to resend SMS OTP:', err);
+          return { success: false };
+        })
+      : Promise.resolve({ success: false }),
+  ]);
 
   return res.status(200).json(
     new ApiResponse(
       200,
       {
         emailSent: Boolean(emailRes?.success),
+        smsSent: Boolean(smsRes?.success),
       },
-      'A fresh 6-digit verification code has been dispatched to your email.'
+      'A fresh 6-digit verification code has been dispatched to your email and registered mobile number.'
     )
   );
 });
 
 /**
- * @desc   Request password reset OTP
+ * @desc   Request password reset OTP (Dispatched via BOTH Email & SMS)
  * @route  POST /api/auth/forgot-password
  */
 export const forgotPassword = asyncHandler(async (req, res) => {
-  const { email } = req.body;
+  const { email, phone, identifier } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) {
+  const user = await findUserByIdentifier({ email, phone, identifier });
+  if (!user || !user.isActive) {
     // For security, do not disclose whether user exists
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          {},
-          'If an account exists with that email, a password reset code has been sent.'
-        )
-      );
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {},
+        'If an account exists with those details, a 6-digit password reset code has been sent to your registered email and mobile SMS.'
+      )
+    );
   }
 
   const resetOtp = generateOTP();
   user.resetPasswordOtp = resetOtp;
   user.resetPasswordOtpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+  user.otpFailedAttempts = 0;
+  user.otpLockedUntil = undefined;
   await user.save({ validateBeforeSave: false });
 
-  console.info(`[AUTH] Password Reset OTP for ${email}: ${resetOtp}`);
+  logAuthOtp('Password Reset OTP', user.email || maskPhoneNumber(user.phone), resetOtp);
 
-  // Dispatch live password reset email via Brevo
-  const emailDispatch = await sendPasswordResetOtpEmail({
-    toEmail: user.email,
-    toName: user.name,
-    otp: resetOtp,
-    expiryMinutes: 15,
-  });
+  const hasRealEmail = Boolean(user.email && !user.email.endsWith('@cravecourier.app'));
 
-  if (!emailDispatch?.success) {
+  const [emailDispatch, smsDispatch] = await Promise.all([
+    hasRealEmail
+      ? sendPasswordResetOtpEmail({
+          toEmail: user.email,
+          toName: user.name,
+          otp: resetOtp,
+          expiryMinutes: 15,
+        }).catch((err) => {
+          console.error(`[AUTH] Failed to send password reset email to ${user.email}:`, err);
+          return { success: false, error: err.message };
+        })
+      : Promise.resolve({ success: false }),
+    user.phone
+      ? sendSmsOtp({
+          phone: user.phone,
+          otp: resetOtp,
+          purpose: 'Password Reset',
+        }).catch((err) => {
+          console.error(`[AUTH] Failed to send password reset SMS to ${maskPhoneNumber(user.phone)}:`, err);
+          return { success: false, error: err.message };
+        })
+      : Promise.resolve({ success: false }),
+  ]);
+
+  if (hasRealEmail && !emailDispatch?.success) {
     console.error(`[AUTH] Failed to send password reset email to ${user.email}:`, emailDispatch?.error);
-  } else {
-    console.info(`[AUTH] Password reset email sent to ${user.email}, messageId: ${emailDispatch?.messageId}`);
+  }
+  if (user.phone && !smsDispatch?.success) {
+    console.warn(`[AUTH] Password reset SMS not delivered to ${maskPhoneNumber(user.phone)}:`, smsDispatch?.error);
   }
 
   return res.status(200).json(
@@ -638,36 +775,53 @@ export const forgotPassword = asyncHandler(async (req, res) => {
       200,
       {
         emailSent: Boolean(emailDispatch?.success),
+        smsSent: Boolean(smsDispatch?.success),
       },
-      'If an account exists with that email, a password reset code has been sent.'
+      'If an account exists with those details, a 6-digit password reset code has been sent to your registered email and mobile SMS.'
     )
   );
 });
 
 /**
- * @desc   Reset password using OTP
+ * @desc   Reset password using OTP (received via Email or SMS)
  * @route  POST /api/auth/reset-password
  */
 export const resetPassword = asyncHandler(async (req, res) => {
-  const { email, otp, newPassword } = req.body;
+  const { email, phone, identifier, otp, newPassword } = req.body;
 
-  const user = await User.findOne({ email }).select('+resetPasswordOtp +resetPasswordOtpExpires');
+  const user = await findUserByIdentifier(
+    { email, phone, identifier },
+    '+resetPasswordOtp +resetPasswordOtpExpires +otpFailedAttempts +otpLockedUntil'
+  );
   if (!user) {
-    throw new ApiError(400, 'Invalid request. User not found.');
+    throw new ApiError(400, 'Invalid or expired reset code. Please request a new code.');
   }
 
-  if (!user.resetPasswordOtp || user.resetPasswordOtp !== otp) {
+  if (!user.isActive) {
+    throw new ApiError(403, 'Your account is deactivated. Please contact support.');
+  }
+
+  assertNotOtpLocked(user);
+
+  if (!isOtpMatch(user.resetPasswordOtp, otp)) {
+    await recordOtpFailure(user, {
+      resetPasswordOtp: 1,
+      resetPasswordOtpExpires: 1,
+    });
     throw new ApiError(400, 'Invalid reset code. Please check and try again.');
   }
 
-  if (new Date() > user.resetPasswordOtpExpires) {
+  if (!user.resetPasswordOtpExpires || new Date() > user.resetPasswordOtpExpires) {
     throw new ApiError(400, 'Reset code has expired. Please request a new code.');
   }
 
   // Update password (triggers bcrypt hashing pre-save hook)
   user.password = newPassword;
+  user.passwordChangedAt = new Date();
   user.resetPasswordOtp = undefined;
   user.resetPasswordOtpExpires = undefined;
+  user.otpFailedAttempts = 0;
+  user.otpLockedUntil = undefined;
   user.refreshToken = undefined; // Force re-login on all devices
   await user.save();
 
@@ -712,17 +866,28 @@ export const verify2FA = asyncHandler(async (req, res) => {
   const { twoFactorTempToken, otp } = req.body;
 
   const user = await User.findOne({ twoFactorTempToken })
-    .select('+twoFactorOtp +twoFactorOtpExpires +twoFactorTempToken');
+    .select('+twoFactorOtp +twoFactorOtpExpires +twoFactorTempToken +otpFailedAttempts +otpLockedUntil');
 
   if (!user) {
     throw new ApiError(400, 'Invalid or expired two-factor authentication session. Please sign in again.');
   }
 
-  if (!user.twoFactorOtp || user.twoFactorOtp !== otp) {
+  if (!user.isActive) {
+    throw new ApiError(403, 'Your account is deactivated. Please contact support.');
+  }
+
+  assertNotOtpLocked(user);
+
+  if (!isOtpMatch(user.twoFactorOtp, otp)) {
+    await recordOtpFailure(user, {
+      twoFactorOtp: 1,
+      twoFactorOtpExpires: 1,
+      twoFactorTempToken: 1,
+    });
     throw new ApiError(400, 'Invalid 6-digit security code. Please check your SMS and try again.');
   }
 
-  if (new Date() > user.twoFactorOtpExpires) {
+  if (!user.twoFactorOtpExpires || new Date() > user.twoFactorOtpExpires) {
     throw new ApiError(400, 'Security code has expired. Please request a fresh code.');
   }
 
@@ -730,11 +895,13 @@ export const verify2FA = asyncHandler(async (req, res) => {
   user.twoFactorOtp = undefined;
   user.twoFactorOtpExpires = undefined;
   user.twoFactorTempToken = undefined;
+  user.otpFailedAttempts = 0;
+  user.otpLockedUntil = undefined;
   await user.save({ validateBeforeSave: false });
 
   // Generate session tokens
   const { accessToken, refreshToken } = await generateTokens(user._id);
-  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
+  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(req, true));
 
   return res.status(200).json(
     new ApiResponse(
@@ -774,26 +941,32 @@ export const resend2FA = asyncHandler(async (req, res) => {
   const newOtp = generateOTP();
   user.twoFactorOtp = newOtp;
   user.twoFactorOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
+  user.otpFailedAttempts = 0;
+  user.otpLockedUntil = undefined;
   await user.save({ validateBeforeSave: false });
 
-  await sendSmsOtp({
-    phone: user.phone,
-    otp: newOtp,
-    purpose: '2-Factor Security',
-  });
-
-  sendVerificationOtpEmail({
-    toEmail: user.email,
-    toName: user.name,
-    otp: newOtp,
-    expiryMinutes: 10,
-  }).catch(() => {});
+  const [smsRes, emailRes] = await Promise.all([
+    sendSmsOtp({
+      phone: user.phone,
+      otp: newOtp,
+      purpose: '2-Factor Security',
+    }).catch(() => ({ success: false })),
+    sendVerificationOtpEmail({
+      toEmail: user.email,
+      toName: user.name,
+      otp: newOtp,
+      expiryMinutes: 10,
+    }).catch(() => ({ success: false })),
+  ]);
 
   return res.status(200).json(
     new ApiResponse(
       200,
-      {},
-      `A fresh 6-digit security code has been sent to your phone.`
+      {
+        smsSent: Boolean(smsRes?.success),
+        emailSent: Boolean(emailRes?.success),
+      },
+      'A fresh 6-digit security code has been sent to your phone.'
     )
   );
 });
@@ -805,65 +978,74 @@ export const resend2FA = asyncHandler(async (req, res) => {
 export const sendMobileOtp = asyncHandler(async (req, res) => {
   const { phone, role = 'customer' } = req.body;
   const cleanPhone = formatPhoneNumber(phone);
-  if (!cleanPhone || cleanPhone.length < 10) {
+  const variants = getPhoneLookupVariants(phone);
+
+  if (!cleanPhone || variants.length === 0) {
     throw new ApiError(400, 'Please provide a valid 10-digit mobile number');
   }
 
   const otp = generateOTP();
   const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-  // Find existing user or create/update candidate
-  let user = await User.findOne({ phone: cleanPhone });
+  // Find existing user or create/update candidate using safe exact variants
+  let user = await User.findOne({ phone: { $in: variants } });
   if (user) {
+    if (!user.isActive) {
+      throw new ApiError(403, 'Your account is deactivated. Please contact support.');
+    }
+    user.phone = cleanPhone;
     user.phoneOtp = otp;
     user.phoneOtpExpires = otpExpires;
+    user.otpFailedAttempts = 0;
+    user.otpLockedUntil = undefined;
     await user.save({ validateBeforeSave: false });
   } else {
-    const rawDigits = phone.replace(/[^\d]/g, '').slice(-10);
-    user = await User.findOne({ phone: { $regex: rawDigits } });
-    if (user) {
-      user.phone = cleanPhone;
-      user.phoneOtp = otp;
-      user.phoneOtpExpires = otpExpires;
-      await user.save({ validateBeforeSave: false });
-    } else {
-      // Auto-register new user with mobile number
-      const tempEmail = `phone_${rawDigits}_${Date.now()}@cravecourier.app`;
-      user = await User.create({
-        name: 'Crave Foodie',
-        email: tempEmail,
-        password: crypto.randomBytes(16).toString('hex'),
-        phone: cleanPhone,
-        role: role || 'customer',
-        phoneOtp: otp,
-        phoneOtpExpires: otpExpires,
-        isEmailVerified: true,
-        isPhoneVerified: false,
-      });
+    const rawDigits = cleanPhone.replace(/\D/g, '').slice(-10);
+    const tempEmail = `phone_${rawDigits}_${Date.now()}@cravecourier.app`;
+    user = await User.create({
+      name: 'Crave Foodie',
+      email: tempEmail,
+      password: crypto.randomBytes(16).toString('hex'),
+      phone: cleanPhone,
+      role: role || 'customer',
+      phoneOtp: otp,
+      phoneOtpExpires: otpExpires,
+      isEmailVerified: true,
+      isPhoneVerified: false,
+    });
 
-      if (user.role === 'delivery') {
-        await DeliveryPartnerProfile.create({
-          user: user._id,
-          vehicle: { type: 'bike' },
-          isOnline: false,
-          isAvailable: false,
-          currentLocation: { type: 'Point', coordinates: [0, 0] },
-        });
-      }
+    if (user.role === 'delivery') {
+      await DeliveryPartnerProfile.create({
+        user: user._id,
+        vehicle: { type: 'bike' },
+        isOnline: false,
+        isAvailable: false,
+        currentLocation: { type: 'Point', coordinates: [0, 0] },
+      });
     }
   }
 
-  await sendSmsOtp({
+  const smsRes = await sendSmsOtp({
     phone: cleanPhone,
     otp,
     purpose: 'Mobile Login',
   });
+
+  if (!smsRes?.success && ENV.NODE_ENV !== 'test') {
+    throw new ApiError(
+      503,
+      smsRes?.configured
+        ? 'Failed to deliver SMS OTP right now. Please try again in a moment.'
+        : 'Mobile SMS OTP gateway is not configured on the server yet. Please configure TWOFACTOR_API_KEY or FAST2SMS_API_KEY.'
+    );
+  }
 
   return res.status(200).json(
     new ApiResponse(
       200,
       {
         phone: maskPhoneNumber(cleanPhone),
+        smsSent: Boolean(smsRes?.success),
       },
       `6-digit OTP code sent to ${maskPhoneNumber(cleanPhone)}`
     )
@@ -875,23 +1057,32 @@ export const sendMobileOtp = asyncHandler(async (req, res) => {
  * @route  POST /api/auth/mobile/verify-otp
  */
 export const verifyMobileOtp = asyncHandler(async (req, res) => {
-  const { phone, otp, name, role = 'customer' } = req.body;
-  const cleanPhone = formatPhoneNumber(phone);
-  const rawDigits = phone.replace(/[^\d]/g, '').slice(-10);
+  const { phone, otp, name } = req.body;
+  const variants = getPhoneLookupVariants(phone);
 
-  const user = await User.findOne({
-    $or: [{ phone: cleanPhone }, { phone: { $regex: rawDigits } }],
-  }).select('+phoneOtp +phoneOtpExpires');
+  if (variants.length === 0) {
+    throw new ApiError(400, 'Please provide a valid 10-digit mobile number');
+  }
+
+  const user = await User.findOne({ phone: { $in: variants } })
+    .select('+phoneOtp +phoneOtpExpires +otpFailedAttempts +otpLockedUntil');
 
   if (!user) {
     throw new ApiError(404, 'No account found for this mobile number. Please request a new OTP.');
   }
 
-  if (!user.phoneOtp || user.phoneOtp !== otp) {
+  if (!user.isActive) {
+    throw new ApiError(403, 'Your account is deactivated. Please contact support.');
+  }
+
+  assertNotOtpLocked(user);
+
+  if (!isOtpMatch(user.phoneOtp, otp)) {
+    await recordOtpFailure(user, { phoneOtp: 1, phoneOtpExpires: 1 });
     throw new ApiError(400, 'Invalid OTP code. Please enter the 6-digit code received via SMS.');
   }
 
-  if (new Date() > user.phoneOtpExpires) {
+  if (!user.phoneOtpExpires || new Date() > user.phoneOtpExpires) {
     throw new ApiError(400, 'OTP code has expired. Please request a new OTP.');
   }
 
@@ -899,13 +1090,15 @@ export const verifyMobileOtp = asyncHandler(async (req, res) => {
   user.isPhoneVerified = true;
   user.phoneOtp = undefined;
   user.phoneOtpExpires = undefined;
+  user.otpFailedAttempts = 0;
+  user.otpLockedUntil = undefined;
   if (name && name.trim()) {
     user.name = name.trim();
   }
   await user.save({ validateBeforeSave: false });
 
   const { accessToken, refreshToken } = await generateTokens(user._id);
-  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
+  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(req, true));
 
   return res.status(200).json(
     new ApiResponse(
@@ -997,9 +1190,11 @@ export const sendEmailLoginOtp = asyncHandler(async (req, res) => {
   const otp = generateOTP();
   user.loginOtp = otp;
   user.loginOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
+  user.otpFailedAttempts = 0;
+  user.otpLockedUntil = undefined;
   await user.save({ validateBeforeSave: false });
 
-  console.info(`[AUTH] Email Login OTP for ${user.email}: ${otp}`);
+  logAuthOtp('Email Login OTP', user.email, otp);
 
   const emailRes = await sendLoginOtpEmail({
     toEmail: user.email,
@@ -1032,7 +1227,8 @@ export const sendEmailLoginOtp = asyncHandler(async (req, res) => {
 export const verifyEmailLoginOtp = asyncHandler(async (req, res) => {
   const { email, otp, role } = req.body;
 
-  const user = await User.findOne({ email }).select('+loginOtp +loginOtpExpires');
+  const user = await User.findOne({ email })
+    .select('+loginOtp +loginOtpExpires +otpFailedAttempts +otpLockedUntil');
   if (!user) {
     throw new ApiError(404, 'No account found with this email address.');
   }
@@ -1048,7 +1244,10 @@ export const verifyEmailLoginOtp = asyncHandler(async (req, res) => {
     );
   }
 
-  if (!user.loginOtp || user.loginOtp !== otp) {
+  assertNotOtpLocked(user);
+
+  if (!isOtpMatch(user.loginOtp, otp)) {
+    await recordOtpFailure(user, { loginOtp: 1, loginOtpExpires: 1 });
     throw new ApiError(400, 'Invalid 6-digit email OTP code. Please check your inbox and try again.');
   }
 
@@ -1060,10 +1259,12 @@ export const verifyEmailLoginOtp = asyncHandler(async (req, res) => {
   user.isEmailVerified = true;
   user.loginOtp = undefined;
   user.loginOtpExpires = undefined;
+  user.otpFailedAttempts = 0;
+  user.otpLockedUntil = undefined;
   await user.save({ validateBeforeSave: false });
 
   const { accessToken, refreshToken } = await generateTokens(user._id);
-  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(true));
+  res.cookie('crave_refreshToken', refreshToken, getCookieOptions(req, true));
 
   return res.status(200).json(
     new ApiResponse(
@@ -1085,4 +1286,3 @@ export const verifyEmailLoginOtp = asyncHandler(async (req, res) => {
     )
   );
 });
-

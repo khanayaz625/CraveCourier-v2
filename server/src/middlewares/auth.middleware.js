@@ -23,13 +23,17 @@ export const protect = asyncHandler(async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, ENV.JWT_ACCESS_SECRET);
 
-    const user = await User.findById(decoded._id).select('-password');
+    const user = await User.findById(decoded._id).select('-password +passwordChangedAt');
     if (!user) {
       throw new ApiError(401, 'The user belonging to this token no longer exists.');
     }
 
     if (!user.isActive) {
       throw new ApiError(403, 'Your account has been deactivated. Please contact support.');
+    }
+
+    if (user.passwordChangedAt && decoded.iat && decoded.iat * 1000 < user.passwordChangedAt.getTime() - 1000) {
+      throw new ApiError(401, 'Password was recently changed. Please log in again.');
     }
 
     req.user = user;

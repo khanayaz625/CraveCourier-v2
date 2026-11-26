@@ -38,6 +38,23 @@ export const authRateLimiter = rateLimit({
 });
 
 /**
+ * Extra-strict rate limiter for OTP dispatch & verification endpoints
+ * Blocks automated OTP flooding (SMS/Email cost abuse) and 6-digit code brute-forcing
+ */
+export const otpRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: isProduction ? 15 : 1000,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: {
+    success: false,
+    statusCode: 429,
+    message: 'Too many OTP requests. Please wait 15 minutes before trying again.',
+    errors: [],
+  },
+});
+
+/**
  * Strict rate limiter for checkout and payment operations
  * Prevents automated card testing and checkout flood attacks
  */

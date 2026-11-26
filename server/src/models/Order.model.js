@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import crypto from 'crypto';
 
 const orderItemSnapshotSchema = new mongoose.Schema(
   {
@@ -143,7 +144,7 @@ const orderSchema = new mongoose.Schema(
     },
     deliveryOtp: {
       type: String,
-      default: () => Math.floor(1000 + Math.random() * 9000).toString(),
+      default: () => crypto.randomInt(1000, 10000).toString(),
     },
     totals: {
       itemTotal: { type: Number, required: true, min: 0 },

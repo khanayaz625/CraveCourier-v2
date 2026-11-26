@@ -253,6 +253,17 @@ export const pickupOrder = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'Order not found');
   }
 
+  if (
+    req.user.role === 'delivery' &&
+    order.deliveryPartner &&
+    order.deliveryPartner.toString() !== req.user._id.toString()
+  ) {
+    throw new ApiError(403, 'This order is assigned to another delivery partner');
+  }
+  if (!order.deliveryPartner && req.user.role === 'delivery') {
+    order.deliveryPartner = req.user._id;
+  }
+
   order.status = 'picked_up';
   order.statusTimeline.push({
     status: 'picked_up',
@@ -291,6 +302,13 @@ export const startOutForDelivery = asyncHandler(async (req, res) => {
   const order = await Order.findById(id);
   if (!order) {
     throw new ApiError(404, 'Order not found');
+  }
+
+  if (
+    req.user.role === 'delivery' &&
+    order.deliveryPartner?.toString() !== req.user._id.toString()
+  ) {
+    throw new ApiError(403, 'Only the assigned delivery partner can start delivery for this order');
   }
 
   order.status = 'out_for_delivery';
@@ -338,9 +356,19 @@ export const completeDeliveryWithOtp = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'Order not found');
   }
 
+  if (
+    req.user.role === 'delivery' &&
+    order.deliveryPartner?.toString() !== req.user._id.toString()
+  ) {
+    throw new ApiError(403, 'Only the assigned delivery partner can complete this delivery');
+  }
+
+  if (!order.deliveryOtp) {
+    throw new ApiError(400, 'Delivery OTP is not configured for this order');
+  }
+
   // Verify OTP matches
-  const expectedOtp = order.deliveryOtp || '1234';
-  if (otp.toString().trim() !== expectedOtp.toString().trim()) {
+  if (otp.toString().trim() !== order.deliveryOtp.toString().trim()) {
     throw new ApiError(
       400,
       `Invalid Delivery PIN. Please ask the customer to confirm the 4-digit OTP shown on their Crave screen.`

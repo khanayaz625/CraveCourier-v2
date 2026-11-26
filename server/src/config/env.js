@@ -24,7 +24,11 @@ const defaultAllowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000',
+  'https://cravecourier.in',
+  'https://www.cravecourier.in',
+  'https://api.cravecourier.in',
   'https://client-six-kappa.vercel.app',
+  'https://cravecourier-v2.onrender.com',
 ];
 
 if (process.env.CLIENT_URL) {
@@ -33,10 +37,55 @@ if (process.env.CLIENT_URL) {
 
 const parsedAllowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
-  : defaultAllowedOrigins;
+  : [];
 
-// Unique allowed origins
-const ALLOWED_ORIGINS = [...new Set(parsedAllowedOrigins)];
+// Unique allowed origins (always retain canonical defaults + env overrides)
+const ALLOWED_ORIGINS = [...new Set([...defaultAllowedOrigins, ...parsedAllowedOrigins])];
+
+/**
+ * Strictly validate CORS / Socket.io origins without unsafe substring matching
+ */
+export function isOriginAllowed(origin) {
+  if (!origin) return true; // Native mobile apps, TWAs, curl, server-to-server
+
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    return true;
+  }
+
+  // Exact Capacitor / Ionic WebView origins
+  if (
+    origin === 'capacitor://localhost' ||
+    origin === 'ionic://localhost' ||
+    origin === 'http://localhost' ||
+    origin === 'https://localhost'
+  ) {
+    return true;
+  }
+
+  try {
+    const parsed = new URL(origin);
+    const hostname = parsed.hostname.toLowerCase();
+    const protocol = parsed.protocol;
+
+    if (protocol !== 'https:' && protocol !== 'http:') {
+      return false;
+    }
+
+    // Allow canonical cravecourier.in domain and its subdomains over HTTPS
+    if (protocol === 'https:' && (hostname === 'cravecourier.in' || hostname.endsWith('.cravecourier.in'))) {
+      return true;
+    }
+
+    // Allow localhost / 127.0.0.1 only in non-production environments
+    if (nodeEnv !== 'production' && (hostname === 'localhost' || hostname === '127.0.0.1')) {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+
+  return false;
+}
 
 import crypto from 'crypto';
 
@@ -85,6 +134,14 @@ export const ENV = {
   BREVO_SENDER_NAME: process.env.BREVO_SENDER_NAME || 'Crave Courier',
   TWOFACTOR_API_KEY: (process.env.TWOFACTOR_API_KEY || process.env['2FACTOR_API_KEY'] || '').trim(),
   TWOFACTOR_TEMPLATE_NAME: (process.env.TWOFACTOR_TEMPLATE_NAME || '').trim(),
+  FAST2SMS_API_KEY: (process.env.FAST2SMS_API_KEY || '').trim(),
+  FAST2SMS_SENDER_ID: (process.env.FAST2SMS_SENDER_ID || '').trim(),
+  FAST2SMS_TEMPLATE_ID: (process.env.FAST2SMS_TEMPLATE_ID || '').trim(),
+  MSG91_AUTH_KEY: (process.env.MSG91_AUTH_KEY || '').trim(),
+  MSG91_TEMPLATE_ID: (process.env.MSG91_TEMPLATE_ID || '').trim(),
+  TWILIO_ACCOUNT_SID: (process.env.TWILIO_ACCOUNT_SID || '').trim(),
+  TWILIO_AUTH_TOKEN: (process.env.TWILIO_AUTH_TOKEN || '').trim(),
+  TWILIO_PHONE_NUMBER: (process.env.TWILIO_PHONE_NUMBER || '').trim(),
   APK_LATEST_VERSION: (process.env.APK_LATEST_VERSION || '1.0.1').trim(),
   APK_VERSION_CODE: parseInt(process.env.APK_VERSION_CODE || '2', 10),
   APK_DOWNLOAD_URL: (

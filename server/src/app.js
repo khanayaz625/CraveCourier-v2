@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
-import { ENV } from './config/env.js';
+import { ENV, isOriginAllowed } from './config/env.js';
 import {
   globalRateLimiter,
   authRateLimiter,
@@ -29,25 +29,9 @@ app.use(
 // 2. Strict CORS Configuration & Origin Whitelist
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps / TWAs / curl / server-to-server)
-    if (!origin) return callback(null, true);
-
-    const isExplicitlyAllowed = ENV.ALLOWED_ORIGINS.some(allowed =>
-      origin === allowed || origin.startsWith(allowed)
-    );
-    const isDevelopment = ENV.NODE_ENV === 'development';
-    const isAllowedDomain =
-      origin.endsWith('.vercel.app') ||
-      origin.endsWith('.netlify.app') ||
-      origin.includes('cravecourier') ||
-      origin.includes('crave-delivery') ||
-      origin.includes('localhost') ||
-      origin.includes('127.0.0.1');
-
-    if (isExplicitlyAllowed || isDevelopment || isAllowedDomain) {
+    if (isOriginAllowed(origin)) {
       return callback(null, true);
     }
-
     return callback(null, false);
   },
   credentials: true,

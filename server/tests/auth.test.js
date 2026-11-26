@@ -1,6 +1,8 @@
 import request from 'supertest';
 import app from '../src/app.js';
 import { User } from '../src/models/User.model.js';
+import { isOriginAllowed } from '../src/config/env.js';
+import { formatPhoneNumber, getPhoneLookupVariants, sendSmsOtp } from '../src/services/sms.service.js';
 
 describe('Auth API Hardening & Access Control', () => {
   const testUser = {
@@ -170,5 +172,108 @@ describe('Auth API Hardening & Access Control', () => {
 
     expect(res.status).toBe(401);
     expect(res.body.success).toBe(false);
+  });
+
+  test('POST /api/auth/forgot-password & reset-password - Works via email and via mobile phone', async () => {
+    // 1. Request reset via email
+    const forgotEmailRes = await request(app)
+      .post('/api/auth/forgot-password')
+      .send({ email: testUser.email });
+    expect(forgotEmailRes.status).toBe(200);
+
+    let dbUser = await User.findOne({ email: testUser.email }).select('+resetPasswordOtp');
+    expect(dbUser.resetPasswordOtp).toBeDefined();
+    expect(dbUser.resetPasswordOtp.length).toBe(6);
+
+    // 2. Request reset via phone number (10-digit)
+    const forgotPhoneRes = await request(app)
+      .post('/api/auth/forgot-password')
+      .send({ phone: testUser.phone });
+    expect(forgotPhoneRes.status).toBe(200);
+
+    dbUser = await User.findOne({ email: testUser.email }).select('+resetPasswordOtp');
+    const otpFromPhone = dbUser.resetPasswordOtp;
+    expect(otpFromPhone).toBeDefined();
+
+    // 3. Reset password using phone identifier + OTP
+    const resetRes = await request(app)
+      .post('/api/auth/reset-password')
+      .send({
+        phone: testUser.phone,
+        otp: otpFromPhone,
+        newPassword: 'NewPassword456!',
+      });
+    expect(resetRes.status).toBe(200);
+
+    // 4. Verify login works with new password
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({
+        email: testUser.email,
+        password: 'NewPassword456!',
+      });
+    expect(loginRes.status).toBe(200);
+    expect(loginRes.body.data.accessToken).toBeDefined();
+  });
+
+  test('SECURITY: OTP brute-force lockout clears OTP after 5 failed attempts', async () => {
+    await request(app).post('/api/auth/forgot-password').send({ email: testUser.email });
+
+    for (let i = 0; i < 5; i++) {
+      const failRes = await request(app)
+        .post('/api/auth/reset-password')
+        .send({
+          email: testUser.email,
+          otp: '000000',
+          newPassword: 'HackedPassword1!',
+        });
+      expect(failRes.status).toBe(400);
+    }
+
+    const lockedRes = await request(app)
+      .post('/api/auth/reset-password')
+      .send({
+        email: testUser.email,
+        otp: '111111',
+        newPassword: 'HackedPassword1!',
+      });
+    expect(lockedRes.status).toBe(429);
+  });
+
+  test('SECURITY: Short phone input in verify-email is rejected instead of matching via regex', async () => {
+    const res = await request(app)
+      .post('/api/auth/verify-email')
+      .send({ phone: '1', otp: '123456' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  test('SECURITY: CORS whitelist allows cravecourier.in and blocks spoofed origins', () => {
+    expect(isOriginAllowed('https://cravecourier.in')).toBe(true);
+    expect(isOriginAllowed('https://www.cravecourier.in')).toBe(true);
+    expect(isOriginAllowed('https://evil-cravecourier.com')).toBe(false);
+    expect(isOriginAllowed('https://cravecourier.in.attacker.com')).toBe(false);
+    expect(isOriginAllowed('https://phishing.vercel.app')).toBe(false);
+  });
+
+  test('SMS Service: formats phone numbers and reports unconfigured gateway honestly', async () => {
+    expect(formatPhoneNumber('9876543210')).toBe('+919876543210');
+    expect(formatPhoneNumber('09876543210')).toBe('+919876543210');
+    expect(getPhoneLookupVariants('9876543210')).toContain('+919876543210');
+
+    const prev2F = process.env.TWOFACTOR_API_KEY;
+    const prevFast = process.env.FAST2SMS_API_KEY;
+    delete process.env.TWOFACTOR_API_KEY;
+    delete process.env.FAST2SMS_API_KEY;
+
+    const result = await sendSmsOtp({ phone: '9876543210', otp: '123456', purpose: 'Test' });
+    expect(result.phone).toBe('+919876543210');
+    if (!result.configured) {
+      expect(result.success).toBe(false);
+    }
+
+    if (prev2F !== undefined) process.env.TWOFACTOR_API_KEY = prev2F;
+    if (prevFast !== undefined) process.env.FAST2SMS_API_KEY = prevFast;
   });
 });

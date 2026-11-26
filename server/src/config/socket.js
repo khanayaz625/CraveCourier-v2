@@ -1,7 +1,8 @@
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import { ENV } from './env.js';
+import { ENV, isOriginAllowed } from './env.js';
 import { DeliveryPartnerProfile } from '../models/DeliveryPartnerProfile.model.js';
+import { Order } from '../models/Order.model.js';
 
 let io = null;
 
@@ -9,20 +10,7 @@ export const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
       origin: (origin, callback) => {
-        // Mobile apps, Capacitor native webview, and curl often send no origin or localhost
-        if (!origin) return callback(null, true);
-        const isAllowed =
-          origin.includes('localhost') ||
-          origin.includes('127.0.0.1') ||
-          origin.includes('cravecourier') ||
-          origin.includes('crave-delivery') ||
-          origin.startsWith('capacitor://') ||
-          origin.startsWith('http://localhost') ||
-          origin.startsWith('https://localhost') ||
-          origin.endsWith('.vercel.app') ||
-          origin.endsWith('.netlify.app') ||
-          ENV.ALLOWED_ORIGINS.some((allowed) => origin === allowed || origin.startsWith(allowed));
-        if (isAllowed) return callback(null, true);
+        if (isOriginAllowed(origin)) return callback(null, true);
         return callback(null, false);
       },
       credentials: true,
@@ -89,12 +77,28 @@ export const initSocket = (httpServer) => {
       socket.join('admins');
     }
 
-    // 3. Join Order Room (Customer, Rider, Store, Admin)
-    socket.on('order:join', (orderId) => {
-      if (orderId) {
+    // 3. Join Order Room (Authorized Customer owner, Assigned Rider, or Admin)
+    socket.on('order:join', async (orderId) => {
+      if (!orderId || !socket.user?._id) return;
+      try {
+        const order = await Order.findById(orderId).select('customer deliveryPartner status');
+        if (!order) return;
+
+        const userIdStr = String(socket.user._id);
+        const isOwner = order.customer?.toString() === userIdStr;
+        const isAssignedRider = order.deliveryPartner?.toString() === userIdStr;
+        const isAdmin = socket.user.role === 'admin';
+        const isOpenDelivery = socket.user.role === 'delivery' && order.status === 'ready' && !order.deliveryPartner;
+
+        if (!isOwner && !isAssignedRider && !isAdmin && !isOpenDelivery) {
+          return;
+        }
+
         const room = `order:${orderId}`;
         socket.join(room);
-        console.log(`[SOCKET ROOM] ${socket.id} joined room ${room}`);
+        console.info(`[SOCKET ROOM] ${socket.id} joined room ${room}`);
+      } catch (err) {
+        console.warn(`[SOCKET ROOM] Failed to verify order room access: ${err.message}`);
       }
     });
 
@@ -103,44 +107,63 @@ export const initSocket = (httpServer) => {
       if (orderId) {
         const room = `order:${orderId}`;
         socket.leave(room);
-        console.log(`[SOCKET ROOM] ${socket.id} left room ${room}`);
+        console.info(`[SOCKET ROOM] ${socket.id} left room ${room}`);
       }
     });
 
-    // 5. Rider Real-Time GPS Location Stream
+    // 5. Rider Real-Time GPS Location Stream (Authenticated Delivery Partner / Admin only)
     socket.on('rider:location_update', async (data) => {
+      if (!socket.user?._id || !['delivery', 'admin'].includes(socket.user.role)) {
+        return;
+      }
+
       const { orderId, coordinates, heading = 0, speed = 0 } = data || {};
-      if (!orderId || !coordinates || !Array.isArray(coordinates)) return;
+      if (
+        !orderId ||
+        !Array.isArray(coordinates) ||
+        coordinates.length !== 2 ||
+        !Number.isFinite(Number(coordinates[0])) ||
+        !Number.isFinite(Number(coordinates[1]))
+      ) {
+        return;
+      }
+
+      if (socket.user.role === 'delivery') {
+        const order = await Order.findById(orderId).select('deliveryPartner');
+        if (!order || order.deliveryPartner?.toString() !== String(socket.user._id)) {
+          return;
+        }
+      }
+
+      const cleanCoords = [Number(coordinates[0]), Number(coordinates[1])];
 
       const locationPayload = {
         orderId,
-        coordinates, // [lng, lat]
+        coordinates: cleanCoords, // [lng, lat]
         heading,
         speed,
         timestamp: new Date().toISOString(),
-        riderId: socket.user?._id || null,
-        riderName: socket.user?.name || 'Crave Courier',
+        riderId: socket.user._id,
+        riderName: socket.user.name || 'Crave Courier',
       };
 
       // Broadcast moving GPS pin to the order room (Customer live map updates)
       io.to(`order:${orderId}`).emit('order:location_update', locationPayload);
 
-      // Persist rider's last known location to DeliveryPartnerProfile if rider is authenticated
-      if (socket.user?._id) {
-        try {
-          await DeliveryPartnerProfile.findOneAndUpdate(
-            { user: socket.user._id },
-            {
-              currentLocation: {
-                type: 'Point',
-                coordinates,
-              },
-              isOnline: true,
-            }
-          );
-        } catch (err) {
-          console.warn(`[SOCKET LOCATION] Failed to persist partner location: ${err.message}`);
-        }
+      // Persist rider's last known location to DeliveryPartnerProfile
+      try {
+        await DeliveryPartnerProfile.findOneAndUpdate(
+          { user: socket.user._id },
+          {
+            currentLocation: {
+              type: 'Point',
+              coordinates: cleanCoords,
+            },
+            isOnline: true,
+          }
+        );
+      } catch (err) {
+        console.warn(`[SOCKET LOCATION] Failed to persist partner location: ${err.message}`);
       }
     });
 
