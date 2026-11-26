@@ -37,7 +37,7 @@ import {
 import UserAvatar from '../components/UserAvatar';
 
 export default function AccountPage() {
-  const { user, isAuthenticated, logout, toggle2FA } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const wishlistItems = useWishlistStore((state) => state.items);
   const cartItems = useCartStore((state) => state.items);
   const { theme, toggleTheme } = useThemeStore();
@@ -49,41 +49,6 @@ export default function AccountPage() {
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
-
-  // 2-Factor Mobile Authentication states
-  const [twoFactorActive, setTwoFactorActive] = useState(user?.twoFactorEnabled || false);
-  const [twoFactorPhone, setTwoFactorPhone] = useState(user?.phone || '');
-  const [toggling2FA, setToggling2FA] = useState(false);
-  const [twoFactorMsg, setTwoFactorMsg] = useState('');
-
-  useEffect(() => {
-    if (user) {
-      setTwoFactorActive(Boolean(user.twoFactorEnabled));
-      if (user.phone) setTwoFactorPhone(user.phone);
-    }
-  }, [user]);
-
-  const handleToggle2FA = async (targetState) => {
-    if (targetState && !twoFactorPhone.trim()) {
-      setTwoFactorMsg('Please enter a valid mobile number first.');
-      return;
-    }
-    setToggling2FA(true);
-    setTwoFactorMsg('');
-    try {
-      const res = await toggle2FA(targetState, twoFactorPhone.trim());
-      setTwoFactorActive(res?.twoFactorEnabled);
-      setTwoFactorMsg(
-        res?.twoFactorEnabled
-          ? '2-Factor Mobile Security enabled! Every login will now require SMS OTP.'
-          : '2-Factor Authentication disabled.'
-      );
-    } catch (err) {
-      setTwoFactorMsg(err.message || 'Failed to update 2-Factor Authentication settings.');
-    } finally {
-      setToggling2FA(false);
-    }
-  };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -386,85 +351,6 @@ export default function AccountPage() {
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-
-          {/* Two-Factor Mobile Authentication (2FA) Security Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-neutral-200/80 dark:border-slate-800 shadow-soft p-4 sm:p-5 space-y-3.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start space-x-3">
-                <div className={`h-10 w-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xs transition-colors ${
-                  twoFactorActive
-                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
-                    : 'bg-brand-50 dark:bg-brand-950/60 text-brand-500'
-                }`}>
-                  <Shield className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-neutral-900 dark:text-slate-100 font-heading">
-                      Two-Factor Mobile Authentication (2FA)
-                    </h3>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      twoFactorActive
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300'
-                        : 'bg-neutral-100 text-neutral-600 dark:bg-slate-800 dark:text-neutral-400'
-                    }`}>
-                      {twoFactorActive ? 'Active' : 'Disabled'}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-neutral-400 mt-0.5">
-                    Require a secure 6-digit one-time SMS passcode on every sign in to protect your wallet and account.
-                  </p>
-                </div>
-              </div>
-
-              {/* Toggle Switch */}
-              <button
-                type="button"
-                disabled={toggling2FA}
-                onClick={() => handleToggle2FA(!twoFactorActive)}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  twoFactorActive ? 'bg-emerald-500' : 'bg-neutral-200 dark:bg-slate-700'
-                }`}
-                role="switch"
-                aria-checked={twoFactorActive}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-                    twoFactorActive ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Mobile Number Setup / Verification Input */}
-            <div className="pt-2 border-t border-neutral-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-              <div className="flex items-center space-x-2 flex-1">
-                <Smartphone className="h-4 w-4 text-neutral-400 flex-shrink-0" />
-                <input
-                  type="tel"
-                  value={twoFactorPhone}
-                  onChange={(e) => setTwoFactorPhone(e.target.value)}
-                  placeholder="Enter 10-digit mobile number (+91)"
-                  className="flex-1 text-xs px-3 py-2 border border-neutral-200 dark:border-slate-700 bg-neutral-50/70 dark:bg-slate-800/60 text-neutral-900 dark:text-slate-100 rounded-xl focus:ring-1 focus:ring-brand-500 outline-none font-mono"
-                />
-              </div>
-
-              <button
-                type="button"
-                disabled={toggling2FA || !twoFactorPhone.trim()}
-                onClick={() => handleToggle2FA(true)}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 shadow-xs transition-transform active:scale-95 disabled:opacity-50 whitespace-nowrap"
-              >
-                {toggling2FA ? 'Saving...' : twoFactorActive ? 'Update Mobile 2FA' : 'Save & Enable 2FA'}
-              </button>
-            </div>
-
-            {twoFactorMsg && (
-              <p className={`text-[11px] font-medium pt-1 ${twoFactorActive ? 'text-emerald-600' : 'text-neutral-500'}`}>
-                {twoFactorMsg}
-              </p>
             )}
           </div>
 

@@ -69,19 +69,6 @@ export const useNotificationStore = create((set, get) => ({
     }
   },
 
-  // Trigger test notification across panel and system tray
-  sendTestNotification: async () => {
-    const testItem = {
-      _id: 'test-' + Date.now(),
-      title: 'Crave Courier Live Alert',
-      message: 'Your order is being freshly prepared at Pizza 65 & Crave Hub!',
-      type: 'order_update',
-      createdAt: new Date().toISOString(),
-      read: false,
-    };
-    get().handleIncomingNotification(testItem);
-  },
-
   // Drawer Controls
   openDrawer: () => {
     set({ isDrawerOpen: true });
@@ -175,6 +162,7 @@ export const useNotificationStore = create((set, get) => ({
       title: notification.title,
       message: notification.message,
       type: notification.type || 'order_update',
+      status: notification.data?.status,
       orderId: notification.data?.orderId,
       orderNumber: notification.data?.orderNumber,
     });

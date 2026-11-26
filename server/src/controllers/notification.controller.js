@@ -136,26 +136,3 @@ export const unregisterFcmToken = asyncHandler(async (req, res) => {
   );
 });
 
-/**
- * @desc    Send Simulated Order Push Notification
- * @route   POST /api/notifications/test-push
- * @access  Private
- */
-export const sendTestPushNotification = asyncHandler(async (req, res) => {
-  const notification = await Notification.create({
-    user: req.user._id,
-    title: 'Order Status: Out for Delivery 🚀',
-    message: 'Your Crave order #CRV-894101 is on its way with live GPS rider tracking!',
-    type: 'order_update',
-    data: {
-      orderId: 'CRV-894101',
-      status: 'out_for_delivery',
-      timestamp: new Date().toISOString(),
-    },
-  });
-
-  return res.status(200).json(
-    new ApiResponse(200, notification, 'Test push notification dispatched successfully')
-  );
-});
-

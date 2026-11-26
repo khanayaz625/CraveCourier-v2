@@ -137,16 +137,6 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await api.post('/auth/login', { email, password, role });
 
-      // If 2-Factor Authentication is active on this account, return 2FA challenge
-      if (res.data?.requires2FA) {
-        set({ isLoading: false });
-        return {
-          requires2FA: true,
-          twoFactorTempToken: res.data.twoFactorTempToken,
-          maskedPhone: res.data.maskedPhone,
-        };
-      }
-
       const { user, accessToken } = res.data;
 
       setAccessToken(accessToken);
@@ -351,51 +341,6 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
-   * Verify Two-Factor Authentication OTP code
-   */
-  verify2FA: async (twoFactorTempToken, otp) => {
-    set({ isLoading: true, error: null });
-    try {
-      const res = await api.post('/auth/verify-2fa', { twoFactorTempToken, otp });
-      const { user, accessToken } = res.data;
-
-      setAccessToken(accessToken);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('crave_auth_token', accessToken);
-        localStorage.setItem('crave_auth_user', JSON.stringify(user));
-      }
-      set({
-        user,
-        accessToken,
-        isAuthenticated: true,
-        isAuthInitialized: true,
-        isLoading: false,
-      });
-      useCartStore.getState().syncGuestCart();
-      useCartStore.getState().fetchCart();
-      return user;
-    } catch (err) {
-      set({ error: err.message, isLoading: false });
-      throw err;
-    }
-  },
-
-  /**
-   * Resend Two-Factor Authentication SMS OTP
-   */
-  resend2FA: async (twoFactorTempToken) => {
-    set({ isLoading: true, error: null });
-    try {
-      const res = await api.post('/auth/resend-2fa', { twoFactorTempToken });
-      set({ isLoading: false });
-      return res.data;
-    } catch (err) {
-      set({ error: err.message, isLoading: false });
-      throw err;
-    }
-  },
-
-  /**
    * 1-Tap Fast Mobile Phone Login - Dispatch SMS OTP
    */
   sendMobileOtp: async (phone, role = 'customer') => {
@@ -483,31 +428,6 @@ export const useAuthStore = create((set, get) => ({
       return user;
     } catch (err) {
       set({ error: err.message, isLoading: false });
-      throw err;
-    }
-  },
-
-  /**
-   * Toggle 2-Factor Authentication state
-   */
-  toggle2FA: async (enabled, phone) => {
-    try {
-      const res = await api.post('/auth/toggle-2fa', { enabled, phone });
-      set((state) => {
-        const updatedUser = state.user
-          ? {
-              ...state.user,
-              twoFactorEnabled: res.data?.twoFactorEnabled,
-              phone: res.data?.phone || state.user.phone,
-            }
-          : null;
-        if (typeof window !== 'undefined' && updatedUser) {
-          localStorage.setItem('crave_auth_user', JSON.stringify(updatedUser));
-        }
-        return { user: updatedUser };
-      });
-      return res.data;
-    } catch (err) {
       throw err;
     }
   },

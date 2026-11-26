@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { User, Bike, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowRight, Shield } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
-import TwoFactorModal from '../components/TwoFactorModal';
 import { useHoldToAdmin } from '../hooks/useHoldToAdmin';
 
 export default function LoginPage() {
@@ -13,10 +12,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState('');
   const [unverifiedState, setUnverifiedState] = useState(null); // { email, role, message }
-
-  // 2FA Mobile OTP states
-  const [twoFactorChallenge, setTwoFactorChallenge] = useState(null);
-  const [show2FAModal, setShow2FAModal] = useState(false);
 
   const { isHolding, progress, holdProps } = useHoldToAdmin({ durationMs: 1400 });
 
@@ -77,13 +72,6 @@ export default function LoginPage() {
 
     try {
       const res = await login(email, password, role);
-
-      if (res?.requires2FA) {
-        setTwoFactorChallenge(res);
-        setShow2FAModal(true);
-        return;
-      }
-
       handleLoginSuccess(res);
     } catch (err) {
       if (
@@ -309,13 +297,6 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          <TwoFactorModal
-            isOpen={show2FAModal}
-            onClose={() => setShow2FAModal(false)}
-            twoFactorData={twoFactorChallenge}
-            onSuccess={handleLoginSuccess}
-          />
 
           <div className="mt-5 text-center text-xs text-neutral-500 dark:text-neutral-400">
             Don't have an account?{' '}

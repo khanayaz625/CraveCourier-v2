@@ -76,6 +76,10 @@ export function generateOtpEmailHtml({
  * @returns {Promise<{ success: boolean, messageId?: string, error?: string }>}
  */
 export async function sendBrevoEmail({ toEmail, toName, subject, htmlContent, textContent }) {
+  if (process.env.NODE_ENV === 'test' && process.env.ALLOW_LIVE_EMAIL_IN_TEST !== 'true') {
+    return { success: true, messageId: `test_email_${Date.now()}` };
+  }
+
   const apiKey = (ENV.BREVO_API_KEY || '').trim();
   const senderEmail = (ENV.BREVO_SENDER_EMAIL || '').trim();
   const senderName = (ENV.BREVO_SENDER_NAME || 'Crave Courier').trim();
@@ -116,6 +120,7 @@ export async function sendBrevoEmail({ toEmail, toName, subject, htmlContent, te
         Accept: 'application/json',
       },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(10000),
     });
 
     const data = await response.json();

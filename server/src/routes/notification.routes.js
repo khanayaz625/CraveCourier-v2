@@ -6,7 +6,6 @@ import {
   deleteNotification,
   registerFcmToken,
   unregisterFcmToken,
-  sendTestPushNotification,
 } from '../controllers/notification.controller.js';
 import { protect } from '../middlewares/auth.middleware.js';
 
@@ -19,7 +18,6 @@ router.get('/', getMyNotifications);
 router.patch('/read-all', markAllNotificationsRead);
 router.post('/fcm-token', registerFcmToken);
 router.delete('/fcm-token', unregisterFcmToken);
-router.post('/test-push', sendTestPushNotification);
 
 // 2. Dynamic parameter endpoints
 router.patch('/:id/read', markNotificationRead);

@@ -122,23 +122,6 @@ export const resendOtpSchema = z
     message: 'Either email or mobile phone number is required',
   });
 
-// 2-Factor Authentication Schemas
-export const verify2FASchema = z.object({
-  twoFactorTempToken: z
-    .string({ required_error: 'Two-factor session token is required' })
-    .min(10, 'Invalid two-factor session token'),
-  otp: z
-    .string({ required_error: '6-digit mobile OTP code is required' })
-    .trim()
-    .regex(/^\d{6}$/, 'Security code must be exactly 6 digits'),
-});
-
-export const resend2FASchema = z.object({
-  twoFactorTempToken: z
-    .string({ required_error: 'Two-factor session token is required' })
-    .min(10, 'Invalid two-factor session token'),
-});
-
 export const sendMobileOtpSchema = z.object({
   phone: phoneSchema,
   role: z.enum(['customer', 'delivery']).optional().default('customer'),
@@ -152,11 +135,6 @@ export const verifyMobileOtpSchema = z.object({
     .regex(/^\d{6}$/, 'OTP must be exactly 6 digits'),
   name: z.string().trim().max(60).optional(),
   role: z.enum(['customer', 'delivery']).optional().default('customer'),
-});
-
-export const toggle2FASchema = z.object({
-  enabled: z.boolean({ required_error: 'Enabled boolean state is required' }),
-  phone: phoneSchema.optional(),
 });
 
 // Email OTP Login Schemas

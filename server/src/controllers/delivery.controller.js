@@ -7,8 +7,8 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { getIO } from '../config/socket.js';
 import { pushOrderStatusNotification } from '../services/notification.service.js';
 
-// Downtown Springfield Hub coordinates
-const STORE_HUB_COORDINATES = [-89.6504, 39.7817];
+// Pizza 65 & Crave Hub coordinates [lng, lat] (Chirgaon, Jhansi, UP)
+const STORE_HUB_COORDINATES = [78.8228, 25.5746];
 
 /**
  * Helper: Find or auto-initialize Delivery Partner Profile
@@ -466,13 +466,13 @@ export const autoAssignNearestPartner = asyncHandler(async (req, res) => {
       itemCount: order.items.length,
       estimatedPayout: 6.5,
       pickup: {
-        name: 'Springfield Downtown Hub',
-        address: '100 Main Street, Springfield, IL',
+        name: 'Pizza 65 & Crave Hub - Chirgaon',
+        address: 'Imli Ke Pass, Main Road, Chirgaon, Jhansi, UP',
         coordinates: STORE_HUB_COORDINATES,
       },
       drop: {
         address: `${order.deliveryAddress.street}, ${order.deliveryAddress.city}`,
-        coordinates: order.deliveryAddress.coordinates?.coordinates || [-89.6385, 39.7925],
+        coordinates: order.deliveryAddress.coordinates?.coordinates || STORE_HUB_COORDINATES,
       },
       countdownSeconds: 30,
     });

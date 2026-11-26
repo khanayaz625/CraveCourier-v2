@@ -9,16 +9,11 @@ import {
   VolumeX,
   Clock,
   ExternalLink,
-  Package,
-  Bike,
   CheckCircle2,
-  ShoppingBag,
   Sparkles,
   Radio,
-  Shield,
-  Zap,
-  Send,
 } from 'lucide-react';
+import { getNotificationVisual } from '../../utils/notificationIcon';
 
 export default function NotificationDrawer() {
   const {
@@ -35,7 +30,6 @@ export default function NotificationDrawer() {
     requestPermission,
     isBgTrackingActive,
     toggleBackgroundTracking,
-    sendTestNotification,
   } = useNotificationStore();
 
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'unread' | 'orders'
@@ -85,18 +79,13 @@ export default function NotificationDrawer() {
     return date.toLocaleDateString();
   };
 
-  const getNotificationIcon = (n) => {
-    const type = n.type || '';
-    if (type.includes('delivery') || type.includes('out_for_delivery')) {
-      return <Bike className="h-4 w-4 text-amber-500" />;
-    }
-    if (type.includes('delivered')) {
-      return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
-    }
-    if (type.includes('order')) {
-      return <ShoppingBag className="h-4 w-4 text-brand-500" />;
-    }
-    return <Package className="h-4 w-4 text-purple-500" />;
+  const renderNotificationIcon = (n) => {
+    const { Icon, bgClass, iconClass } = getNotificationVisual(n);
+    return (
+      <div className={`h-9 w-9 rounded-xl border flex items-center justify-center flex-shrink-0 shadow-xs mt-0.5 ${bgClass} ${iconClass}`}>
+        <Icon className="h-4.5 w-4.5" />
+      </div>
+    );
   };
 
   return (
@@ -255,18 +244,12 @@ export default function NotificationDrawer() {
               </div>
             </div>
           ) : (
-            <div className="px-3 py-1.5 bg-emerald-50/80 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-[11px]">
+            <div className="px-3 py-2 bg-emerald-50/80 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-[11px]">
               <span className="flex items-center gap-1.5 font-bold text-emerald-800 dark:text-emerald-300">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
                 System Notifications: Active
               </span>
-              <button
-                type="button"
-                onClick={sendTestNotification}
-                className="text-[10px] font-bold text-emerald-700 hover:text-emerald-900 dark:text-emerald-400 underline underline-offset-2"
-              >
-                Send Test Alert
-              </button>
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
           )}
 
@@ -348,9 +331,7 @@ export default function NotificationDrawer() {
                 }`}
               >
                 {/* Type Icon Badge */}
-                <div className="h-9 w-9 rounded-xl bg-neutral-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 shadow-xs mt-0.5">
-                  {getNotificationIcon(n)}
-                </div>
+                {renderNotificationIcon(n)}
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">

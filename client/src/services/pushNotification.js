@@ -148,7 +148,7 @@ export const showClientPushNotification = async ({ title, body, data = {} }) => 
             body: body || 'You have a new update',
             channelId: ANDROID_CHANNEL_ID,
             extra: data,
-            smallIcon: 'ic_stat_icon_config_sample',
+            smallIcon: 'ic_launcher',
           },
         ],
       });

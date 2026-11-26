@@ -95,16 +95,26 @@ export default function BottomNav() {
             <Link
               key={item.label}
               to={item.to}
-              className={`flex flex-col items-center justify-center relative py-1 transition-colors ${
+              className={`flex flex-col items-center justify-center relative py-1 transition-all group ${
                 isActive
-                  ? 'text-brand-500 dark:text-brand-400 font-bold'
+                  ? 'text-brand-600 dark:text-brand-400 font-black'
                   : 'text-neutral-500 dark:text-slate-400 hover:text-neutral-800 dark:hover:text-slate-200 font-medium'
               }`}
             >
-              <div className="relative">
-                <Icon className={`h-5 w-5 transition-transform group-hover:scale-110 ${isActive ? 'scale-105 stroke-[2.5]' : ''}`} />
+              <div
+                className={`relative px-2.5 py-0.5 rounded-xl transition-all ${
+                  isActive
+                    ? 'bg-brand-50 dark:bg-brand-950/60 ring-1 ring-brand-200/80 dark:ring-brand-800/60'
+                    : ''
+                }`}
+              >
+                <Icon
+                  className={`h-4.5 w-4.5 transition-transform group-hover:scale-110 ${
+                    isActive ? 'scale-105 stroke-[2.5]' : ''
+                  }`}
+                />
                 {item.badge > 0 && (
-                  <span className="absolute -top-1 -right-2 h-3.5 min-w-[14px] px-0.5 rounded-full bg-brand-500 text-white text-[8px] font-black flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1 -right-1 h-3.5 min-w-[14px] px-0.5 rounded-full bg-brand-500 text-white text-[8px] font-black flex items-center justify-center shadow-xs">
                     {item.badge > 99 ? '99+' : item.badge}
                   </span>
                 )}

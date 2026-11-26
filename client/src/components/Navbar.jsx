@@ -133,9 +133,13 @@ export default function Navbar() {
             <nav className="flex items-center space-x-1 text-xs font-bold">
               <Link
                 to="/products"
-                className="px-3 py-2 rounded-xl text-neutral-600 dark:text-slate-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors"
+                className={`px-3 py-2 rounded-xl transition-colors ${
+                  location.pathname === '/products' && !location.search
+                    ? 'bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400'
+                    : 'text-neutral-600 dark:text-slate-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-slate-800'
+                }`}
               >
-                All Menu
+                Explore Menu
               </Link>
               <Link
                 to="/products?category=pizzas"

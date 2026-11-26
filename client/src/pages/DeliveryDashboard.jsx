@@ -62,9 +62,59 @@ export default function DeliveryDashboard() {
   });
   const [kycSavedSuccess, setKycSavedSuccess] = useState(false);
 
-  // GPS Telemetry State (Chirgaon Hub default)
+  // GPS Telemetry State (Chirgaon Hub default [lng, lat])
   const [currentGps, setCurrentGps] = useState([78.8228, 25.5746]); // [lng, lat]
-  const [gpsBroadcasting, setGpsBroadcasting] = useState(true);
+  const [gpsSource, setGpsSource] = useState('hub'); // 'device' | 'hub'
+  const [showEmbeddedMap, setShowEmbeddedMap] = useState(true);
+  const currentGpsRef = useRef([78.8228, 25.5746]);
+
+  const haversineKm = (c1, c2) => {
+    const [lon1, lat1] = c1;
+    const [lon2, lat2] = c2;
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) ** 2;
+    return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * 10) / 10;
+  };
+
+  const getCustomerDest = (order) => {
+    const coords = order?.deliveryAddress?.coordinates?.coordinates;
+    const hasCoords =
+      Array.isArray(coords) &&
+      coords.length === 2 &&
+      Number.isFinite(Number(coords[0])) &&
+      Number.isFinite(Number(coords[1])) &&
+      (Number(coords[0]) !== 0 || Number(coords[1]) !== 0);
+
+    if (hasCoords) {
+      const lng = Number(coords[0]);
+      const lat = Number(coords[1]);
+      return {
+        hasCoords: true,
+        coords: [lng, lat],
+        destParam: `${lat},${lng}`,
+      };
+    }
+    const textAddr = [
+      order?.deliveryAddress?.street,
+      order?.deliveryAddress?.landmark,
+      order?.deliveryAddress?.city,
+      order?.deliveryAddress?.state,
+      order?.deliveryAddress?.pincode,
+    ]
+      .filter(Boolean)
+      .join(', ');
+    return {
+      hasCoords: false,
+      coords: null,
+      destParam: encodeURIComponent(textAddr || 'Chirgaon, Jhansi, Uttar Pradesh'),
+    };
+  };
 
   // 1. Fetch Profile & Active Order
   useEffect(() => {
@@ -157,40 +207,62 @@ export default function DeliveryDashboard() {
     }
   }, [incomingRequest]);
 
-  // 4. Background GPS Broadcast Loop (Every 10 Seconds)
+  // 4. Live Device GPS Watcher & Periodic Telemetry Broadcast (Every 10 Seconds)
   useEffect(() => {
     if (!isOnline) return;
 
-    const gpsInterval = setInterval(() => {
-      // Simulate micro-movement along Springfield corridor or read geolocation
-      setCurrentGps((prev) => {
-        const deltaLng = (Math.random() - 0.48) * 0.0006;
-        const deltaLat = (Math.random() - 0.48) * 0.0006;
-        const newCoords = [
-          parseFloat((prev[0] + deltaLng).toFixed(5)),
-          parseFloat((prev[1] + deltaLat).toFixed(5)),
-        ];
+    let watchId = null;
+    const broadcastCoords = (coords, speedKmh = 0, headingDeg = 0) => {
+      currentGpsRef.current = coords;
+      setCurrentGps(coords);
 
-        // 1. Emit real-time over Socket.io
+      if (activeOrder?._id) {
         emitRiderLocation({
-          orderId: activeOrder?._id,
-          coordinates: newCoords,
-          heading: 45,
-          speed: 26,
+          orderId: activeOrder._id,
+          coordinates: coords,
+          heading: headingDeg,
+          speed: speedKmh,
         });
+      }
 
-        // 2. Persist in DB
-        api.patch('/delivery/location', {
-          coordinates: newCoords,
-          heading: 45,
-          speed: 26,
-        }).catch(() => {});
+      api
+        .patch('/delivery/location', {
+          coordinates: coords,
+          heading: headingDeg,
+          speed: speedKmh,
+        })
+        .catch(() => {});
+    };
 
-        return newCoords;
-      });
-    }, 10000); // 10 seconds
+    if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const nextCoords = [
+            Number(pos.coords.longitude.toFixed(6)),
+            Number(pos.coords.latitude.toFixed(6)),
+          ];
+          const speedKmh = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 22;
+          const headingDeg = Number.isFinite(pos.coords.heading) ? Math.round(pos.coords.heading) : 0;
+          setGpsSource('device');
+          broadcastCoords(nextCoords, speedKmh, headingDeg);
+        },
+        () => {
+          setGpsSource('hub');
+        },
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+      );
+    }
 
-    return () => clearInterval(gpsInterval);
+    const gpsInterval = setInterval(() => {
+      broadcastCoords(currentGpsRef.current, 24, 0);
+    }, 10000);
+
+    return () => {
+      if (watchId !== null && typeof navigator !== 'undefined' && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+      clearInterval(gpsInterval);
+    };
   }, [isOnline, activeOrder?._id]);
 
   // Toggle Online/Offline Duty Status
@@ -374,8 +446,10 @@ export default function DeliveryDashboard() {
         </div>
 
         <div className="flex items-center space-x-2 text-[11px] text-neutral-400">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-          <span>Broadcasting via Socket.io every 10s</span>
+          <span className={`h-1.5 w-1.5 rounded-full ${gpsSource === 'device' ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
+          <span>
+            {gpsSource === 'device' ? 'Live Device GPS • Broadcasting every 10s' : 'Hub GPS Fallback • Enable Location for Live Nav'}
+          </span>
         </div>
       </div>
 
@@ -495,64 +569,135 @@ export default function DeliveryDashboard() {
               </div>
 
               {/* 2-Step Addresses: Pickup from Hub & Drop at Customer */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* 1. Pickup: Store Hub */}
-                <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 space-y-2 text-xs">
-                  <div className="flex items-center justify-between font-bold">
-                    <span className="flex items-center gap-1 text-orange-600">
-                      <MapPin className="h-4 w-4" />
-                      <span>PICKUP LOCATION</span>
-                    </span>
-                    <a
-                      href="https://www.google.com/maps/dir/?api=1&destination=39.7817,-89.6504"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-brand-600 hover:underline font-bold text-[11px]"
-                    >
-                      <span>Navigate</span>
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </div>
-                  <p className="font-bold text-neutral-900 text-sm">Pizza 65 & Crave Hub - Chirgaon</p>
-                  <p className="text-neutral-500">Imli Ke Pass, Main Road, Chirgaon, Jhansi, UP</p>
-                </div>
+              {(() => {
+                const customerDest = getCustomerDest(activeOrder);
+                const distanceToCustomer = customerDest.coords
+                  ? haversineKm(currentGps, customerDest.coords)
+                  : null;
+                const googleMapsCustomerUrl = `https://www.google.com/maps/dir/?api=1&origin=${currentGps[1]},${currentGps[0]}&destination=${customerDest.destParam}&travelmode=driving`;
+                const googleMapsEmbedUrl = `https://maps.google.com/maps?saddr=${currentGps[1]},${currentGps[0]}&daddr=${customerDest.destParam}&z=15&output=embed`;
+                const customerPhone = activeOrder.deliveryAddress?.phone || activeOrder.customer?.phone;
 
-                {/* 2. Drop: Customer Delivery Address */}
-                <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 space-y-2 text-xs">
-                  <div className="flex items-center justify-between font-bold">
-                    <span className="flex items-center gap-1 text-emerald-600">
-                      <MapPin className="h-4 w-4" />
-                      <span>DROP-OFF LOCATION</span>
-                    </span>
-                    <div className="flex items-center space-x-2">
-                      {activeOrder.customer?.phone && (
-                        <a
-                          href={`tel:${activeOrder.customer.phone}`}
-                          className="p-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-[11px] flex items-center gap-1"
-                        >
-                          <Phone className="h-3 w-3" />
-                          <span>Call</span>
-                        </a>
-                      )}
-                      <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${activeOrder.deliveryAddress?.street},${activeOrder.deliveryAddress?.city}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-brand-600 hover:underline font-bold text-[11px]"
-                      >
-                        <span>Navigate</span>
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
+                return (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* 1. Pickup: Store Hub */}
+                      <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 space-y-2 text-xs">
+                        <div className="flex items-center justify-between font-bold">
+                          <span className="flex items-center gap-1 text-orange-600">
+                            <MapPin className="h-4 w-4" />
+                            <span>PICKUP LOCATION</span>
+                          </span>
+                          <a
+                            href={`https://www.google.com/maps/dir/?api=1&origin=${currentGps[1]},${currentGps[0]}&destination=25.5746,78.8228&travelmode=driving`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 font-bold text-[11px] transition-colors"
+                          >
+                            <Navigation className="h-3 w-3" />
+                            <span>Google Maps</span>
+                          </a>
+                        </div>
+                        <p className="font-bold text-neutral-900 text-sm">Pizza 65 &amp; Crave Hub - Chirgaon</p>
+                        <p className="text-neutral-500">Imli Ke Pass, Main Road, Chirgaon, Jhansi, UP (284301)</p>
+                      </div>
+
+                      {/* 2. Drop: Customer Delivery Address with Exact GPS Pin */}
+                      <div className="bg-emerald-50/50 rounded-2xl p-4 border border-emerald-200 space-y-2.5 text-xs">
+                        <div className="flex items-center justify-between font-bold">
+                          <span className="flex items-center gap-1 text-emerald-700">
+                            <MapPin className="h-4 w-4" />
+                            <span>CUSTOMER DROP-OFF</span>
+                            {distanceToCustomer !== null && (
+                              <span className="ml-1 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px]">
+                                {distanceToCustomer} km away
+                              </span>
+                            )}
+                          </span>
+                          <div className="flex items-center space-x-1.5">
+                            {customerPhone && (
+                              <a
+                                href={`tel:${customerPhone}`}
+                                className="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-[11px] flex items-center gap-1 transition-colors"
+                              >
+                                <Phone className="h-3 w-3" />
+                                <span>Call</span>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="font-bold text-neutral-900 text-sm">
+                            {activeOrder.deliveryAddress?.street}
+                          </p>
+                          <p className="text-neutral-600">
+                            {activeOrder.deliveryAddress?.city}, {activeOrder.deliveryAddress?.state} - {activeOrder.deliveryAddress?.pincode}
+                          </p>
+                          {activeOrder.deliveryAddress?.landmark && (
+                            <p className="text-[11px] text-emerald-800 font-semibold mt-0.5">
+                              Landmark: {activeOrder.deliveryAddress.landmark}
+                            </p>
+                          )}
+                          {customerDest.hasCoords && (
+                            <p className="text-[10px] font-mono text-neutral-500 mt-1">
+                              Customer GPS Pin: {customerDest.coords[1].toFixed(5)}, {customerDest.coords[0].toFixed(5)}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <a
+                            href={googleMapsCustomerUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-colors"
+                          >
+                            <Navigation className="h-3.5 w-3.5" />
+                            <span>Navigate to Customer (Google Maps)</span>
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+
+                          <button
+                            type="button"
+                            onClick={() => setShowEmbeddedMap((v) => !v)}
+                            className="px-3 py-2 rounded-xl bg-white border border-emerald-200 text-emerald-800 hover:bg-emerald-100 font-bold text-[11px] transition-colors"
+                          >
+                            {showEmbeddedMap ? 'Hide Map' : 'Show Map'}
+                          </button>
+                        </div>
+                      </div>
                     </div>
+
+                    {/* Live Embedded Google Maps Route to Customer */}
+                    {showEmbeddedMap && (
+                      <div className="rounded-2xl overflow-hidden border border-neutral-200 bg-neutral-100 shadow-inner">
+                        <div className="px-3.5 py-2 bg-neutral-900 text-white text-[11px] font-bold flex items-center justify-between">
+                          <span className="flex items-center gap-1.5">
+                            <Navigation className="h-3.5 w-3.5 text-emerald-400" />
+                            <span>Google Maps Live Route to Customer</span>
+                          </span>
+                          <a
+                            href={googleMapsCustomerUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-emerald-300 hover:text-emerald-200 underline flex items-center gap-1"
+                          >
+                            <span>Launch Turn-by-Turn</span>
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </div>
+                        <iframe
+                          title="Google Maps Route to Customer"
+                          src={googleMapsEmbedUrl}
+                          className="w-full h-60 border-0"
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                        />
+                      </div>
+                    )}
                   </div>
-                  <p className="font-bold text-neutral-900 text-sm">
-                    {activeOrder.deliveryAddress?.street}
-                  </p>
-                  <p className="text-neutral-500">
-                    {activeOrder.deliveryAddress?.city}, {activeOrder.deliveryAddress?.pincode}
-                  </p>
-                </div>
-              </div>
+                );
+              })()}
 
               {/* Order Items Checklist */}
               <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 text-xs space-y-2">
