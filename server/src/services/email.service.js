@@ -91,54 +91,67 @@ export async function sendBrevoEmail({ toEmail, toName, subject, htmlContent, te
     return { success: false, error: 'Brevo credentials not configured' };
   }
 
-  try {
-    const payload = {
-      sender: {
-        name: senderName,
-        email: senderEmail,
+  const payload = {
+    sender: {
+      name: senderName,
+      email: senderEmail,
+    },
+    to: [
+      {
+        email: toEmail,
+        name: toName || toEmail.split('@')[0],
       },
-      to: [
-        {
-          email: toEmail,
-          name: toName || toEmail.split('@')[0],
+    ],
+    replyTo: {
+      name: senderName,
+      email: senderEmail,
+    },
+    subject,
+    htmlContent,
+    ...(textContent && { textContent }),
+  };
+
+  const maxAttempts = 2;
+  let lastError = 'Unknown email delivery error';
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const response = await fetch(BREVO_API_URL, {
+        method: 'POST',
+        headers: {
+          'api-key': apiKey,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
-      ],
-      replyTo: {
-        name: senderName,
-        email: senderEmail,
-      },
-      subject,
-      htmlContent,
-      ...(textContent && { textContent }),
-    };
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15000),
+      });
 
-    const response = await fetch(BREVO_API_URL, {
-      method: 'POST',
-      headers: {
-        'api-key': apiKey,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(10000),
-    });
+      const data = await response.json().catch(() => ({}));
 
-    const data = await response.json();
+      if (response.ok) {
+        console.info(`[BREVO EMAIL SENT] Successfully sent to ${toEmail}. Message ID: ${data.messageId}`);
+        return { success: true, messageId: data.messageId };
+      }
 
-    if (!response.ok) {
-      console.error('[BREVO EMAIL ERROR]', response.status, data);
-      return {
-        success: false,
-        error: data.message || `Brevo API returned status ${response.status}`,
-      };
+      lastError = data.message || `Brevo API returned status ${response.status}`;
+      console.error(`[BREVO EMAIL ERROR] Attempt ${attempt}/${maxAttempts}:`, response.status, data);
+
+      // Do not retry 4xx client/auth errors (e.g. invalid API key or unverified sender)
+      if (response.status >= 400 && response.status < 500) {
+        return { success: false, error: lastError, statusCode: response.status };
+      }
+    } catch (error) {
+      lastError = error.message || 'Network timeout reaching email provider';
+      console.error(`[BREVO EMAIL EXCEPTION] Attempt ${attempt}/${maxAttempts}:`, error);
     }
 
-    console.info(`[BREVO EMAIL SENT] Successfully sent to ${toEmail}. Message ID: ${data.messageId}`);
-    return { success: true, messageId: data.messageId };
-  } catch (error) {
-    console.error('[BREVO EMAIL EXCEPTION]', error);
-    return { success: false, error: error.message };
+    if (attempt < maxAttempts) {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+    }
   }
+
+  return { success: false, error: lastError };
 }
 
 /**

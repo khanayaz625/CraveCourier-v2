@@ -14,6 +14,7 @@ export const getHealthStatus = asyncHandler(async (req, res) => {
     uptime: `${Math.floor(uptimeSeconds / 60)}m ${uptimeSeconds % 60}s`,
     environment: ENV.NODE_ENV,
     database: dbStatus,
+    emailConfigured: Boolean(ENV.BREVO_API_KEY && ENV.BREVO_SENDER_EMAIL),
     memory: {
       rss: `${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB`,
       heapTotal: `${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,

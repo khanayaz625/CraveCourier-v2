@@ -212,7 +212,13 @@ export const useAuthStore = create((set, get) => ({
         isLoading: false,
         error: null,
       });
-      return { user, requiresVerification: true };
+      return {
+        user,
+        requiresVerification: true,
+        emailSent: res.data?.emailSent,
+        smsSent: res.data?.smsSent,
+        emailError: res.data?.emailError,
+      };
     } catch (err) {
       set({ error: err.message, isLoading: false });
       throw err;
@@ -242,10 +248,10 @@ export const useAuthStore = create((set, get) => ({
       if (typeof identifier === 'object' && identifier !== null) {
         payload = { ...identifier };
       } else if (typeof identifier === 'string' && identifier.includes('@')) {
-        payload.email = identifier;
-        if (optionalPhone) payload.phone = optionalPhone;
+        payload.email = identifier.trim().toLowerCase();
+        if (optionalPhone && String(optionalPhone).trim()) payload.phone = String(optionalPhone).trim();
       } else if (typeof identifier === 'string') {
-        payload.phone = identifier;
+        payload.phone = identifier.trim();
       }
 
       const res = await api.post('/auth/verify-email', payload);
@@ -287,10 +293,10 @@ export const useAuthStore = create((set, get) => ({
       if (typeof identifier === 'object' && identifier !== null) {
         payload = { ...identifier };
       } else if (typeof identifier === 'string' && identifier.includes('@')) {
-        payload.email = identifier;
-        if (optionalPhone) payload.phone = optionalPhone;
+        payload.email = identifier.trim().toLowerCase();
+        if (optionalPhone && String(optionalPhone).trim()) payload.phone = String(optionalPhone).trim();
       } else if (typeof identifier === 'string') {
-        payload.phone = identifier;
+        payload.phone = identifier.trim();
       }
 
       const res = await api.post('/auth/resend-otp', payload);

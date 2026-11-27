@@ -74,8 +74,8 @@ const logAuthOtp = (label, target, otp) => {
 // Lookup user safely by email, phone, or generic identifier (no unanchored $regex)
 const findUserByIdentifier = async ({ email, phone, identifier }, selectFields = '') => {
   const raw = (identifier || '').trim();
-  const resolvedEmail = email || (raw.includes('@') ? raw.toLowerCase() : '');
-  const resolvedPhone = phone || (!raw.includes('@') && raw ? raw : '');
+  const resolvedEmail = (email || (raw.includes('@') ? raw : '')).trim().toLowerCase();
+  const resolvedPhone = (phone || (!raw.includes('@') && raw ? raw : '')).trim();
 
   let query = null;
   if (resolvedEmail) {
@@ -191,8 +191,11 @@ export const register = asyncHandler(async (req, res) => {
           requiresVerification: true,
           emailSent: Boolean(refreshEmailRes?.success),
           smsSent: Boolean(refreshSmsRes?.success),
+          ...(refreshEmailRes?.success ? {} : { emailError: refreshEmailRes?.error || 'Email delivery failed' }),
         },
-        'A fresh 6-digit verification code has been sent to your email and registered mobile number.'
+        refreshEmailRes?.success
+          ? 'A fresh 6-digit verification code has been sent to your email.'
+          : 'Account ready for verification, but email delivery failed. Please tap Resend OTP.'
       )
     );
   }
@@ -270,8 +273,11 @@ export const register = asyncHandler(async (req, res) => {
         requiresVerification: true,
         emailSent: Boolean(emailRes?.success),
         smsSent: Boolean(smsRes?.success),
+        ...(emailRes?.success ? {} : { emailError: emailRes?.error || 'Email delivery failed' }),
       },
-      'Registration successful. Please verify with the 6-digit code sent to your email and mobile number.'
+      emailRes?.success
+        ? 'Registration successful. Please verify with the 6-digit code sent to your email.'
+        : 'Registration successful, but we could not send the verification email right now. Please tap Resend OTP.'
     )
   );
 });
@@ -316,20 +322,27 @@ export const login = asyncHandler(async (req, res) => {
 
     logAuthOtp('Dispatched new verification OTP on login attempt', user.email, verificationOtp);
 
-    sendVerificationOtpEmail({
-      toEmail: user.email,
-      toName: user.name,
-      otp: verificationOtp,
-      expiryMinutes: 15,
-    }).catch((err) => console.error('[AUTH] Failed to dispatch verification email on login:', err));
-
-    if (user.phone) {
-      sendSmsOtp({
-        phone: user.phone,
+    const [loginEmailRes] = await Promise.all([
+      sendVerificationOtpEmail({
+        toEmail: user.email,
+        toName: user.name,
         otp: verificationOtp,
-        purpose: 'Account Verification',
-      }).catch((err) => console.error('[AUTH] Failed to dispatch SMS verification OTP on login:', err));
-    }
+        expiryMinutes: 15,
+      }).catch((err) => {
+        console.error('[AUTH] Failed to dispatch verification email on login:', err);
+        return { success: false, error: err.message };
+      }),
+      user.phone
+        ? sendSmsOtp({
+            phone: user.phone,
+            otp: verificationOtp,
+            purpose: 'Account Verification',
+          }).catch((err) => {
+            console.error('[AUTH] Failed to dispatch SMS verification OTP on login:', err);
+            return { success: false };
+          })
+        : Promise.resolve({ success: false }),
+    ]);
 
     return res.status(403).json({
       statusCode: 403,
@@ -337,7 +350,11 @@ export const login = asyncHandler(async (req, res) => {
       isEmailVerified: false,
       email: user.email,
       role: user.role,
-      message: 'Email verification required. We have dispatched a fresh 6-digit code to your email and registered mobile number.',
+      emailSent: Boolean(loginEmailRes?.success),
+      ...(loginEmailRes?.success ? {} : { emailError: loginEmailRes?.error || 'Email delivery failed' }),
+      message: loginEmailRes?.success
+        ? 'Email verification required. We have dispatched a fresh 6-digit code to your email.'
+        : 'Email verification required, but we could not send the email right now. Please tap Resend OTP.',
     });
   }
 
@@ -653,6 +670,14 @@ export const resendOtp = asyncHandler(async (req, res) => {
       : Promise.resolve({ success: false }),
   ]);
 
+  const hasRealEmail = Boolean(user.email && !user.email.endsWith('@cravecourier.app'));
+  if (hasRealEmail && !emailRes?.success && !smsRes?.success) {
+    throw new ApiError(
+      502,
+      emailRes?.error || 'Unable to deliver verification email right now. Please check email settings or try again.'
+    );
+  }
+
   return res.status(200).json(
     new ApiResponse(
       200,
@@ -660,7 +685,9 @@ export const resendOtp = asyncHandler(async (req, res) => {
         emailSent: Boolean(emailRes?.success),
         smsSent: Boolean(smsRes?.success),
       },
-      'A fresh 6-digit verification code has been dispatched to your email and registered mobile number.'
+      emailRes?.success
+        ? 'A fresh 6-digit verification code has been dispatched to your email.'
+        : 'A fresh 6-digit verification code has been dispatched to your registered mobile number.'
     )
   );
 });

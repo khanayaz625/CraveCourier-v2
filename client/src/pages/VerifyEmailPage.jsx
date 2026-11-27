@@ -13,12 +13,18 @@ export default function VerifyEmailPage() {
   const phone = location.state?.phone || user?.phone || '';
   const role = location.state?.role || user?.role || 'customer';
   const autoResend = location.state?.autoResend || false;
+  const initialEmailSent = location.state?.emailSent;
+  const initialEmailError = location.state?.emailError;
 
   const [otp, setOtp] = useState('');
-  const [localError, setLocalError] = useState('');
+  const [localError, setLocalError] = useState(
+    initialEmailSent === false
+      ? initialEmailError || 'We could not send the verification email right now. Please tap Resend OTP below.'
+      : ''
+  );
   const [successMsg, setSuccessMsg] = useState('');
   const [resending, setResending] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(30);
+  const [resendCooldown, setResendCooldown] = useState(autoResend || initialEmailSent === false ? 0 : 30);
 
   // Resend cooldown timer
   useEffect(() => {
@@ -32,7 +38,7 @@ export default function VerifyEmailPage() {
   // Handle auto-resend trigger if navigated from Login
   useEffect(() => {
     if (autoResend && (email || phone)) {
-      handleResend();
+      handleResend(true);
     }
   }, [autoResend]);
 
@@ -66,15 +72,19 @@ export default function VerifyEmailPage() {
     }
   };
 
-  const handleResend = async () => {
-    if (resendCooldown > 0 || resending) return;
+  const handleResend = async (force = false) => {
+    if ((!force && resendCooldown > 0) || resending) return;
     setLocalError('');
     setSuccessMsg('');
     setResending(true);
     try {
-      await resendOtp(email || phone, phone);
-      setSuccessMsg('A fresh 6-digit code has been sent to your email and registered mobile number.');
-      setResendCooldown(30);
+      const res = await resendOtp(email || phone, phone);
+      if (email && res?.emailSent === false) {
+        setLocalError('Could not deliver the email OTP. Please check your email address or try again.');
+      } else {
+        setSuccessMsg('A fresh 6-digit code has been sent to your email.');
+        setResendCooldown(30);
+      }
     } catch (err) {
       setLocalError(err.message || 'Failed to resend verification code');
     } finally {

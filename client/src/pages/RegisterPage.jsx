@@ -47,9 +47,11 @@ export default function RegisterPage() {
       // Redirect to Email OTP Verification
       navigate('/verify-email', {
         state: {
-          email: formData.email,
+          email: formData.email.trim().toLowerCase(),
           phone: formData.phone,
           role: regResult?.user?.role || role,
+          emailSent: regResult?.emailSent,
+          emailError: regResult?.emailError,
         },
       });
     } catch (err) {
